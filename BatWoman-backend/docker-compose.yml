@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: abaya-postgres
+    environment:
+      POSTGRES_USER: AfiyaKhalid
+      POSTGRES_PASSWORD: Peekaboo
+      POSTGRES_DB: BatWoman_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
