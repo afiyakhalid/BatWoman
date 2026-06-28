@@ -1,4 +1,22 @@
 package com.BatWoman.BatWoman_backend.dto.common;
 
-public class PageResponse {
+import java.util.List;
+
+public record PageResponse<T>(
+
+        List<T> content,
+
+        int page,
+
+        int size,
+
+        long totalElements,
+
+        int totalPages,
+
+        boolean first,
+
+        boolean last
+
+) {
 }

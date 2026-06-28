@@ -1,4 +1,14 @@
 package com.BatWoman.BatWoman_backend.dto.category;
 
-public class UpdateCategoryRequest {
+public record UpdateCategoryRequest(
+
+        String name,
+
+        String description,
+
+        Integer displayOrder,
+
+        Boolean active
+
+) {
 }

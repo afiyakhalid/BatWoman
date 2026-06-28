@@ -1,4 +1,15 @@
 package com.BatWoman.BatWoman_backend.dto.category;
 
-public class CreateCategoryRequest {
+import jakarta.validation.constraints.NotBlank;
+
+public record CreateCategoryRequest(
+
+        @NotBlank
+        String name,
+
+        String description,
+
+        Integer displayOrder
+
+) {
 }

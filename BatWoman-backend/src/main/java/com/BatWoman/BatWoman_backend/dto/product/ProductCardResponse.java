@@ -1,4 +1,21 @@
 package com.BatWoman.BatWoman_backend.dto.product;
 
-public class ProductCardResponse {
+import java.math.BigDecimal;
+import java.util.UUID;
+
+public record ProductCardResponse(
+
+        UUID id,
+
+        String name,
+
+        String slug,
+
+        BigDecimal price,
+
+        BigDecimal discountPrice,
+
+        String thumbnail
+
+) {
 }
