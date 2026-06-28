@@ -1,4 +1,4 @@
 package com.BatWoman.BatWoman_backend.repository;
 
-public class CartRespository {
+public class WishListRepository {
 }
