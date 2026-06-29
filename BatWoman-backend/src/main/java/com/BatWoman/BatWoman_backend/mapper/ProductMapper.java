@@ -1,4 +1,27 @@
 package com.BatWoman.BatWoman_backend.mapper;
 
-public class ProductMapper {
+import com.BatWoman.BatWoman_backend.dto.product.CreateProductRequest;
+import com.BatWoman.BatWoman_backend.dto.product.UpdateProductRequest;
+import com.BatWoman.BatWoman_backend.dto.product.ProductCardResponse;
+import com.BatWoman.BatWoman_backend.dto.product.ProductDetailResponse;
+import com.BatWoman.BatWoman_backend.dto.product.ProductResponse;
+import com.BatWoman.BatWoman_backend.entity.Product;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
+
+    Product toEntity(CreateProductRequest request);
+
+    ProductResponse toResponse(Product product);
+
+    ProductCardResponse toCardResponse(Product product);
+
+    ProductDetailResponse toDetailResponse(Product product);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateProductFromDto(
+            UpdateProductRequest request,
+            @MappingTarget Product product
+    );
 }

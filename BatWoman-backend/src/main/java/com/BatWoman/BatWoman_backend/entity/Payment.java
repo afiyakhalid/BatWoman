@@ -4,6 +4,7 @@ import com.BatWoman.BatWoman_backend.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Column(name = "razorpay_order_id", nullable = false)
+    @Column(name = "razorpay_order_id")
     private String razorpayOrderId;
 
     @Column(name = "razorpay_payment_id")
@@ -34,12 +35,21 @@ public class Payment {
     private String razorpaySignature;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+
     @Column(nullable = false)
-    private PaymentStatus status;
+    private BigDecimal amount;
+
+    @Column(nullable = false)
+    private String currency;
 
     @Column(name = "paid_at")
     private OffsetDateTime paidAt;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
 }

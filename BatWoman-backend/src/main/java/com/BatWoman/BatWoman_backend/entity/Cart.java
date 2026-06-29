@@ -32,8 +32,8 @@ public class Cart {
     // Guest Cart
     // ===========================
 
-    @Column(name = "guest_session_id")
-    private String guestSessionId;
+    @Column(name = "session_id")
+    private String sessionId;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;

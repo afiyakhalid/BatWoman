@@ -22,21 +22,25 @@ public class Order {
     @Column(columnDefinition = "uuid")
     private UUID id;
 
-    // ===========================
-    // User (Nullable -> Guest Checkout)
-    // ===========================
+    // ==========================================
+    // User (Nullable for Guest Checkout)
+    // ==========================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    // ===========================
+    // ==========================================
     // Shipping Address
-    // ===========================
+    // ==========================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address address;
+
+    // ==========================================
+    // Order Details
+    // ==========================================
 
     @Column(name = "order_number", nullable = false, unique = true)
     private String orderNumber;
@@ -45,14 +49,12 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @Column(nullable = false)
-    private BigDecimal subtotal;
+    // ==========================================
+    // Guest Checkout
+    // ==========================================
 
-    @Column(nullable = false)
-    private BigDecimal shippingCharge;
-
-    @Column(nullable = false)
-    private BigDecimal totalAmount;
+    @Column(name = "guest_name")
+    private String guestName;
 
     @Column(name = "guest_email")
     private String guestEmail;
@@ -60,16 +62,48 @@ public class Order {
     @Column(name = "guest_phone")
     private String guestPhone;
 
+    // ==========================================
+    // Pricing
+    // ==========================================
+
+    @Column(nullable = false)
+    private BigDecimal subtotal;
+
+    @Column(name = "shipping_charge", nullable = false)
+    private BigDecimal shippingCharge;
+
+    @Column(nullable = false)
+    private BigDecimal discount;
+
+    @Column(name = "total", nullable = false)
+    private BigDecimal total;
+
+    // ==========================================
+    // Additional Information
+    // ==========================================
+
+    @Column(name = "notes")
+    private String notes;
+
+    // ==========================================
+    // Audit Fields
+    // ==========================================
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    // ==========================================
+    // Relationships
+    // ==========================================
+
     @OneToMany(
             mappedBy = "order",
             fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
     private List<OrderItem> orderItems;
 

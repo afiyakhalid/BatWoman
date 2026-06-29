@@ -10,6 +10,6 @@ public interface CartRepository extends JpaRepository<Cart, UUID> {
 
     Optional<Cart> findByUser_Id(UUID userId);
 
-    Optional<Cart> findByGuestSessionId(String guestSessionId);
+    Optional<Cart> findBySessionId(String sessionId);
 
 }
