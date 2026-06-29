@@ -1,5 +1,7 @@
 package com.BatWoman.BatWoman_backend.dto.category;
 
+import java.util.UUID;
+
 public record UpdateCategoryRequest(
 
         String name,
@@ -8,7 +10,8 @@ public record UpdateCategoryRequest(
 
         Integer displayOrder,
 
-        Boolean active
+        Boolean active,
+        UUID parentCategoryId
 
 ) {
 }

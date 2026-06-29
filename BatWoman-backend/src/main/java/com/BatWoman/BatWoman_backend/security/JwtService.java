@@ -59,6 +59,10 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public long getExpirationTime() {
+        return jwtExpiration;
+    }
+
     /**
      * Validates token ownership and expiration.
      */

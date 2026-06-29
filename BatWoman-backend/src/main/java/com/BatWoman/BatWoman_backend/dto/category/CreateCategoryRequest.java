@@ -2,6 +2,8 @@ package com.BatWoman.BatWoman_backend.dto.category;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.UUID;
+
 public record CreateCategoryRequest(
 
         @NotBlank
@@ -9,7 +11,8 @@ public record CreateCategoryRequest(
 
         String description,
 
-        Integer displayOrder
+        Integer displayOrder,
+        UUID parentCategoryId
 
 ) {
 }
