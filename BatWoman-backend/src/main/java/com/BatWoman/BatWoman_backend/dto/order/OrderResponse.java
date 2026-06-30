@@ -19,7 +19,7 @@ public record OrderResponse(
 
         BigDecimal shippingCharge,
 
-        BigDecimal totalAmount,
+        BigDecimal total,
 
         OffsetDateTime createdAt,
 

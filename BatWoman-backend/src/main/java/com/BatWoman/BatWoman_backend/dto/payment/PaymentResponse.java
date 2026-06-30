@@ -1,4 +1,4 @@
-package com.BatWoman.BatWoman_backend.dto.payment.response;
+package com.BatWoman.BatWoman_backend.dto.payment;
 
 import com.BatWoman.BatWoman_backend.enums.PaymentStatus;
 

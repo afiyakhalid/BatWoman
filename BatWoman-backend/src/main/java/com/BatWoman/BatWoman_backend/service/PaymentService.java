@@ -1,7 +1,7 @@
 package com.BatWoman.BatWoman_backend.service;
 
 import com.BatWoman.BatWoman_backend.dto.payment.CreatePaymentRequest;
-import com.BatWoman.BatWoman_backend.dto.payment.response.PaymentResponse;
+import com.BatWoman.BatWoman_backend.dto.payment.PaymentResponse;
 
 import java.util.UUID;
 

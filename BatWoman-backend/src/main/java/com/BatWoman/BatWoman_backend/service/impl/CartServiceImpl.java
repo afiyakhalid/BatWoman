@@ -217,4 +217,9 @@ public class CartServiceImpl implements CartService {
 
         cartRepository.save(cart);
     }
+    @Override
+    public Cart getCurrentCart() {
+
+        return getOrCreateCart();
+    }
 }

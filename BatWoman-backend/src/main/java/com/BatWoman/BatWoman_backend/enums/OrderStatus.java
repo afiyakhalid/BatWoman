@@ -18,6 +18,8 @@ public enum OrderStatus {
 
     FAILED,
 
+    CONFIRMED,
+
     CANCELLED,
 
     REFUNDED,
