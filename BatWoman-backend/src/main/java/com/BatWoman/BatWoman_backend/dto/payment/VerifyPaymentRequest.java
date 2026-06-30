@@ -2,10 +2,13 @@ package com.BatWoman.BatWoman_backend.dto.payment;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.UUID;
+
 public record VerifyPaymentRequest(
 
-        @NotBlank
-        String razorpayOrderId,
+
+
+        UUID paymentId,
 
         @NotBlank
         String razorpayPaymentId,
@@ -13,5 +16,6 @@ public record VerifyPaymentRequest(
         @NotBlank
         String razorpaySignature
 
-) {
-}
+) {}
+
+

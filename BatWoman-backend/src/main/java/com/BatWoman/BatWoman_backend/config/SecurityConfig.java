@@ -88,32 +88,106 @@ public class SecurityConfig {
                 // Route Authorization
                 .authorizeHttpRequests(auth -> auth
 
-                        // Authentication APIs
-                        .requestMatchers("/auth/**")
-                        .permitAll()
-
-                        // Public Product APIs
-                        .requestMatchers(HttpMethod.GET,
-                                "/products/**")
-                        .permitAll()
-
-                        .requestMatchers(HttpMethod.GET,
-                                "/categories/**")
-                        .permitAll()
-
-                        // Swagger
+                        // Public Authentication APIs
                         .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**")
-                        .permitAll()
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh"
+                        ).permitAll()
 
-                        // Admin APIs
-                        .requestMatchers("/admin/**")
-                        .hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        // Categories - Public Read
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/categories/**"
+                        ).permitAll()
 
-                        // Everything else requires login
-                        .anyRequest()
-                        .authenticated()
+                        // Categories - Admin Only
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
+
+
+                                // Products - Public Read
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/products/**"
+                                ).permitAll()
+
+// Product Search
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/products/search"
+                                ).permitAll()
+
+// Product Image Upload - Admin
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/products/*/images"
+                                ).hasRole("ADMIN")
+
+// Product CRUD - Admin
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/products"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/api/v1/products/**"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/products/**"
+                                ).hasRole("ADMIN")
+                                // Cart - Authenticated Users
+                                .requestMatchers(
+                                        "/api/v1/cart/**"
+                                ).authenticated()
+                                // Wishlist - Authenticated Users
+                                .requestMatchers(
+                                        "/api/v1/wishlist/**"
+                                ).authenticated()
+                                // Reviews - Public Read
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/reviews/**"
+                                ).permitAll()
+
+// Reviews - Logged-in Users
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/reviews/**"
+                                ).authenticated()
+
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/api/v1/reviews/**"
+                                ).authenticated()
+
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/reviews/**"
+                                ).authenticated()
+                                // Orders - Authenticated Users
+                                .requestMatchers(
+                                        "/api/v1/orders/**"
+                                ).authenticated()
+                                // Payment Creation & Verification
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/payments"
+                                ).authenticated()
+
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/payments/verify"
+                                ).authenticated()
+
+// Razorpay Webhook
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/payments/webhook"
+                                ).permitAll()
+                                // Admin APIs
+                                .requestMatchers("/api/v1/admin/**")
+                                .hasRole("ADMIN")
+                                .anyRequest().authenticated()
+
                 )
 
                 // Register JWT Filter
