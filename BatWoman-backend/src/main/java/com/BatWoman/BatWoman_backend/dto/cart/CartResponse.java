@@ -16,6 +16,8 @@ public record CartResponse(
 
     public record CartItemResponse(
 
+            UUID cartItemId,
+
             UUID productId,
 
             String productName,

@@ -164,17 +164,21 @@ public class AuthServiceImpl implements AuthService {
 
         refreshTokenRepository.save(token);
     }
+
     @Override
     public User getCurrentUser() {
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
-        String email = authentication.getName();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ValidationException("User is not authenticated.");
+        }
 
-        return userRepository.findByEmail(email)
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
+        return userRepository.findById(principal.getId())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
     }
-
 }
