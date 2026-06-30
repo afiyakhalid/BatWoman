@@ -37,6 +37,8 @@ public class Review {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReviewStatus status;
+    @Column(nullable = false)
+    private String title;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
