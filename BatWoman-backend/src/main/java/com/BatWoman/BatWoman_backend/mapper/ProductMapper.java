@@ -6,6 +6,7 @@ import com.BatWoman.BatWoman_backend.dto.product.ProductCardResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductDetailResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductResponse;
 import com.BatWoman.BatWoman_backend.entity.Product;
+import com.BatWoman.BatWoman_backend.entity.ProductImage;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -24,4 +25,7 @@ public interface ProductMapper {
             UpdateProductRequest request,
             @MappingTarget Product product
     );
+    default String map(ProductImage image) {
+        return image.getObjectKey();
+    }
 }
