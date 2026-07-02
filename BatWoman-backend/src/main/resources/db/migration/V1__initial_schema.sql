@@ -20,8 +20,12 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20) UNIQUE,
     password_hash TEXT NOT NULL,
+<<<<<<< HEAD
     role VARCHAR(20) NOT NULL DEFAULT 'USER',
     CONSTRAINT chk_role CHECK (role IN ('USER', 'ADMIN', 'SUPER_ADMIN')),
+=======
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',--I have changed it to varchar(20)
+>>>>>>> 673ae67afb50aef9bef2863de59a61d823d9def7
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     last_login TIMESTAMPTZ,
@@ -181,6 +185,7 @@ CREATE TABLE IF NOT EXISTS orders (
     order_number VARCHAR(50) UNIQUE NOT NULL,
     user_id UUID,
     address_id UUID,
+<<<<<<< HEAD
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
     CONSTRAINT chk_order_status CHECK (
         status IN (
@@ -198,6 +203,9 @@ CREATE TABLE IF NOT EXISTS orders (
             'RETURNED'
         )
     ),
+=======
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+>>>>>>> 673ae67afb50aef9bef2863de59a61d823d9def7
     guest_name VARCHAR(150),
     guest_email VARCHAR(255),
     guest_phone VARCHAR(20),
@@ -233,6 +241,7 @@ CREATE TABLE IF NOT EXISTS payments (
     razorpay_order_id VARCHAR(255) UNIQUE,
     razorpay_payment_id VARCHAR(255),
     razorpay_signature TEXT,
+<<<<<<< HEAD
   payment_status VARCHAR(20) DEFAULT 'PENDING',
   CONSTRAINT chk_payment_status CHECK (
       payment_status IN (
@@ -242,6 +251,9 @@ CREATE TABLE IF NOT EXISTS payments (
           'REFUNDED'
       )
   ),
+=======
+    payment_status VARCHAR(20) DEFAULT 'PENDING',
+>>>>>>> 673ae67afb50aef9bef2863de59a61d823d9def7
     amount NUMERIC(12,2) NOT NULL,
     currency VARCHAR(10) DEFAULT 'INR',
     paid_at TIMESTAMPTZ,
@@ -261,6 +273,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     rating INT NOT NULL,
     title VARCHAR(255),
     comment TEXT,
+<<<<<<< HEAD
    status VARCHAR(20) DEFAULT 'PENDING',
    CONSTRAINT chk_review_status CHECK (
        status IN (
@@ -269,6 +282,9 @@ CREATE TABLE IF NOT EXISTS reviews (
            'REJECTED'
        )
    ),
+=======
+    status VARCHAR(20) DEFAULT 'PENDING',
+>>>>>>> 673ae67afb50aef9bef2863de59a61d823d9def7
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
