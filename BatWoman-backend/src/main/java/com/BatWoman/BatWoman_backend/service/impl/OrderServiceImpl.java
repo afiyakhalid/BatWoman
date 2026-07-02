@@ -161,7 +161,6 @@ public class OrderServiceImpl implements OrderService {
                     .createdAt(OffsetDateTime.now())
                     .build();
 
-            orderItemRepository.save(orderItem);
 
             orderItems.add(orderItem);
 

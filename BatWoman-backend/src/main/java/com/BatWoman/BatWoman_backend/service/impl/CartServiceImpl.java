@@ -211,7 +211,8 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = getOrCreateCart();
 
-        cartItemRepository.deleteByCart_Id(cart.getId());
+        // Load the collection if necessary
+        cart.getCartItems().clear();
 
         cart.setUpdatedAt(OffsetDateTime.now());
 
