@@ -41,9 +41,14 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryMapper.toEntity(request);
 
         category.setId(UUID.randomUUID());
+        category.setSlug(slug);
+
+        category.setDisplayOrder(0);
+        category.setActive(true);
+
         category.setCreatedAt(OffsetDateTime.now());
         category.setUpdatedAt(OffsetDateTime.now());
-        category.setSlug(slug);
+
         Category savedCategory = categoryRepository.save(category);
 
         return categoryMapper.toResponse(savedCategory);

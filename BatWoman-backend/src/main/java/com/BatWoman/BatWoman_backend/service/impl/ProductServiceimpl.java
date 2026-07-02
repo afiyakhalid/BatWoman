@@ -83,7 +83,6 @@ public class ProductServiceImpl implements ProductService {
                 .product(savedProduct)
                 .availableQuantity(0)
                 .reservedQuantity(0)
-                .version(0L)
                 .updatedAt(OffsetDateTime.now())
                 .build();
 

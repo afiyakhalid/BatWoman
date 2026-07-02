@@ -8,32 +8,7 @@
 --------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='role_enum') THEN
-        CREATE TYPE role_enum AS ENUM ('USER', 'ADMIN', 'SUPER_ADMIN');
-    END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='order_status_enum') THEN
-        CREATE TYPE order_status_enum AS ENUM (
-            'PENDING', 'PAYMENT_INITIATED', 'PAID', 'PACKING', 'SHIPPED',
-            'OUT_FOR_DELIVERY', 'DELIVERED', 'FAILED', 'CANCELLED',
-            'REFUNDED', 'RETURN_REQUESTED', 'RETURNED'
-        );
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='payment_status_enum') THEN
-        CREATE TYPE payment_status_enum AS ENUM ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED');
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='review_status_enum') THEN
-        CREATE TYPE review_status_enum AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname='inventory_action_enum') THEN
-        CREATE TYPE inventory_action_enum AS ENUM ('ADD', 'REMOVE', 'RESERVE', 'RELEASE', 'RETURN');
-    END IF;
-END $$;
 
 --------------------------------------------------------------
 -- Core User Management
@@ -45,7 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20) UNIQUE,
     password_hash TEXT NOT NULL,
-    role role_enum NOT NULL DEFAULT 'USER',
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    CONSTRAINT chk_role CHECK (role IN ('USER', 'ADMIN', 'SUPER_ADMIN')),
     is_verified BOOLEAN NOT NULL DEFAULT FALSE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     last_login TIMESTAMPTZ,
@@ -205,7 +181,23 @@ CREATE TABLE IF NOT EXISTS orders (
     order_number VARCHAR(50) UNIQUE NOT NULL,
     user_id UUID,
     address_id UUID,
-    status order_status_enum NOT NULL DEFAULT 'PENDING',
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    CONSTRAINT chk_order_status CHECK (
+        status IN (
+            'PENDING',
+            'PAYMENT_INITIATED',
+            'PAID',
+            'PACKING',
+            'SHIPPED',
+            'OUT_FOR_DELIVERY',
+            'DELIVERED',
+            'FAILED',
+            'CANCELLED',
+            'REFUNDED',
+            'RETURN_REQUESTED',
+            'RETURNED'
+        )
+    ),
     guest_name VARCHAR(150),
     guest_email VARCHAR(255),
     guest_phone VARCHAR(20),
@@ -241,7 +233,15 @@ CREATE TABLE IF NOT EXISTS payments (
     razorpay_order_id VARCHAR(255) UNIQUE,
     razorpay_payment_id VARCHAR(255),
     razorpay_signature TEXT,
-    payment_status payment_status_enum DEFAULT 'PENDING',
+  payment_status VARCHAR(20) DEFAULT 'PENDING',
+  CONSTRAINT chk_payment_status CHECK (
+      payment_status IN (
+          'PENDING',
+          'SUCCESS',
+          'FAILED',
+          'REFUNDED'
+      )
+  ),
     amount NUMERIC(12,2) NOT NULL,
     currency VARCHAR(10) DEFAULT 'INR',
     paid_at TIMESTAMPTZ,
@@ -261,7 +261,14 @@ CREATE TABLE IF NOT EXISTS reviews (
     rating INT NOT NULL,
     title VARCHAR(255),
     comment TEXT,
-    status review_status_enum DEFAULT 'PENDING',
+   status VARCHAR(20) DEFAULT 'PENDING',
+   CONSTRAINT chk_review_status CHECK (
+       status IN (
+           'PENDING',
+           'APPROVED',
+           'REJECTED'
+       )
+   ),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 

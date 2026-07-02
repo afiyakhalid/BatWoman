@@ -34,13 +34,13 @@ public class Inventory {
     // ===========================
     // Inventory Details
     // ===========================
-
+    @Builder.Default
     @Column(name = "available_quantity", nullable = false)
-    private Integer availableQuantity;
+    private Integer availableQuantity = 0;
 
+    @Builder.Default
     @Column(name = "reserved_quantity", nullable = false)
-    private Integer reservedQuantity;
-
+    private Integer reservedQuantity = 0;
     @Version
     @Column(nullable = false)
     private Long version;

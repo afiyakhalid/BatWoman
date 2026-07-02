@@ -36,12 +36,13 @@ public class Category {
     @Column(name = "image_object_key")
     private String imageObjectKey;
 
+    @Builder.Default
     @Column(name = "display_order", nullable = false)
-    private Integer displayOrder;
+    private Integer displayOrder = 0;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
-    private Boolean active;
-
+    private Boolean active = true;
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
