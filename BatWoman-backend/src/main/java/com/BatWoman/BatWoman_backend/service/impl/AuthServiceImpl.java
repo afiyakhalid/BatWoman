@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
 
         user.setLastLogin(OffsetDateTime.now());
-        userRepository.save(user);
+//        userRepository.save(user);
 
         return new LoginResponse(
                 accessToken,

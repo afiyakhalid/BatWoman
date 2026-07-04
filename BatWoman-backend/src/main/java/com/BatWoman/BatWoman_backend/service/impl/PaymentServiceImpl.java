@@ -123,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Order order = payment.getOrder();
 
-        order.setStatus(OrderStatus.CONFIRMED);
+        order.setStatus(OrderStatus.PAID);
 
         order.setUpdatedAt(OffsetDateTime.now());
 
