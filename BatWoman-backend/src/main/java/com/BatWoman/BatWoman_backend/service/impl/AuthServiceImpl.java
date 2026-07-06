@@ -97,10 +97,9 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(userPrincipal.getUsername())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
+        refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.flush();
 
-        // Remove old refresh token if it exists
-        refreshTokenRepository.findByUser(user)
-                .ifPresent(refreshTokenRepository::delete);
 
         String accessToken = jwtService.generateToken(userPrincipal);
 
@@ -160,9 +159,7 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() ->
                         new ValidationException("Invalid refresh token."));
 
-        token.setRevoked(true);
-
-        refreshTokenRepository.save(token);
+        refreshTokenRepository.delete(token);
     }
 
     @Override
