@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { QueryProvider } from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import Navbar from "@/components/layout/Navbar";   // ← ADD THIS
 
 import { Toaster } from "sonner";
 
@@ -37,8 +38,15 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <QueryProvider>
-            {children}
+
+            <Navbar />
+
+            <main className="pt-20">
+              {children}
+            </main>
+
             <Toaster richColors />
+
           </QueryProvider>
         </ThemeProvider>
       </body>

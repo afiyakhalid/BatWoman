@@ -1,29 +1,38 @@
-export const heroSlides = [
+export interface HeroSlide {
+  id: number;
+  title: string;
+  subtitle: string;
+  image: string;
+  buttonText: string;
+  buttonLink: string;
+}
+
+export const heroSlides: HeroSlide[] = [
   {
     id: 1,
     title: "Timeless Elegance",
     subtitle:
-      "Luxury abayas crafted for women who value sophistication and modest fashion.",
+      "Discover luxury abayas crafted with premium fabrics for women who appreciate sophistication and timeless style.",
     image: "/images/hero/hero-1.jpg",
-    button: "Shop Collection",
-    href: "/products",
+    buttonText: "Shop Collection",
+    buttonLink: "/products",
   },
   {
     id: 2,
     title: "Minimal Luxury",
     subtitle:
-      "Designed with premium fabrics for effortless elegance every day.",
+      "Designed with refined silhouettes and effortless elegance for every occasion.",
     image: "/images/hero/hero-2.jpg",
-    button: "Discover",
-    href: "/products",
+    buttonText: "Explore Now",
+    buttonLink: "/products",
   },
   {
     id: 3,
     title: "New Collection",
     subtitle:
-      "Explore our newest arrivals inspired by timeless contemporary fashion.",
+      "Modern designs inspired by timeless fashion and handcrafted details.",
     image: "/images/hero/hero-3.jpg",
-    button: "Explore",
-    href: "/products",
+    buttonText: "View Collection",
+    buttonLink: "/products",
   },
 ];
