@@ -130,7 +130,7 @@ public class PaymentServiceImpl implements PaymentService {
         orderRepository.save(order);
 
         for (OrderItem item : order.getOrderItems()) {
-
+//done
             inventoryService.reduceInventory(
 
                     item.getProduct().getId(),
@@ -164,11 +164,6 @@ public class PaymentServiceImpl implements PaymentService {
             String payload,
             String signature) {
 
-    /*
-        Later we'll verify the Razorpay webhook
-        signature and update payments.
 
-        Currently no implementation.
-    */
     }
 }
