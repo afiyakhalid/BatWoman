@@ -1,0 +1,34 @@
+:root {
+  /* Backgrounds */
+  --background: #fafaf8;
+  --surface: #ffffff;
+
+  /* Text */
+  --foreground: #111111;
+  --muted-foreground: #6b7280;
+
+  /* Borders */
+  --border: #ececec;
+
+  /* Accent */
+  --accent: #d4af37;
+
+  /* Status */
+  --success: #2e7d32;
+  --error: #c62828;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Shadow */
+  --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.05);
+
+  /* Layout */
+  --container-width: 1280px;
+
+  /* Navbar */
+  --navbar-height: 80px;
+}
