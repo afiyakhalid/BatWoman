@@ -88,13 +88,28 @@ export default function HeroCarousel() {
               <p className="mb-10 max-w-xl text-lg leading-8 text-neutral-200">
                 {slide.subtitle}
               </p>
-
-              <Link
-                href={slide.buttonLink}
-                className="inline-flex rounded-full bg-white px-8 py-4 font-medium text-black transition hover:bg-neutral-200"
-              >
-                {slide.buttonText}
-              </Link>
+<Link
+  href={slide.buttonLink}
+  className="
+    mt-10
+    inline-flex
+    items-center
+    justify-center
+    rounded-full
+    bg-black
+    px-8
+    py-4
+    font-medium
+    tracking-wide
+    text-white
+    transition-all
+    duration-300
+    hover:bg-neutral-800
+    hover:scale-105
+  "
+>
+  {slide.buttonText}
+</Link>
 
             </motion.div>
 
