@@ -18,32 +18,32 @@ import { AnimatePresence, motion } from "framer-motion";
 const navItems = [
   {
     title: "Collections",
-    href: "/collections",
+    href: "customer/collections",
     featured: [
-      { name: "Luxury Collection", href: "/collections/luxury" },
-      { name: "Summer Collection", href: "/collections/summer" },
-      { name: "New Arrivals", href: "/products?sort=newest" },
-      { name: "Best Sellers", href: "/products?sort=bestseller" },
-      { name: "Editor's Picks", href: "/collections/editors-picks" },
+      { name: "Luxury Collection", href: "/customer/collections/luxury" },
+      { name: "Summer Collection", href: "/customer/collections/summer" },
+      { name: "New Arrivals", href: "/customer/products?sort=newest" },
+      { name: "Best Sellers", href: "/customer/products?sort=bestseller" },
+      { name: "Editor's Picks", href: "/customer/collections/editors-picks" },
     ],
   },
   {
     title: "Shop",
-    href: "/products",
+    href: "/customer/products",
     featured: [
-      { name: "All Products", href: "/products" },
-      { name: "Trending", href: "/products?sort=trending" },
-      { name: "Sale", href: "/products?sale=true" },
+      { name: "All Products", href: "/customer/products" },
+      { name: "Trending", href: "/customer/products?sort=trending" },
+      { name: "Sale", href: "/customer/products?sale=true" },
     ],
   },
   {
     title: "Categories",
-    href: "/categories",
+    href: "/customer/categories",
     featured: [
-      { name: "Luxury", href: "/categories/luxury" },
-      { name: "Casual", href: "/categories/casual" },
-      { name: "Party Wear", href: "/categories/party" },
-      { name: "Everyday", href: "/categories/everyday" },
+      { name: "Luxury", href: "/customer/categories/luxury" },
+      { name: "Casual", href: "/customer/categories/casual" },
+      { name: "Party Wear", href: "/customer/categories/party" },
+      { name: "Everyday", href: "/customer/categories/everyday" },
     ],
   },
 ];
