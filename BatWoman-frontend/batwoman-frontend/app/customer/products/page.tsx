@@ -1,6 +1,6 @@
 import ProductHeader from "@/components/product/ProductHeader";
-// import ProductSidebar from "@/components/product/ProductSidebar";
-// import ProductGrid from "@/components/product/ProductGrid";
+import ProductSidebar from "@/components/product/ProductSidebar";
+import ProductGrid from "@/components/product/ProductGrid";
 import Footer from "@/components/layout/Footer/Footer";
 
 export default function ProductsPage() {
@@ -10,9 +10,9 @@ export default function ProductsPage() {
         <ProductHeader />
 
         <div className="mt-12 flex gap-12">
-          {/* <ProductSidebar />
+          <ProductSidebar />
 
-          <ProductGrid /> */}
+          <ProductGrid />
         </div>
       </section>
 

@@ -3,7 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
 
-import { QueryProvider } from "@/providers/QueryProvider";
+import QueryProvider from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";   // ← ADD THIS
 
