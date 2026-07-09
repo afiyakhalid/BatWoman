@@ -24,7 +24,7 @@ export default function ProductCard({
   return (
 
     <Link
-      href={`/customer/product/${product.slug}`}
+      href={`/customer/products/${product.slug}`}
       className="group block"
     >
 
