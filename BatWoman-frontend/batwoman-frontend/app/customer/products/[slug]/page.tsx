@@ -42,7 +42,7 @@ export default function ProductDetailsPage() {
         <>
             <section className="mx-auto max-w-7xl px-6 pt-36 pb-24">
 
-                <div className="grid gap-16 lg:grid-cols-2">
+               <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-20 items-start">
 
                     <ProductGallery
                         images={product.images}

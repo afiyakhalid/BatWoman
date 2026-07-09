@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+
 import { Product } from "@/types/product";
 
 interface ProductCardProps {
@@ -38,10 +39,10 @@ export default function ProductCard({
           fill
           sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
           className="
-          object-cover
-          transition-opacity
-          duration-500
-          group-hover:opacity-0
+            object-cover
+            transition-opacity
+            duration-500
+            group-hover:opacity-0
           "
         />
 
@@ -51,11 +52,11 @@ export default function ProductCard({
           fill
           sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
           className="
-          object-cover
-          opacity-0
-          transition-opacity
-          duration-500
-          group-hover:opacity-100
+            object-cover
+            opacity-0
+            transition-opacity
+            duration-500
+            group-hover:opacity-100
           "
         />
 
@@ -63,15 +64,15 @@ export default function ProductCard({
 
         <button
           className="
-          absolute
-          right-4
-          top-4
-          rounded-full
-          bg-white/90
-          p-2
-          backdrop-blur
-          transition
-          hover:scale-110
+            absolute
+            right-4
+            top-4
+            rounded-full
+            bg-white/90
+            p-2
+            backdrop-blur
+            transition
+            hover:scale-110
           "
         >
           <Heart size={18} />
@@ -87,7 +88,7 @@ export default function ProductCard({
           {product.category.name}
         </p>
 
-        <h3 className="mt-2 font-medium text-lg">
+        <h3 className="mt-2 font-medium text-lg transition-colors group-hover:text-neutral-600">
           {product.name}
         </h3>
 
@@ -95,7 +96,7 @@ export default function ProductCard({
 
           {product.discountPrice ? (
             <>
-              <span className="font-semibold">
+              <span className="font-semibold text-black">
                 ₹{product.discountPrice}
               </span>
 
@@ -104,7 +105,7 @@ export default function ProductCard({
               </span>
             </>
           ) : (
-            <span className="font-semibold">
+            <span className="font-semibold text-black">
               ₹{product.price}
             </span>
           )}

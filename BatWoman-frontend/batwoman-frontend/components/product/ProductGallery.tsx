@@ -60,7 +60,7 @@ export default function ProductGallery({
 
             {/* Main Image */}
 
-            <div className="relative aspect-[3/4] flex-1">
+           <div className="relative aspect-[3/4] w-full max-w-[520px]">
 
                 <Image
                     src={images[selectedImage].objectKey}
