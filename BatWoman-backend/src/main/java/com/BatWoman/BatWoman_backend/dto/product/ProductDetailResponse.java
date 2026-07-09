@@ -26,7 +26,7 @@ public record ProductDetailResponse(
 
         Integer availableQuantity,
 
-        List<String> images
+        List<ProductImageResponse> images
 
 ) {
 }
