@@ -10,7 +10,11 @@ public record CartResponse(
 
         List<CartItemResponse> items,
 
-        BigDecimal totalAmount
+        BigDecimal subtotal,
+
+        BigDecimal shipping,
+
+        BigDecimal total
 
 ) {
 
@@ -28,7 +32,9 @@ public record CartResponse(
 
             BigDecimal price,
 
-            BigDecimal subtotal
+            BigDecimal subtotal,
+
+            String categoryName
 
     ) {
     }

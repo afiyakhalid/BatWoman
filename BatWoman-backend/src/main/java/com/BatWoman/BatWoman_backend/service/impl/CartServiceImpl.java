@@ -56,7 +56,7 @@ public class CartServiceImpl implements CartService {
         List<CartResponse.CartItemResponse> items =
                 new ArrayList<>();
 
-        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal subtotal = BigDecimal.ZERO;
 
         for (CartItem cartItem : cartItems) {
 
@@ -66,15 +66,21 @@ public class CartServiceImpl implements CartService {
                     productImageRepository.findByProductAndPrimaryTrue(product);
 
             String objectKey =
-                    image != null ? image.getObjectKey() : null;
+                    image != null
+                            ? image.getObjectKey()
+                            : null;
 
-            BigDecimal subtotal =
-                    product.getPrice()
-                            .multiply(
-                                    BigDecimal.valueOf(
-                                            cartItem.getQuantity()));
+            BigDecimal unitPrice =
+                    product.getDiscountPrice() != null
+                            ? product.getDiscountPrice()
+                            : product.getPrice();
 
-            total = total.add(subtotal);
+            BigDecimal itemSubtotal =
+                    unitPrice.multiply(
+                            BigDecimal.valueOf(cartItem.getQuantity())
+                    );
+
+            subtotal = subtotal.add(itemSubtotal);
 
             items.add(
 
@@ -90,12 +96,19 @@ public class CartServiceImpl implements CartService {
 
                             cartItem.getQuantity(),
 
-                            product.getPrice(),
+                            unitPrice,
 
-                            subtotal
+                            itemSubtotal,
+
+                            product.getCategory().getName()
+
                     )
             );
         }
+
+        BigDecimal shipping = BigDecimal.ZERO;
+
+        BigDecimal total = subtotal.add(shipping);
 
         return new CartResponse(
 
@@ -103,10 +116,14 @@ public class CartServiceImpl implements CartService {
 
                 items,
 
+                subtotal,
+
+                shipping,
+
                 total
+
         );
     }
-
     @Override
     public CartResponse getCart() {
 
@@ -124,6 +141,16 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Product not found."));
 
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new ValidationException("This product is no longer available.");
+        }
+
+        Inventory inventory = product.getInventory();
+
+        if (inventory == null) {
+            throw new ValidationException("Inventory not found.");
+        }
+
         CartItem cartItem = cartItemRepository
                 .findByCart_IdAndProduct_Id(
                         cart.getId(),
@@ -133,11 +160,20 @@ public class CartServiceImpl implements CartService {
 
         if (cartItem != null) {
 
-            cartItem.setQuantity(
-                    cartItem.getQuantity() + request.quantity()
-            );
+            int newQuantity =
+                    cartItem.getQuantity() + request.quantity();
+
+            if (newQuantity > inventory.getAvailableQuantity()) {
+                throw new ValidationException("Not enough stock available.");
+            }
+
+            cartItem.setQuantity(newQuantity);
 
         } else {
+
+            if (request.quantity() > inventory.getAvailableQuantity()) {
+                throw new ValidationException("Not enough stock available.");
+            }
 
             cartItem = CartItem.builder()
                     .id(UUID.randomUUID())
@@ -171,6 +207,12 @@ public class CartServiceImpl implements CartService {
         if (!cartItem.getCart().getUser().getId().equals(currentUser.getId())) {
             throw new ValidationException("You cannot modify another user's cart.");
         }
+        Inventory inventory =
+                cartItem.getProduct().getInventory();
+
+        if (request.quantity() > inventory.getAvailableQuantity()) {
+            throw new ValidationException("Not enough stock available.");
+        }
 
         cartItem.setQuantity(request.quantity());
 
@@ -192,6 +234,13 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Cart item not found."));
 
+        User currentUser = authService.getCurrentUser();
+
+        if (!cartItem.getCart().getUser().getId().equals(currentUser.getId())) {
+            throw new ValidationException(
+                    "You cannot modify another user's cart.");
+        }
+
         Cart cart = cartItem.getCart();
 
         cartItemRepository.delete(cartItem);
@@ -199,11 +248,6 @@ public class CartServiceImpl implements CartService {
         cart.setUpdatedAt(OffsetDateTime.now());
 
         cartRepository.save(cart);
-        User currentUser = authService.getCurrentUser();
-
-        if (!cartItem.getCart().getUser().getId().equals(currentUser.getId())) {
-            throw new ValidationException("You cannot modify another user's cart.");
-        }
     }
 
     @Override
@@ -211,8 +255,7 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = getOrCreateCart();
 
-        // Load the collection if necessary
-        cart.getCartItems().clear();
+        cartItemRepository.deleteByCart_Id(cart.getId());
 
         cart.setUpdatedAt(OffsetDateTime.now());
 
