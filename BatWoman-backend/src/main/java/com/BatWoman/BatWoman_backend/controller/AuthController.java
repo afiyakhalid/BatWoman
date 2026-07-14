@@ -66,27 +66,21 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUser() {
 
+        System.out.println("********** /auth/me HIT **********");
+
         User user = authService.getCurrentUser();
 
         return ResponseEntity.ok(
-
                 new UserProfileResponse(
-
                         user.getId(),
-
                         user.getFirstName(),
-
                         user.getLastName(),
-
                         user.getEmail(),
-
                         user.getPhone(),
-
                         user.getRole().name()
-
                 )
-
         );
+
 
     }
 
