@@ -1,4 +1,3 @@
-
 package com.BatWoman.BatWoman_backend.controller;
 
 import com.BatWoman.BatWoman_backend.dto.auth.LoginRequest;
@@ -6,6 +5,7 @@ import com.BatWoman.BatWoman_backend.dto.auth.LoginResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.RefreshTokenRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterResponse;
+import com.BatWoman.BatWoman_backend.dto.auth.UserProfileResponse;
 import com.BatWoman.BatWoman_backend.entity.User;
 import com.BatWoman.BatWoman_backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -63,5 +63,31 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileResponse> getCurrentUser() {
+
+        User user = authService.getCurrentUser();
+
+        return ResponseEntity.ok(
+
+                new UserProfileResponse(
+
+                        user.getId(),
+
+                        user.getFirstName(),
+
+                        user.getLastName(),
+
+                        user.getEmail(),
+
+                        user.getPhone(),
+
+                        user.getRole().name()
+
+                )
+
+        );
+
+    }
 
 }

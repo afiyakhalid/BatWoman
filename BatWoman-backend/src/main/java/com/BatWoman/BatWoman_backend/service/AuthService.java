@@ -33,4 +33,5 @@ public interface AuthService {
      * Returns currently authenticated user.
      */
     User getCurrentUser();
+
 }
