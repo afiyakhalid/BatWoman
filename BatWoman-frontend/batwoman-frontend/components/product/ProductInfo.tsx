@@ -6,6 +6,7 @@ import { Star, Minus, Plus } from "lucide-react";
 import { useReviews } from "@/hooks/useReviews";
 import ReviewForm from "./ReviewForm";
 import { useCreateReview } from "@/hooks/useCreateReview";
+import { useAddToCart } from "@/hooks/useAddToCart";
 
 interface ProductInfoProps {
     product: ProductDetail;
@@ -22,6 +23,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     const [showReviewForm, setShowReviewForm] = useState(false);
 
     const createReviewMutation = useCreateReview(product.id);
+    const addToCartMutation = useAddToCart();
 
     // Compute active ratings dynamically based on backend data
     const averageRating =
@@ -111,9 +113,32 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
             {/* Luxury CTA Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-                <button className="flex-1 bg-black py-5 text-white text-lg font-light transition hover:bg-neutral-800 tracking-wide">
-                    Add to Cart
-                </button>
+                <button
+    onClick={() =>
+        addToCartMutation.mutate({
+            productId: product.id,
+            quantity,
+        })
+    }
+    disabled={addToCartMutation.isPending}
+    className="
+        flex-1
+        bg-black
+        py-5
+        text-white
+        text-lg
+        font-light
+        tracking-wide
+        transition
+        hover:bg-neutral-800
+        disabled:cursor-not-allowed
+        disabled:opacity-60
+    "
+>
+    {addToCartMutation.isPending
+        ? "Adding..."
+        : "Add to Cart"}
+</button>
                 <button className="flex-1 border border-black bg-white py-5 text-black text-lg font-light transition hover:bg-neutral-50 tracking-wide">
                     Buy Now
                 </button>
