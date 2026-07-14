@@ -5,7 +5,8 @@ import "./globals.css";
 
 import QueryProvider from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import Navbar from "@/components/layout/Navbar";   // ← ADD THIS
+import Navbar from "@/components/layout/Navbar"; 
+import { AuthModal } from "@/components/auth";  // ← ADD THIS
 
 import { Toaster } from "sonner";
 
@@ -44,8 +45,10 @@ export default function RootLayout({
             <main className="pt-20">
               {children}
             </main>
+            <AuthModal />
 
             <Toaster richColors />
+           
 
           </QueryProvider>
         </ThemeProvider>

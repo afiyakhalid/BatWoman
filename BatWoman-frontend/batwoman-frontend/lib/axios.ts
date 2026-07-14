@@ -7,25 +7,23 @@ const api = axios.create({
   },
 });
 
-api.interceptors.request.use(
-    (config) => {
+api.interceptors.request.use((config) => {
 
-      if (typeof window !== "undefined") {
+    if (typeof window === "undefined") {
+        return config;
+    }
 
-        const token = localStorage.getItem("accessToken");
+    const token = localStorage.getItem("accessToken");
 
-        if (token) {
+    if (
+        token &&
+        !config.url?.includes("/auth/login") &&
+        !config.url?.includes("/auth/register")
+    ) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
 
-          config.headers.Authorization = `Bearer ${token}`;
-
-        }
-
-      }
-
-      return config;
-    },
-
-    (error) => Promise.reject(error)
-);
+    return config;
+});
 
 export default api;

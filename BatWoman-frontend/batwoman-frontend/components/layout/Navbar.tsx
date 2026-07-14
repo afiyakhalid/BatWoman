@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Heart,
   Menu,
@@ -14,6 +14,13 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+
+import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useAuthModal } from "@/hooks/useAuthModal";
+import { useAuthStore } from "@/store/auth.store";
+
+// Step 2: Added the logout service import
+import { logout as logoutService } from "@/services/auth.service";
 
 const navItems = [
   {
@@ -50,9 +57,34 @@ const navItems = [
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  const router = useRouter();
+  const requireAuth = useRequireAuth();
+  const { openLogin } = useAuthModal();
+  
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
+  
+  // Step 2: Added refreshToken and logoutStore state selectors
+  const refreshToken = useAuthStore((state) => state.refreshToken);
+  const logoutStore = useAuthStore((state) => state.logout);
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Step 3: Created the logout handler
+  async function handleLogout() {
+    try {
+      if (refreshToken) {
+        await logoutService(refreshToken);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      logoutStore();
+      router.push("/");
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,15 +156,37 @@ export default function Navbar() {
             <Link href="/search">
               <Search size={20} className="transition hover:scale-110" />
             </Link>
-            <Link href="/wishlist" className="hidden md:block">
+
+            <button
+              className="hidden md:block"
+              onClick={() => requireAuth(() => router.push("/customer/wishlist"))}
+            >
               <Heart size={20} className="transition hover:scale-110" />
-            </Link>
-            <Link href="/cart">
+            </button>
+
+            <button onClick={() => requireAuth(() => router.push("/customer/cart"))}>
               <ShoppingBag size={20} className="transition hover:scale-110" />
-            </Link>
-            <Link href="/profile" className="hidden md:block">
-              <User size={20} className="transition hover:scale-110" />
-            </Link>
+            </button>
+
+            {isAuthenticated ? (
+              <Link href="/customer/profile" className="hidden md:block">
+                <User size={20} className="transition hover:scale-110" />
+              </Link>
+            ) : (
+              <button className="hidden md:block" onClick={openLogin}>
+                <User size={20} className="transition hover:scale-110" />
+              </button>
+            )}
+
+            {/* Added: Desktop Logout Button */}
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="hidden md:block text-xs uppercase tracking-[0.15em] text-neutral-500 hover:text-black transition"
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
 
@@ -140,7 +194,7 @@ export default function Navbar() {
         <AnimatePresence mode="wait">
           {activeDropdown && (
             <motion.div
-              key={activeDropdown} // 👈 Added to fix animation swap glitches
+              key={activeDropdown}
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
@@ -185,7 +239,7 @@ export default function Navbar() {
                       src="/images/navbar/editorial.jpg"
                       alt="Editorial Collection Showcase"
                       fill
-                      sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 33vw, 400px" // 👈 CRITICAL PERFORMANCE FIX
+                      sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 33vw, 400px"
                       className="object-cover"
                       priority
                     />
@@ -256,15 +310,58 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <hr />
-                <Link href="/wishlist" className="block">
+
+                <button
+                  className="block text-left w-full text-lg"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    requireAuth(() => router.push("/customer/wishlist"));
+                  }}
+                >
                   Wishlist
-                </Link>
-                <Link href="/cart" className="block">
+                </button>
+
+                <button
+                  className="block text-left w-full text-lg"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    requireAuth(() => router.push("/customer/cart"));
+                  }}
+                >
                   Cart
-                </Link>
-                <Link href="/profile" className="block">
-                  Profile
-                </Link>
+                </button>
+
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      href="/customer/profile"
+                      className="block text-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    {/* Added: Mobile Logout Button */}
+                    <button
+                      className="block text-left w-full text-lg text-neutral-500"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="block text-left w-full text-lg"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openLogin();
+                    }}
+                  >
+                    Login / Register
+                  </button>
+                )}
               </nav>
             </motion.div>
           </>

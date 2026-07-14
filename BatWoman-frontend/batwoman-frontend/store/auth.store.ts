@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-interface AuthState {
+export interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
 
@@ -16,7 +16,7 @@ interface AuthState {
     isAuthenticated: () => boolean;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>()((set, get) => ({
     accessToken:
         typeof window !== "undefined"
             ? localStorage.getItem("accessToken")
