@@ -1,6 +1,8 @@
+"use client";
+
 import { create } from "zustand";
 
-type AuthState = {
+interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
 
@@ -11,62 +13,41 @@ type AuthState = {
 
     logout: () => void;
 
-    initialize: () => void;
-
     isAuthenticated: () => boolean;
-};
+}
 
 export const useAuthStore = create<AuthState>((set, get) => ({
+    accessToken:
+        typeof window !== "undefined"
+            ? localStorage.getItem("accessToken")
+            : null,
 
-    accessToken: null,
-
-    refreshToken: null,
+    refreshToken:
+        typeof window !== "undefined"
+            ? localStorage.getItem("refreshToken")
+            : null,
 
     setTokens: (accessToken, refreshToken) => {
-
         localStorage.setItem("accessToken", accessToken);
-
         localStorage.setItem("refreshToken", refreshToken);
 
         set({
             accessToken,
             refreshToken,
         });
-
     },
 
     logout: () => {
-
         localStorage.removeItem("accessToken");
-
         localStorage.removeItem("refreshToken");
 
         set({
             accessToken: null,
             refreshToken: null,
         });
-
-    },
-
-    initialize: () => {
-
-        const accessToken =
-            localStorage.getItem("accessToken");
-
-        const refreshToken =
-            localStorage.getItem("refreshToken");
-
-        set({
-            accessToken,
-            refreshToken,
-        });
-
     },
 
     isAuthenticated: () => {
-
-        return get().accessToken !== null;
-
+        return get().accessToken != null;
     },
-
 }));

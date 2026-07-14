@@ -1,33 +1,16 @@
 import api from "@/lib/axios";
 
-export interface RegisterRequest {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-}
+import {
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
+} from "@/types/auth";
 
-export interface LoginRequest {
-    email: string;
-    password: string;
-}
-
-export interface AuthResponse {
-    accessToken: string;
-    refreshToken: string;
-}
-
-export async function register(request: RegisterRequest) {
-    const { data } = await api.post<AuthResponse>(
-        "/auth/register",
-        request
-    );
-
-    return data;
-}
-
-export async function login(request: LoginRequest) {
-    const { data } = await api.post<AuthResponse>(
+export async function login(
+    request: LoginRequest
+): Promise<LoginResponse> {
+    const { data } = await api.post<LoginResponse>(
         "/auth/login",
         request
     );
@@ -35,18 +18,19 @@ export async function login(request: LoginRequest) {
     return data;
 }
 
-export async function refreshToken(refreshToken: string) {
-    const { data } = await api.post<AuthResponse>(
-        "/auth/refresh",
-        {
-            refreshToken,
-        }
+export async function register(
+    request: RegisterRequest
+): Promise<RegisterResponse> {
+    const { data } = await api.post<RegisterResponse>(
+        "/auth/register",
+        request
     );
 
     return data;
 }
 
-export function logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+export async function logout(refreshToken: string) {
+    await api.post(
+        `/auth/logout?refreshToken=${refreshToken}`
+    );
 }
