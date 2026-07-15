@@ -161,20 +161,13 @@ public class OrderServiceImpl implements OrderService {
                     .createdAt(OffsetDateTime.now())
                     .build();
 
-
             orderItems.add(orderItem);
-
-            inventoryService.reserveInventory(
-                    product.getId(),
-                    cartItem.getQuantity()
-            );
         }
 
         order.setOrderItems(orderItems);
 
-        cartService.clearCart();
+        orderItemRepository.saveAll(orderItems);
 
-        notificationService.sendOrderConfirmation(order);
 
         return toResponse(order);
     }
