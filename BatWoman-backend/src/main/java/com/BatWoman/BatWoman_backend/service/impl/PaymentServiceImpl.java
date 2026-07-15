@@ -11,6 +11,7 @@ import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.exception.ValidationException;
 import com.BatWoman.BatWoman_backend.repository.OrderRepository;
 import com.BatWoman.BatWoman_backend.repository.PaymentRepository;
+import com.BatWoman.BatWoman_backend.service.CartService;
 import com.BatWoman.BatWoman_backend.service.InventoryService;
 import com.BatWoman.BatWoman_backend.service.NotificationService;
 import com.BatWoman.BatWoman_backend.service.PaymentService;
@@ -31,6 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderRepository orderRepository;
 
     private final InventoryService inventoryService;
+    private final CartService cartService;
 
     private final NotificationService notificationService;
 
@@ -138,7 +140,7 @@ public class PaymentServiceImpl implements PaymentService {
                     item.getQuantity()
             );
         }
-
+        cartService.clearCart();
         notificationService.sendPaymentSuccessEmail(payment);
 
         notificationService.sendOrderConfirmation(order);
