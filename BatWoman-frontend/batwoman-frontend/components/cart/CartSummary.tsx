@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 interface CartSummaryProps {
 
     subtotal: number;
@@ -20,38 +22,30 @@ export default function CartSummary({
 
 }: CartSummaryProps) {
 
+    const router = useRouter();
+
     return (
 
         <div className="sticky top-32 border border-neutral-200 p-8">
 
             <h2 className="font-[var(--font-playfair)] text-3xl">
-
                 Order Summary
-
             </h2>
 
             <div className="mt-10 space-y-6">
 
                 <div className="flex justify-between">
-
                     <span>Subtotal</span>
-
                     <span>₹{subtotal}</span>
-
                 </div>
 
                 <div className="flex justify-between">
-
                     <span>Shipping</span>
 
                     <span>
-
                         {shipping === 0
-
                             ? "FREE"
-
                             : `₹${shipping}`}
-
                     </span>
 
                 </div>
@@ -67,6 +61,10 @@ export default function CartSummary({
             </div>
 
             <button
+
+                onClick={() =>
+                    router.push("/customer/address")
+                }
 
                 className="
                     mt-10
