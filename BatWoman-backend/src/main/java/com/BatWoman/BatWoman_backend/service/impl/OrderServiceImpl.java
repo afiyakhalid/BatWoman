@@ -139,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
                 .updatedAt(OffsetDateTime.now())
                 .build();
 
-        order = orderRepository.save(order);
+//        order = orderRepository.save(order);
 
         List<OrderItem> orderItems = new ArrayList<>();
 
@@ -165,8 +165,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setOrderItems(orderItems);
+        order = orderRepository.save(order);
 
-        orderItemRepository.saveAll(orderItems);
+//        orderItemRepository.saveAll(orderItems);
 
 
         return toResponse(order);

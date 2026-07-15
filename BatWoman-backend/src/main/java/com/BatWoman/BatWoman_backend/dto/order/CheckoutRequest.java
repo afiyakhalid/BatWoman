@@ -7,30 +7,13 @@ import java.util.UUID;
 
 public record CheckoutRequest(
 
-        UUID userId,
 
-        UUID addressId,
 
-        @NotBlank
-        String guestName,
+        UUID addressId
 
-        @NotBlank
-        String guestEmail,
 
-        @NotBlank
-        String guestPhone,
 
-        @NotBlank
-        String guestAddress,
 
-        @NotBlank
-        String guestCity,
-
-        @NotBlank
-        String guestState,
-
-        @NotBlank
-        String guestPincode
 
 ) {
 }
