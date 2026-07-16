@@ -21,6 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+
+import org.json.JSONObject;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +32,11 @@ import java.util.UUID;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-
     private final OrderRepository orderRepository;
-
     private final InventoryService inventoryService;
     private final CartService cartService;
-
     private final NotificationService notificationService;
+    private final RazorpayClient razorpayClient;
 
     @Override
     public PaymentResponse createPayment(CreatePaymentRequest request) {
@@ -55,19 +57,41 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(order.getTotal())
                 .currency("INR")
                 .createdAt(OffsetDateTime.now())
+                .updatedAt(OffsetDateTime.now())
                 .build();
 
-    /*
-        Razorpay integration comes here.
+        try {
 
-        razorpayOrderId = razorpay.orders.create(...)
+            JSONObject options = new JSONObject();
 
-        payment.setRazorpayOrderId(...);
-    */
+            options.put(
+                    "amount",
+                    payment.getAmount()
+                            .multiply(java.math.BigDecimal.valueOf(100))
+                            .intValueExact()
+            );
 
-        payment.setRazorpayOrderId(
-                UUID.randomUUID().toString()
-        );
+            options.put("currency", payment.getCurrency());
+
+            options.put("receipt", order.getOrderNumber());
+
+            // Fully qualified reference to avoid collision with your Entity Order
+            com.razorpay.Order razorpayOrder =
+                    razorpayClient.orders.create(options);
+
+            // Casting the Object returned from get("id") to String
+            payment.setRazorpayOrderId(
+                    (String) razorpayOrder.get("id")
+            );
+
+        } catch (RazorpayException ex) {
+
+            throw new RuntimeException(
+                    "Unable to create Razorpay Order.",
+                    ex
+            );
+
+        }
 
         paymentRepository.save(payment);
 
@@ -80,6 +104,10 @@ public class PaymentServiceImpl implements PaymentService {
                 payment.getRazorpayOrderId(),
 
                 null,
+
+                payment.getAmount(),
+
+                payment.getCurrency(),
 
                 payment.getPaymentStatus(),
 
@@ -100,11 +128,10 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Payment not found."));
 
-    /*
-        Later:
-
-        Verify Razorpay Signature
-    */
+        /*
+         * TODO:
+         * Verify Razorpay Signature.
+         */
 
         payment.setRazorpayPaymentId(
                 razorpayPaymentId);
@@ -127,12 +154,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         order.setStatus(OrderStatus.PAID);
 
-        order.setUpdatedAt(OffsetDateTime.now());
+        order.setUpdatedAt(
+                OffsetDateTime.now());
 
         orderRepository.save(order);
 
         for (OrderItem item : order.getOrderItems()) {
-//done
+
             inventoryService.reduceInventory(
 
                     item.getProduct().getId(),
@@ -140,7 +168,9 @@ public class PaymentServiceImpl implements PaymentService {
                     item.getQuantity()
             );
         }
+
         cartService.clearCart();
+
         notificationService.sendPaymentSuccessEmail(payment);
 
         notificationService.sendOrderConfirmation(order);
@@ -155,6 +185,10 @@ public class PaymentServiceImpl implements PaymentService {
 
                 payment.getRazorpayPaymentId(),
 
+                payment.getAmount(),
+
+                payment.getCurrency(),
+
                 payment.getPaymentStatus(),
 
                 payment.getPaidAt()
@@ -166,6 +200,7 @@ public class PaymentServiceImpl implements PaymentService {
             String payload,
             String signature) {
 
+        // TODO: Handle Razorpay Webhook
 
     }
 }
