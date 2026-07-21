@@ -19,3 +19,6 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+razorpay:
+  key-id: rzp_test_TE5cqRrow9WPtc
+  key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
