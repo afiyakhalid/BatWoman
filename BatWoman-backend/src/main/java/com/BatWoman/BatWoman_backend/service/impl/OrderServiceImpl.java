@@ -139,13 +139,17 @@ public class OrderServiceImpl implements OrderService {
                 .updatedAt(OffsetDateTime.now())
                 .build();
 
-//        order = orderRepository.save(order);
-
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (CartItem cartItem : cart.getCartItems()) {
 
             Product product = cartItem.getProduct();
+
+            // Reserve inventory for each item before generating the OrderItem
+            inventoryService.reserveInventory(
+                    product.getId(),
+                    cartItem.getQuantity()
+            );
 
             OrderItem orderItem = OrderItem.builder()
                     .id(UUID.randomUUID())
@@ -166,9 +170,6 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderItems(orderItems);
         order = orderRepository.save(order);
-
-//        orderItemRepository.saveAll(orderItems);
-
 
         return toResponse(order);
     }
