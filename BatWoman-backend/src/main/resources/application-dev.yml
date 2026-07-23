@@ -1,9 +1,9 @@
 spring:
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/BatWoman_db
-    username: AfiyaKhalid
-    password: Peekaboo
+    url: jdbc:postgresql://batwoman-dev-db.cr02qmuyiroy.ap-south-1.rds.amazonaws.com:5432/BatWoman_db
+    username: batwoman_admin
+    password: Batwoman63648951!
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -20,7 +20,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 
-Razorpay:
-      key-id: rzp_test_TE5cqRrow9WPtc
-      key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
-
+razorpay:
+  key-id: rzp_test_TE5cqRrow9WPtc
+  key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
