@@ -59,8 +59,6 @@ public class User {
     // Relationships
     // ===========================
 
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-    private RefreshToken refreshToken;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Address> addresses;
