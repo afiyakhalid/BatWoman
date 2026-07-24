@@ -120,7 +120,8 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(
                 accessToken,
                 refreshToken.getToken(),
-                jwtService.getExpirationTime()
+                jwtService.getExpirationTime(),
+                user.getRole()
         );
     }
     @Override
@@ -148,7 +149,9 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(
                 accessToken,
                 refreshToken.getToken(),
-                jwtService.getExpirationTime()
+                jwtService.getExpirationTime(),
+                user.getRole()
+
         );
     }
     @Override
