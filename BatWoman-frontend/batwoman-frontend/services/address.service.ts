@@ -96,3 +96,13 @@ export async function deleteAddress(
         `/addresses/${addressId}`
     );
 }
+export async function getAddressById(
+    addressId: string
+): Promise<Address> {
+
+    const { data } = await api.get<Address>(
+        `/addresses/${addressId}`
+    );
+
+    return data;
+}

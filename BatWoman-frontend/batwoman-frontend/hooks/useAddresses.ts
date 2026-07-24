@@ -13,7 +13,7 @@ import {
 import {
 
     getAddresses,
-
+     getAddressById,
     createAddress,
 
     updateAddress,
@@ -135,33 +135,40 @@ export function useDeleteAddress() {
 
     return useMutation({
 
-        mutationFn: (
-
-            addressId: string
-
-        ) => deleteAddress(addressId),
+        mutationFn: deleteAddress,
 
         onSuccess: () => {
 
-            toast.success(
-                "Address deleted."
-            );
-
             queryClient.invalidateQueries({
 
-                queryKey: ADDRESS_QUERY_KEY,
+                queryKey: ["addresses"],
 
             });
+
+            toast.success("Address deleted.");
 
         },
 
         onError: () => {
 
-            toast.error(
-                "Failed to delete address."
-            );
+            toast.error("Failed to delete address.");
 
         },
 
     });
+
 }
+export function useAddress(addressId?: string) {
+
+    return useQuery({
+
+        queryKey: ["address", addressId],
+
+        queryFn: () => getAddressById(addressId!),
+
+        enabled: !!addressId,
+
+    });
+
+}
+

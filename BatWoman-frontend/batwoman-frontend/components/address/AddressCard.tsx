@@ -2,6 +2,7 @@
 
 import { MapPin, Pencil } from "lucide-react";
 import { Address } from "@/services/address.service";
+import {Trash}  from "lucide-react";
 
 interface AddressCardProps {
 
@@ -12,6 +13,7 @@ interface AddressCardProps {
     onSelect: () => void;
 
     onEdit: () => void;
+    
 }
 
 export default function AddressCard({
