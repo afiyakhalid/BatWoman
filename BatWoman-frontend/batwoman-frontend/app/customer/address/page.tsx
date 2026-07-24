@@ -54,7 +54,7 @@ export default function AddressPage() {
     if (isLoading) {
         return (
             <section className="mx-auto max-w-6xl px-6 py-32">
-                <h1 className="font-[var(--font-playfair)] text-5xl">
+                <h1 className="font-(--font-playfair) text-5xl">
                     Shipping Address
                 </h1>
                 <p className="mt-10">
@@ -67,7 +67,7 @@ export default function AddressPage() {
     if (isError) {
         return (
             <section className="mx-auto max-w-6xl px-6 py-32">
-                <h1 className="font-[var(--font-playfair)] text-5xl">
+                <h1 className="font-(--font-playfair) text-5xl">
                     Shipping Address
                 </h1>
                 <p className="mt-10 text-red-600">
@@ -87,7 +87,7 @@ export default function AddressPage() {
 
             <section className="mx-auto max-w-6xl px-6 pt-36 pb-24">
                 <div className="mb-14">
-                    <h1 className="font-[var(--font-playfair)] text-5xl">
+                    <h1 className="font-(--font-playfair) text-5xl">
                         Shipping Address
                     </h1>
                     <p className="mt-4 text-neutral-500">
