@@ -7,8 +7,8 @@ export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
+    role: string;
 }
-
 export interface RegisterRequest {
     firstName: string;
     lastName: string;
