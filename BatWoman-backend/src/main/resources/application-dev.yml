@@ -20,7 +20,33 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 
-Razorpay:
-      key-id: rzp_test_TE5cqRrow9WPtc
-      key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
+razorpay:
+  key-id: rzp_test_TE5cqRrow9WPtc
+  key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
 
+
+#spring:
+#
+#  datasource:
+#    url: jdbc:postgresql://batwoman-dev-db.cr02qmuyiroy.ap-south-1.rds.amazonaws.com:5432/BatWoman_db
+#    username: batwoman_admin
+#    password: Batwoman63648951!
+#    driver-class-name: org.postgresql.Driver
+#
+#  jpa:
+#    show-sql: true
+#
+#  servlet:
+#    multipart:
+#      enabled: true
+#      max-file-size: 10MB
+#      max-request-size: 50MB
+#
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.orm.jdbc.bind: TRACE
+#
+#razorpay:
+#  key-id: rzp_test_TE5cqRrow9WPtc
+#  key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y

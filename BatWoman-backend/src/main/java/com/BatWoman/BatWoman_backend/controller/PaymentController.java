@@ -28,7 +28,7 @@ public class PaymentController {
     @PostMapping("/verify")
     public ResponseEntity<PaymentResponse> verifyPayment(
             @Valid @RequestBody VerifyPaymentRequest request) {
-
+        System.out.println(">>> PAYMENT CONTROLLER HIT <<<");
         return ResponseEntity.ok(
                 paymentService.verifyPayment(
                         request.paymentId(),
