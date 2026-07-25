@@ -1,6 +1,5 @@
 package com.BatWoman.BatWoman_backend.service.impl;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.BatWoman.BatWoman_backend.dto.auth.LoginRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.LoginResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.RefreshTokenRequest;
@@ -22,13 +21,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import org.springframework.security.core.userdetails.UserDetails;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +34,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtService jwtService;
 
     @Override
@@ -54,7 +48,6 @@ public class AuthServiceImpl implements AuthService {
 
         if (request.phone() != null &&
                 userRepository.existsByPhone(request.phone())) {
-
             throw new ValidationException("Phone number already registered.");
         }
 
@@ -82,6 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 savedUser.getPhone()
         );
     }
+
     @Override
     public LoginResponse login(LoginRequest request) {
 
@@ -92,30 +86,32 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserPrincipal userPrincipal =
+                (UserPrincipal) authentication.getPrincipal();
 
         User user = userRepository.findByEmail(userPrincipal.getUsername())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
-        refreshTokenRepository.deleteByUser(user);
-        refreshTokenRepository.flush();
-
 
         String accessToken = jwtService.generateToken(userPrincipal);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .id(UUID.randomUUID())
-                .user(user)
-                .token(UUID.randomUUID().toString())
-                .expiresAt(OffsetDateTime.now().plusDays(30))
-                .revoked(false)
-                .createdAt(OffsetDateTime.now())
-                .build();
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByUser(user)
+                .orElse(
+                        RefreshToken.builder()
+                                .id(UUID.randomUUID())
+                                .user(user)
+                                .createdAt(OffsetDateTime.now())
+                                .build()
+                );
+
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiresAt(OffsetDateTime.now().plusDays(30));
+        refreshToken.setRevoked(false);
 
         refreshTokenRepository.save(refreshToken);
 
         user.setLastLogin(OffsetDateTime.now());
-//        userRepository.save(user);
 
         return new LoginResponse(
                 accessToken,
@@ -124,6 +120,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getRole()
         );
     }
+
     @Override
     public LoginResponse refreshToken(RefreshTokenRequest request) {
 
@@ -151,9 +148,9 @@ public class AuthServiceImpl implements AuthService {
                 refreshToken.getToken(),
                 jwtService.getExpirationTime(),
                 user.getRole()
-
         );
     }
+
     @Override
     public void logout(String refreshToken) {
 
@@ -175,7 +172,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ValidationException("User is not authenticated.");
         }
 
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UserPrincipal principal =
+                (UserPrincipal) authentication.getPrincipal();
 
         return userRepository.findById(principal.getId())
                 .orElseThrow(() ->
