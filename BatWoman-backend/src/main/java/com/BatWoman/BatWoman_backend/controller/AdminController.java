@@ -2,12 +2,14 @@ package com.BatWoman.BatWoman_backend.controller;
 
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
+import com.BatWoman.BatWoman_backend.dto.order.OrderResponse;
 import com.BatWoman.BatWoman_backend.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -40,5 +42,21 @@ public class AdminController {
         );
 
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/orders")
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+
+        return ResponseEntity.ok(
+                adminService.getAllOrders()
+        );
+    }
+    @GetMapping("/orders/{orderId}")
+    public ResponseEntity<OrderResponse> getOrderById(
+
+            @PathVariable UUID orderId) {
+
+        return ResponseEntity.ok(
+                adminService.getOrderById(orderId)
+        );
     }
 }

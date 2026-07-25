@@ -73,8 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            // Ignore invalid or expired JWT.
-            // Continue without authentication.
+            System.out.println("JWT FILTER ERROR:");
+            e.printStackTrace();
 
         }
 
