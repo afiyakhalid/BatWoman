@@ -1,6 +1,5 @@
 package com.BatWoman.BatWoman_backend.service.impl;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.BatWoman.BatWoman_backend.dto.auth.LoginRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.LoginResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.RefreshTokenRequest;
@@ -16,19 +15,20 @@ import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.security.JwtService;
 import com.BatWoman.BatWoman_backend.security.UserPrincipal;
 import com.BatWoman.BatWoman_backend.service.AuthService;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import org.springframework.security.core.userdetails.UserDetails;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -36,13 +36,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtService jwtService;
 
     @Override
@@ -52,9 +48,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ValidationException("Email already registered.");
         }
 
-        if (request.phone() != null &&
-                userRepository.existsByPhone(request.phone())) {
-
+        if (request.phone() != null && userRepository.existsByPhone(request.phone())) {
             throw new ValidationException("Phone number already registered.");
         }
 
@@ -82,6 +76,7 @@ public class AuthServiceImpl implements AuthService {
                 savedUser.getPhone()
         );
     }
+
     @Override
     public LoginResponse login(LoginRequest request) {
 
@@ -95,11 +90,11 @@ public class AuthServiceImpl implements AuthService {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         User user = userRepository.findByEmail(userPrincipal.getUsername())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
         refreshTokenRepository.deleteByUser(user);
         refreshTokenRepository.flush();
-
+        user.setRefreshToken(null);
 
         String accessToken = jwtService.generateToken(userPrincipal);
 
@@ -112,10 +107,12 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(OffsetDateTime.now())
                 .build();
 
-        refreshTokenRepository.save(refreshToken);
+        RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
+        user.setRefreshToken(savedRefreshToken);
         user.setLastLogin(OffsetDateTime.now());
-//        userRepository.save(user);
+
+        userRepository.save(user);
 
         return new LoginResponse(
                 accessToken,
@@ -124,13 +121,13 @@ public class AuthServiceImpl implements AuthService {
                 user.getRole()
         );
     }
+
     @Override
     public LoginResponse refreshToken(RefreshTokenRequest request) {
 
         RefreshToken refreshToken = refreshTokenRepository
                 .findByToken(request.refreshToken())
-                .orElseThrow(() ->
-                        new ValidationException("Invalid refresh token."));
+                .orElseThrow(() -> new ValidationException("Invalid refresh token."));
 
         if (Boolean.TRUE.equals(refreshToken.getRevoked())) {
             throw new ValidationException("Refresh token has been revoked.");
@@ -141,7 +138,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = refreshToken.getUser();
-
         UserDetails userDetails = new UserPrincipal(user);
 
         String accessToken = jwtService.generateToken(userDetails);
@@ -151,16 +147,15 @@ public class AuthServiceImpl implements AuthService {
                 refreshToken.getToken(),
                 jwtService.getExpirationTime(),
                 user.getRole()
-
         );
     }
+
     @Override
     public void logout(String refreshToken) {
 
         RefreshToken token = refreshTokenRepository
                 .findByToken(refreshToken)
-                .orElseThrow(() ->
-                        new ValidationException("Invalid refresh token."));
+                .orElseThrow(() -> new ValidationException("Invalid refresh token."));
 
         refreshTokenRepository.delete(token);
     }
@@ -168,8 +163,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User getCurrentUser() {
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ValidationException("User is not authenticated.");
@@ -178,7 +172,6 @@ public class AuthServiceImpl implements AuthService {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         return userRepository.findById(principal.getId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 }
