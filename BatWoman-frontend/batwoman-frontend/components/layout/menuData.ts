@@ -13,10 +13,10 @@ export const menuData = {
     "Sale",
   ],
 
-  Categories: [
-    "Luxury",
-    "Casual",
-    "Party Wear",
-    "Everyday",
-  ],
+  // Categories: [
+  //   "Luxury",
+  //   "Casual",
+  //   "Party Wear",
+  //   "Everyday",
+  // ],
 };

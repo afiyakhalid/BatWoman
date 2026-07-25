@@ -4,6 +4,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { menuData } from "./menuData";
+import { useCategories } from "@/hooks/useCategories";
+const { data: categories = [] } = useCategories();
 
 interface Props {
   active: string | null;
@@ -49,17 +51,33 @@ export default function MegaMenu({
 
                 <div className="space-y-5">
 
-                  {menuData[active as keyof typeof menuData].map((item) => (
+                  <div className="space-y-5">
 
-                    <Link
-                      key={item}
-                      href="#"
-                      className="block text-3xl font-[var(--font-playfair)] transition hover:translate-x-2"
-                    >
-                      {item}
-                    </Link>
+    {active === "Categories"
+        ? categories.map((category) => (
 
-                  ))}
+              <Link
+                  key={category.id}
+                  href={`/categories/${category.id}`}
+                  className="block text-3xl font-[var(--font-playfair)] transition hover:translate-x-2"
+              >
+                  {category.name}
+              </Link>
+
+          ))
+        : menuData[active as keyof typeof menuData].map((item) => (
+
+              <Link
+                  key={item}
+                  href="#"
+                  className="block text-3xl font-[var(--font-playfair)] transition hover:translate-x-2"
+              >
+                  {item}
+              </Link>
+
+          ))}
+
+</div>
 
                 </div>
 
