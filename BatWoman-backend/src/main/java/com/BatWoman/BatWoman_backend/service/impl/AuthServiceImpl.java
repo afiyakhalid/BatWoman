@@ -15,10 +15,8 @@ import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.security.JwtService;
 import com.BatWoman.BatWoman_backend.security.UserPrincipal;
 import com.BatWoman.BatWoman_backend.service.AuthService;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,7 +46,8 @@ public class AuthServiceImpl implements AuthService {
             throw new ValidationException("Email already registered.");
         }
 
-        if (request.phone() != null && userRepository.existsByPhone(request.phone())) {
+        if (request.phone() != null &&
+                userRepository.existsByPhone(request.phone())) {
             throw new ValidationException("Phone number already registered.");
         }
 
@@ -87,32 +86,32 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserPrincipal userPrincipal =
+                (UserPrincipal) authentication.getPrincipal();
 
         User user = userRepository.findByEmail(userPrincipal.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-
-        refreshTokenRepository.deleteByUser(user);
-        refreshTokenRepository.flush();
-        user.setRefreshToken(null);
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found."));
 
         String accessToken = jwtService.generateToken(userPrincipal);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .id(UUID.randomUUID())
-                .user(user)
-                .token(UUID.randomUUID().toString())
-                .expiresAt(OffsetDateTime.now().plusDays(30))
-                .revoked(false)
-                .createdAt(OffsetDateTime.now())
-                .build();
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByUser(user)
+                .orElse(
+                        RefreshToken.builder()
+                                .id(UUID.randomUUID())
+                                .user(user)
+                                .createdAt(OffsetDateTime.now())
+                                .build()
+                );
 
-        RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiresAt(OffsetDateTime.now().plusDays(30));
+        refreshToken.setRevoked(false);
 
-        user.setRefreshToken(savedRefreshToken);
+        refreshTokenRepository.save(refreshToken);
+
         user.setLastLogin(OffsetDateTime.now());
-
-        userRepository.save(user);
 
         return new LoginResponse(
                 accessToken,
@@ -127,7 +126,8 @@ public class AuthServiceImpl implements AuthService {
 
         RefreshToken refreshToken = refreshTokenRepository
                 .findByToken(request.refreshToken())
-                .orElseThrow(() -> new ValidationException("Invalid refresh token."));
+                .orElseThrow(() ->
+                        new ValidationException("Invalid refresh token."));
 
         if (Boolean.TRUE.equals(refreshToken.getRevoked())) {
             throw new ValidationException("Refresh token has been revoked.");
@@ -138,6 +138,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = refreshToken.getUser();
+
         UserDetails userDetails = new UserPrincipal(user);
 
         String accessToken = jwtService.generateToken(userDetails);
@@ -155,7 +156,8 @@ public class AuthServiceImpl implements AuthService {
 
         RefreshToken token = refreshTokenRepository
                 .findByToken(refreshToken)
-                .orElseThrow(() -> new ValidationException("Invalid refresh token."));
+                .orElseThrow(() ->
+                        new ValidationException("Invalid refresh token."));
 
         refreshTokenRepository.delete(token);
     }
@@ -163,15 +165,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User getCurrentUser() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ValidationException("User is not authenticated.");
         }
 
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        UserPrincipal principal =
+                (UserPrincipal) authentication.getPrincipal();
 
         return userRepository.findById(principal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found."));
     }
 }
