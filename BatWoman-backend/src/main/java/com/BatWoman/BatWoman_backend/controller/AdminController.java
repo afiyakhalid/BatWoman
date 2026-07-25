@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.controller;
 
+import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
 import com.BatWoman.BatWoman_backend.dto.order.OrderResponse;
@@ -76,4 +77,15 @@ public class AdminController {
                 adminService.getPaymentById(paymentId)
         );
     }
+    @GetMapping("/inventory")
+    public ResponseEntity<List<InventoryResponse>> getAllInventory() {
+        return ResponseEntity.ok(adminService.getAllInventory());
+    }
+
+    @GetMapping("/inventory/{productId}")
+    public ResponseEntity<InventoryResponse> getInventory(
+            @PathVariable UUID productId) {
+        return ResponseEntity.ok(adminService.getInventory(productId));
+    }
+
 }

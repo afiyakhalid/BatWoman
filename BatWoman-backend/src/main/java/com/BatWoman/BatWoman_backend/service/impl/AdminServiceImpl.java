@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.service.impl;
 
+import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
 import com.BatWoman.BatWoman_backend.dto.order.OrderResponse;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -110,6 +110,7 @@ public class AdminServiceImpl implements AdminService {
                 items
         );
     }
+
     @Override
     public List<PaymentResponse> getAllPayments() {
 
@@ -132,26 +133,55 @@ public class AdminServiceImpl implements AdminService {
 
         return toPaymentResponse(payment);
     }
+
     private PaymentResponse toPaymentResponse(Payment payment) {
 
         return new PaymentResponse(
-
                 payment.getId(),
-
                 payment.getOrder().getId(),
-
                 payment.getRazorpayOrderId(),
-
                 payment.getRazorpayPaymentId(),
-
                 payment.getAmount(),
-
                 payment.getCurrency(),
-
                 payment.getPaymentStatus(),
-
                 payment.getPaidAt()
-
         );
+    }
+
+    private InventoryResponse toInventoryResponse(Inventory inventory) {
+
+        return new InventoryResponse(
+                inventory.getId(),
+                inventory.getProduct().getId(),
+                inventory.getProduct().getName(),
+                inventory.getAvailableQuantity(),
+                inventory.getReservedQuantity(),
+                inventory.getAvailableQuantity()
+                        + inventory.getReservedQuantity(),
+                inventory.getUpdatedAt()
+        );
+    }
+
+    @Override
+    public List<InventoryResponse> getAllInventory() {
+
+        return inventoryRepository
+                .findAll()
+                .stream()
+                .map(this::toInventoryResponse)
+                .toList();
+    }
+
+    @Override
+    public InventoryResponse getInventory(UUID productId) {
+
+        Inventory inventory = inventoryRepository
+                .findByProduct_Id(productId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Inventory not found for product: " + productId
+                        ));
+
+        return toInventoryResponse(inventory);
     }
 }

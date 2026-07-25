@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.service;
 
+import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
 import com.BatWoman.BatWoman_backend.dto.order.OrderResponse;
@@ -22,4 +23,7 @@ public interface AdminService {
     List<PaymentResponse> getAllPayments();
 
     PaymentResponse getPaymentById(UUID paymentId);
+    List<InventoryResponse> getAllInventory();
+
+    InventoryResponse getInventory(UUID productId);
 }
