@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useCart } from "@/hooks/useCart";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Heart,
@@ -21,6 +22,7 @@ import { useAuthStore } from "@/store/auth.store";
 
 // Step 2: Added the logout service import
 import { logout as logoutService } from "@/services/auth.service";
+
 
 const navItems = [
   {
@@ -63,7 +65,16 @@ export default function Navbar() {
   const { openLogin } = useAuthModal();
   
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
-  
+
+  const { data: cart } = useCart();
+
+  const cartItemCount =
+      cart?.items?.reduce(
+          (total, item) => total + item.quantity,
+          0
+      ) ?? 0;
+
+
   // Step 2: Added refreshToken and logoutStore state selectors
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const logoutStore = useAuthStore((state) => state.logout);
@@ -165,7 +176,35 @@ export default function Navbar() {
             </button>
 
             <button onClick={() => requireAuth(() => router.push("/customer/cart"))}>
-              <ShoppingBag size={20} className="transition hover:scale-110" />
+              <div className="relative">
+
+                <ShoppingBag className="h-5 w-5" />
+
+                {cartItemCount > 0 && (
+
+                    <span
+                        className="
+                absolute
+                -top-2
+                -right-2
+                flex
+                h-5
+                w-5
+                items-center
+                justify-center
+                rounded-full
+                bg-red-600
+                text-[11px]
+                font-semibold
+                text-white
+            "
+                    >
+            {cartItemCount}
+        </span>
+
+                )}
+
+              </div>
             </button>
 
             {isAuthenticated ? (
