@@ -1,8 +1,10 @@
 package com.BatWoman.BatWoman_backend.controller;
 
+import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
 import com.BatWoman.BatWoman_backend.dto.order.OrderResponse;
+import com.BatWoman.BatWoman_backend.dto.payment.PaymentResponse;
 import com.BatWoman.BatWoman_backend.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,4 +61,31 @@ public class AdminController {
                 adminService.getOrderById(orderId)
         );
     }
+    @GetMapping("/payments")
+    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
+
+        return ResponseEntity.ok(
+                adminService.getAllPayments()
+        );
+    }
+
+    @GetMapping("/payments/{paymentId}")
+    public ResponseEntity<PaymentResponse> getPaymentById(
+            @PathVariable UUID paymentId) {
+
+        return ResponseEntity.ok(
+                adminService.getPaymentById(paymentId)
+        );
+    }
+    @GetMapping("/inventory")
+    public ResponseEntity<List<InventoryResponse>> getAllInventory() {
+        return ResponseEntity.ok(adminService.getAllInventory());
+    }
+
+    @GetMapping("/inventory/{productId}")
+    public ResponseEntity<InventoryResponse> getInventory(
+            @PathVariable UUID productId) {
+        return ResponseEntity.ok(adminService.getInventory(productId));
+    }
+
 }
