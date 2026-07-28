@@ -1,24 +1,24 @@
 "use client";
 
-import { Order } from "@/services/adminOrder.service";
+import { Payment } from "@/services/adminPayment.service";
 
-import OrderRow from "./OrderRow";
+import PaymentRow from "./PaymentRow";
 
-interface OrderTableProps {
+interface PaymentTableProps {
 
-    orders: Order[];
+    payments: Payment[];
 
-    onView: (order: Order) => void;
+    onView: (payment: Payment) => void;
 
 }
 
-export default function OrderTable({
+export default function PaymentTable({
 
-    orders,
+    payments,
 
     onView,
 
-}: OrderTableProps) {
+}: PaymentTableProps) {
 
     return (
 
@@ -33,39 +33,31 @@ export default function OrderTable({
                         <tr>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Order #
-
+                                Payment ID
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Date
-
+                                Razorpay Order ID
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Items
-
+                                Amount
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Total
-
+                                Currency
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
                                 Status
+                            </th>
 
+                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                                Paid At
                             </th>
 
                             <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
                                 Actions
-
                             </th>
 
                         </tr>
@@ -74,26 +66,26 @@ export default function OrderTable({
 
                     <tbody>
 
-                        {orders.length === 0 ? (
+                        {payments.length === 0 ? (
 
                             <tr>
 
                                 <td
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="px-6 py-16 text-center text-neutral-500"
                                 >
-                                    No orders found.
+                                    No payments found.
                                 </td>
 
                             </tr>
 
                         ) : (
 
-                            orders.map((order) => (
+                            payments.map((payment) => (
 
-                                <OrderRow
-                                    key={order.orderId}
-                                    order={order}
+                                <PaymentRow
+                                    key={payment.paymentId}
+                                    payment={payment}
                                     onView={onView}
                                 />
 

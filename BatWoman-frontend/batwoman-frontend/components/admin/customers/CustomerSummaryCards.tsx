@@ -1,62 +1,100 @@
 "use client";
 
 import {
+
+    Users,
+
+    UserCheck,
+
+    UserX,
+
     ShoppingBag,
-    Clock3,
-    Truck,
-    CheckCircle2,
+
 } from "lucide-react";
 
-import { Order } from "@/services/adminOrder.service";
+import { Customer } from "@/services/adminCustomer.service";
 
-interface OrderSummaryCardsProps {
-    orders: Order[];
+interface CustomerSummaryCardsProps {
+
+    customers: Customer[];
+
 }
 
-export default function OrderSummaryCards({
-    orders,
-}: OrderSummaryCardsProps) {
+export default function CustomerSummaryCards({
 
-    const totalOrders = orders.length;
+    customers,
 
-    const pendingOrders = orders.filter(
-        (order) => order.status === "PENDING"
+}: CustomerSummaryCardsProps) {
+
+    const totalCustomers = customers.length;
+
+    const activeCustomers = customers.filter(
+
+        (customer) => customer.active
+
     ).length;
 
-    const processingOrders = orders.filter(
-        (order) => order.status === "PROCESSING"
+    const inactiveCustomers = customers.filter(
+
+        (customer) => !customer.active
+
     ).length;
 
-    const deliveredOrders = orders.filter(
-        (order) => order.status === "DELIVERED"
-    ).length;
+    const totalOrders = customers.reduce(
+
+        (sum, customer) => sum + customer.totalOrders,
+
+        0
+
+    );
 
     const cards = [
+
         {
-            title: "Total Orders",
+
+            title: "Customers",
+
+            value: totalCustomers,
+
+            icon: Users,
+
+        },
+
+        {
+
+            title: "Active",
+
+            value: activeCustomers,
+
+            icon: UserCheck,
+
+        },
+
+        {
+
+            title: "Inactive",
+
+            value: inactiveCustomers,
+
+            icon: UserX,
+
+        },
+
+        {
+
+            title: "Orders",
+
             value: totalOrders,
+
             icon: ShoppingBag,
+
         },
-        {
-            title: "Pending",
-            value: pendingOrders,
-            icon: Clock3,
-        },
-        {
-            title: "Processing",
-            value: processingOrders,
-            icon: Truck,
-        },
-        {
-            title: "Delivered",
-            value: deliveredOrders,
-            icon: CheckCircle2,
-        },
+
     ];
 
     return (
 
-        <section className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
             {cards.map((card) => {
 

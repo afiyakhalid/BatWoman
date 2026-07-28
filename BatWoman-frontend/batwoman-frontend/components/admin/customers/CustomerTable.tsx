@@ -1,24 +1,24 @@
 "use client";
 
-import { Order } from "@/services/adminOrder.service";
+import { Customer } from "@/services/adminCustomer.service";
 
-import OrderRow from "./OrderRow";
+import CustomerRow from "./CustomerRow";
 
-interface OrderTableProps {
+interface CustomerTableProps {
 
-    orders: Order[];
+    customers: Customer[];
 
-    onView: (order: Order) => void;
+    onView: (customer: Customer) => void;
 
 }
 
-export default function OrderTable({
+export default function CustomerTable({
 
-    orders,
+    customers,
 
     onView,
 
-}: OrderTableProps) {
+}: CustomerTableProps) {
 
     return (
 
@@ -34,31 +34,37 @@ export default function OrderTable({
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Order #
+                                Customer
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Date
+                                Email
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Items
+                                Phone
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Total
+                                Orders
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
                                 Status
+
+                            </th>
+
+                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+
+                                Joined
 
                             </th>
 
@@ -74,27 +80,33 @@ export default function OrderTable({
 
                     <tbody>
 
-                        {orders.length === 0 ? (
+                        {customers.length === 0 ? (
 
                             <tr>
 
                                 <td
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="px-6 py-16 text-center text-neutral-500"
                                 >
-                                    No orders found.
+
+                                    No customers found.
+
                                 </td>
 
                             </tr>
 
                         ) : (
 
-                            orders.map((order) => (
+                            customers.map((customer) => (
 
-                                <OrderRow
-                                    key={order.orderId}
-                                    order={order}
+                                <CustomerRow
+
+                                    key={customer.customerId}
+
+                                    customer={customer}
+
                                     onView={onView}
+
                                 />
 
                             ))

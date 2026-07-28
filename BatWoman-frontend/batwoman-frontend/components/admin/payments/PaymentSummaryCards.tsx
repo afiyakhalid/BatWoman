@@ -1,57 +1,69 @@
 "use client";
 
 import {
-    ShoppingBag,
-    Clock3,
-    Truck,
+    CreditCard,
+    DollarSign,
     CheckCircle2,
+    Clock3,
 } from "lucide-react";
 
-import { Order } from "@/services/adminOrder.service";
+import { Payment } from "@/services/adminPayment.service";
 
-interface OrderSummaryCardsProps {
-    orders: Order[];
+interface PaymentSummaryCardsProps {
+
+    payments: Payment[];
+
 }
 
-export default function OrderSummaryCards({
-    orders,
-}: OrderSummaryCardsProps) {
+export default function PaymentSummaryCards({
 
-    const totalOrders = orders.length;
+    payments,
 
-    const pendingOrders = orders.filter(
-        (order) => order.status === "PENDING"
+}: PaymentSummaryCardsProps) {
+
+    const totalPayments = payments.length;
+
+    const successfulPayments = payments.filter(
+        (payment) => payment.status === "SUCCESS"
     ).length;
 
-    const processingOrders = orders.filter(
-        (order) => order.status === "PROCESSING"
+    const pendingPayments = payments.filter(
+        (payment) => payment.status === "PENDING"
     ).length;
 
-    const deliveredOrders = orders.filter(
-        (order) => order.status === "DELIVERED"
-    ).length;
+    const totalRevenue = payments
+        .filter((payment) => payment.status === "SUCCESS")
+        .reduce(
+            (sum, payment) => sum + payment.amount,
+            0
+        );
 
     const cards = [
+
         {
-            title: "Total Orders",
-            value: totalOrders,
-            icon: ShoppingBag,
+            title: "Total Payments",
+            value: totalPayments,
+            icon: CreditCard,
         },
+
         {
-            title: "Pending",
-            value: pendingOrders,
-            icon: Clock3,
+            title: "Revenue",
+            value: `₹${totalRevenue.toLocaleString()}`,
+            icon: DollarSign,
         },
+
         {
-            title: "Processing",
-            value: processingOrders,
-            icon: Truck,
-        },
-        {
-            title: "Delivered",
-            value: deliveredOrders,
+            title: "Successful",
+            value: successfulPayments,
             icon: CheckCircle2,
         },
+
+        {
+            title: "Pending",
+            value: pendingPayments,
+            icon: Clock3,
+        },
+
     ];
 
     return (

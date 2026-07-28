@@ -1,24 +1,24 @@
 "use client";
 
-import { Order } from "@/services/adminOrder.service";
+import { Inventory } from "@/services/adminInventory.service";
 
-import OrderRow from "./OrderRow";
+import InventoryRow from "./InventoryRow";
 
-interface OrderTableProps {
+interface InventoryTableProps {
 
-    orders: Order[];
+    inventory: Inventory[];
 
-    onView: (order: Order) => void;
+    onRestock: (inventory: Inventory) => void;
 
 }
 
-export default function OrderTable({
+export default function InventoryTable({
 
-    orders,
+    inventory,
 
-    onView,
+    onRestock,
 
-}: OrderTableProps) {
+}: InventoryTableProps) {
 
     return (
 
@@ -34,19 +34,19 @@ export default function OrderTable({
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Order #
+                                Product
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Date
+                                Available
 
                             </th>
 
                             <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
-                                Items
+                                Reserved
 
                             </th>
 
@@ -62,6 +62,12 @@ export default function OrderTable({
 
                             </th>
 
+                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+
+                                Updated
+
+                            </th>
+
                             <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wide text-neutral-500">
 
                                 Actions
@@ -74,27 +80,29 @@ export default function OrderTable({
 
                     <tbody>
 
-                        {orders.length === 0 ? (
+                        {inventory.length === 0 ? (
 
                             <tr>
 
                                 <td
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="px-6 py-16 text-center text-neutral-500"
                                 >
-                                    No orders found.
+
+                                    No inventory found.
+
                                 </td>
 
                             </tr>
 
                         ) : (
 
-                            orders.map((order) => (
+                            inventory.map((item) => (
 
-                                <OrderRow
-                                    key={order.orderId}
-                                    order={order}
-                                    onView={onView}
+                                <InventoryRow
+                                    key={item.inventoryId}
+                                    inventory={item}
+                                    onRestock={onRestock}
                                 />
 
                             ))

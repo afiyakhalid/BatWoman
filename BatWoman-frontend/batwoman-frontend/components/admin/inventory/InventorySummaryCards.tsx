@@ -1,62 +1,103 @@
 "use client";
 
 import {
-    ShoppingBag,
-    Clock3,
-    Truck,
-    CheckCircle2,
+
+    Archive,
+
+    AlertTriangle,
+
+    Package,
+
+    Boxes,
+
 } from "lucide-react";
 
-import { Order } from "@/services/adminOrder.service";
+import { Inventory } from "@/services/adminInventory.service";
 
-interface OrderSummaryCardsProps {
-    orders: Order[];
+interface InventorySummaryCardsProps {
+
+    inventory: Inventory[];
+
 }
 
-export default function OrderSummaryCards({
-    orders,
-}: OrderSummaryCardsProps) {
+export default function InventorySummaryCards({
 
-    const totalOrders = orders.length;
+    inventory,
 
-    const pendingOrders = orders.filter(
-        (order) => order.status === "PENDING"
+}: InventorySummaryCardsProps) {
+
+    const totalProducts = inventory.length;
+
+    const lowStock = inventory.filter(
+
+        (item) =>
+
+            item.availableQuantity > 0 &&
+            item.availableQuantity <= 10
+
     ).length;
 
-    const processingOrders = orders.filter(
-        (order) => order.status === "PROCESSING"
+    const outOfStock = inventory.filter(
+
+        (item) => item.availableQuantity === 0
+
     ).length;
 
-    const deliveredOrders = orders.filter(
-        (order) => order.status === "DELIVERED"
-    ).length;
+    const totalUnits = inventory.reduce(
+
+        (sum, item) => sum + item.totalQuantity,
+
+        0
+
+    );
 
     const cards = [
+
         {
-            title: "Total Orders",
-            value: totalOrders,
-            icon: ShoppingBag,
+
+            title: "Products",
+
+            value: totalProducts,
+
+            icon: Package,
+
         },
+
         {
-            title: "Pending",
-            value: pendingOrders,
-            icon: Clock3,
+
+            title: "Total Units",
+
+            value: totalUnits,
+
+            icon: Boxes,
+
         },
+
         {
-            title: "Processing",
-            value: processingOrders,
-            icon: Truck,
+
+            title: "Low Stock",
+
+            value: lowStock,
+
+            icon: AlertTriangle,
+
         },
+
         {
-            title: "Delivered",
-            value: deliveredOrders,
-            icon: CheckCircle2,
+
+            title: "Out Of Stock",
+
+            value: outOfStock,
+
+            icon: Archive,
+
         },
+
     ];
 
     return (
 
-        <section className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
             {cards.map((card) => {
 

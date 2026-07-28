@@ -2,7 +2,7 @@
 
 import { Search } from "lucide-react";
 
-interface OrderToolbarProps {
+interface PaymentToolbarProps {
 
     search: string;
 
@@ -14,7 +14,7 @@ interface OrderToolbarProps {
 
 }
 
-export default function OrderToolbar({
+export default function PaymentToolbar({
 
     search,
 
@@ -24,7 +24,7 @@ export default function OrderToolbar({
 
     onStatusChange,
 
-}: OrderToolbarProps) {
+}: PaymentToolbarProps) {
 
     return (
 
@@ -36,13 +36,13 @@ export default function OrderToolbar({
 
                 <h1 className="font-[var(--font-playfair)] text-5xl">
 
-                    Orders
+                    Payments
 
                 </h1>
 
                 <p className="mt-3 text-neutral-500">
 
-                    Manage customer orders and update their status.
+                    Track all customer payments and transactions.
 
                 </p>
 
@@ -65,7 +65,7 @@ export default function OrderToolbar({
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             onSearchChange(e.target.value)
                         }
-                        placeholder="Search orders..."
+                        placeholder="Search payments..."
                         className="w-72 rounded-xl border border-neutral-200 bg-white py-3 pl-12 pr-4 outline-none transition focus:border-black"
                     />
 
@@ -83,24 +83,20 @@ export default function OrderToolbar({
                         All Statuses
                     </option>
 
+                    <option value="SUCCESS">
+                        Success
+                    </option>
+
                     <option value="PENDING">
                         Pending
                     </option>
 
-                    <option value="PROCESSING">
-                        Processing
+                    <option value="FAILED">
+                        Failed
                     </option>
 
-                    <option value="SHIPPED">
-                        Shipped
-                    </option>
-
-                    <option value="DELIVERED">
-                        Delivered
-                    </option>
-
-                    <option value="CANCELLED">
-                        Cancelled
+                    <option value="REFUNDED">
+                        Refunded
                     </option>
 
                 </select>
