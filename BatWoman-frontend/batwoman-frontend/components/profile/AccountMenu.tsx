@@ -1,14 +1,22 @@
 "use client";
 
-import { Package, Heart, MapPin, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+    Package,
+    Heart,
+    MapPin,
+    LogOut,
+} from "lucide-react";
 
 interface Props {
     onLogout: () => void;
 }
 
 export default function AccountMenu({
-    onLogout,
-}: Props) {
+                                        onLogout,
+                                    }: Props) {
+
+    const router = useRouter();
 
     return (
 
@@ -20,18 +28,27 @@ export default function AccountMenu({
 
             <div className="space-y-4">
 
-                <button className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50">
-                    <Package />
+                <button
+                    onClick={() => router.push("/customer/orders")}
+                    className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50"
+                >
+                    <Package size={20} />
                     My Orders
                 </button>
 
-                <button className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50">
-                    <Heart />
+                <button
+                    onClick={() => router.push("/customer/wishlist")}
+                    className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50"
+                >
+                    <Heart size={20} />
                     Wishlist
                 </button>
 
-                <button className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50">
-                    <MapPin />
+                <button
+                    onClick={() => router.push("/customer/address")}
+                    className="flex w-full items-center gap-3 rounded-lg border p-4 transition hover:bg-neutral-50"
+                >
+                    <MapPin size={20} />
                     Addresses
                 </button>
 
@@ -39,7 +56,7 @@ export default function AccountMenu({
                     onClick={onLogout}
                     className="flex w-full items-center gap-3 rounded-lg border border-red-300 p-4 text-red-600 transition hover:bg-red-50"
                 >
-                    <LogOut />
+                    <LogOut size={20} />
                     Logout
                 </button>
 

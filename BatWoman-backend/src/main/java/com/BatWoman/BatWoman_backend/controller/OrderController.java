@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.BatWoman.BatWoman_backend.dto.order.OrderDetailsResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,11 +29,13 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponse> getOrderById(
+    public ResponseEntity<OrderDetailsResponse> getOrderById(
             @PathVariable UUID orderId) {
 
         return ResponseEntity.ok(
+
                 orderService.getOrderById(orderId)
+
         );
     }
 

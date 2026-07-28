@@ -18,6 +18,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.BatWoman.BatWoman_backend.dto.address.AddressResponse;
+import com.BatWoman.BatWoman_backend.dto.order.OrderDetailsResponse;
+import com.BatWoman.BatWoman_backend.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -80,6 +83,94 @@ public class OrderServiceImpl implements OrderService {
                 order.getCreatedAt(),
                 items
         );
+
+    }
+    private OrderDetailsResponse toDetailsResponse(Order order) {
+
+        List<OrderResponse.OrderItemResponse> items =
+                order.getOrderItems()
+                        .stream()
+                        .map(item -> new OrderResponse.OrderItemResponse(
+
+                                item.getProduct().getId(),
+
+                                item.getProduct().getName(),
+
+                                item.getQuantity(),
+
+                                item.getUnitPrice(),
+
+                                item.getSubtotal()
+
+                        ))
+                        .toList();
+
+        Address address = order.getAddress();
+
+        AddressResponse addressResponse = null;
+
+        if (address != null) {
+
+            addressResponse = new AddressResponse(
+
+                    address.getId(),
+
+                    address.getFullName(),
+
+                    address.getPhone(),
+
+                    address.getAddressLine1(),
+
+                    address.getAddressLine2(),
+
+                    address.getCity(),
+
+                    address.getState(),
+
+                    address.getCountry(),
+
+                    address.getPostalCode(),
+
+                    address.getDefaultAddress()
+
+            );
+
+        }
+
+        PaymentStatus paymentStatus = null;
+
+        if (order.getPayment() != null) {
+
+            paymentStatus = order.getPayment().getPaymentStatus();
+
+        }
+
+        return new OrderDetailsResponse(
+
+                order.getId(),
+
+                order.getOrderNumber(),
+
+                order.getStatus(),
+
+                paymentStatus,
+
+                order.getSubtotal(),
+
+                order.getShippingCharge(),
+
+                order.getDiscount(),
+
+                order.getTotal(),
+
+                order.getCreatedAt(),
+
+                addressResponse,
+
+                items
+
+        );
+
     }
 
     @Override
@@ -175,7 +266,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse getOrderById(UUID orderId) {
+    public OrderDetailsResponse getOrderById(UUID orderId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() ->
@@ -190,7 +281,8 @@ public class OrderServiceImpl implements OrderService {
                     "You are not allowed to view this order.");
         }
 
-        return toResponse(order);
+        return toDetailsResponse(order);
+
     }
 
     @Override

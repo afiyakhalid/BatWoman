@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
 import CheckoutAddress from "@/components/checkout/CheckoutAddress";
@@ -12,9 +12,11 @@ import { useCreatePayment, useVerifyPayment } from "@/hooks/usePayments";
 
 import { useAddress } from "@/hooks/useAddresses";
 import { useCart } from "@/hooks/useCart";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function CheckoutPage() {
 
+    const router = useRouter();
     const searchParams = useSearchParams();
     const checkoutMutation = useCheckout();
     const createPaymentMutation = useCreatePayment();
@@ -33,6 +35,8 @@ export default function CheckoutPage() {
         isLoading: cartLoading,
         isError: cartError,
     } = useCart();
+
+    const { data: user } = useCurrentUser();
 
     async function handlePlaceOrder() {
         if (!addressId) return;
@@ -56,33 +60,70 @@ export default function CheckoutPage() {
                 name: "BatWoman",
                 description: "Luxury Abaya Purchase",
                 order_id: payment.razorpayOrderId,
-                prefill: {
-                    name: address!.fullName,
-                    contact: address!.phone,
-                },
+                    prefill: {
+
+                        name: address!.fullName,
+
+                        contact: address!.phone,
+
+                        email: user?.email,
+
+                    },
                 theme: {
+
                     color: "#000000",
+
+                },
+
+                modal: {
+
+                    ondismiss() {
+
+                        alert("Payment cancelled.");
+
+                    }
+
                 },
                 handler: async function (response: any) {
+
                     try {
+
                         await verifyPaymentMutation.mutateAsync({
+
                             paymentId: payment.paymentId,
+
                             razorpayPaymentId: response.razorpay_payment_id,
+
                             razorpaySignature: response.razorpay_signature,
+
                         });
 
-                        console.log("Payment verified successfully.");
-                        
-                        // We'll redirect to success page later
-                        // router.push("/customer/orders/success");
+                        router.push(
+
+                            `/customer/checkout/success?orderId=${order.orderId}`
+
+                        );
+
                     } catch (error) {
+
                         console.error("Payment verification failed", error);
+
                     }
+
                 }
             };
 
             // Using type assertion (window as any) to keep TypeScript happy 
             const razorpay = new (window as any).Razorpay(options);
+
+            razorpay.on("payment.failed", function (response: any) {
+
+                console.error(response.error);
+
+                alert("Payment failed. Please try again.");
+
+            });
+
             razorpay.open();
 
         } catch (error) {

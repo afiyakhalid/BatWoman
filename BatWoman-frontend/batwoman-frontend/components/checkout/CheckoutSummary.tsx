@@ -81,12 +81,17 @@ export default function CheckoutSummary({
             </div>
 
             <Button
+                disabled={isLoading}
 
-                className="mt-10 h-12 w-full"
+                className={`
+                            w-full
+                            bg-black
+                            text-white
+                            ...
+                            ${isLoading ? "opacity-60 cursor-not-allowed" : ""}
+                            `}
 
                 onClick={onPlaceOrder}
-
-                disabled={isLoading}
 
             >
 
