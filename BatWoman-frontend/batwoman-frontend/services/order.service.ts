@@ -1,32 +1,15 @@
 import api from "@/lib/axios";
+import { Order } from "@/types/order";
+
 export interface CheckoutRequest {
     addressId: string;
 }
 
-export interface OrderItem {
-    productId: string;
-    productName: string;
-    quantity: number;
-    unitPrice: number;
-    subtotal: number;
-}
-
-export interface OrderResponse {
-    orderId: string;
-    orderNumber: string;
-    status: string;
-    subtotal: number;
-    shippingCharge: number;
-    total: number;
-    createdAt: string;
-    items: OrderItem[];
-}
-
 export async function checkout(
     request: CheckoutRequest
-): Promise<OrderResponse> {
+): Promise<Order> {
 
-    const { data } = await api.post(
+    const { data } = await api.post<Order>(
         "/orders/checkout",
         request
     );
@@ -34,18 +17,20 @@ export async function checkout(
     return data;
 }
 
-export async function getMyOrders(): Promise<OrderResponse[]> {
+export async function getMyOrders(): Promise<Order[]> {
 
-    const { data } = await api.get("/orders");
+    const { data } = await api.get<Order[]>(
+        "/orders/my-orders"
+    );
 
     return data;
 }
 
 export async function getOrder(
     orderId: string
-): Promise<OrderResponse> {
+): Promise<Order> {
 
-    const { data } = await api.get(
+    const { data } = await api.get<Order>(
         `/orders/${orderId}`
     );
 
@@ -54,7 +39,8 @@ export async function getOrder(
 
 export async function cancelOrder(
     orderId: string
-): Promise<void> {
+) {
 
     await api.delete(`/orders/${orderId}`);
+
 }

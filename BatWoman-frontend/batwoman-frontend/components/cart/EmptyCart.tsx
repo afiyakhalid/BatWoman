@@ -26,12 +26,11 @@ export default function EmptyCart() {
 
                 className="
                     mt-10
-                    bg-black
                     px-8
                     py-4
-                    text-white
+                    text-black
                     transition
-                    hover:bg-neutral-800
+                    hover:bg-neutral-100 duration-200
                 "
 
             >
