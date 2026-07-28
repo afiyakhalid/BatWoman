@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import com.BatWoman.BatWoman_backend.dto.admin.CustomerResponse;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -86,6 +87,23 @@ public class AdminController {
     public ResponseEntity<InventoryResponse> getInventory(
             @PathVariable UUID productId) {
         return ResponseEntity.ok(adminService.getInventory(productId));
+    }
+    @GetMapping("/customers")
+    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+
+        return ResponseEntity.ok(
+                adminService.getAllCustomers()
+        );
+    }
+
+    @GetMapping("/customers/{customerId}")
+    public ResponseEntity<CustomerResponse> getCustomerById(
+
+            @PathVariable UUID customerId) {
+
+        return ResponseEntity.ok(
+                adminService.getCustomerById(customerId)
+        );
     }
 
 }

@@ -13,6 +13,9 @@ import com.BatWoman.BatWoman_backend.repository.InventoryRepository;
 import com.BatWoman.BatWoman_backend.repository.OrderRepository;
 import com.BatWoman.BatWoman_backend.repository.PaymentRepository;
 import com.BatWoman.BatWoman_backend.service.AdminService;
+import com.BatWoman.BatWoman_backend.dto.admin.CustomerResponse;
+import com.BatWoman.BatWoman_backend.entity.User;
+import com.BatWoman.BatWoman_backend.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class AdminServiceImpl implements AdminService {
     private final InventoryRepository inventoryRepository;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void restockInventory(RestockInventoryRequest request) {
@@ -183,5 +187,54 @@ public class AdminServiceImpl implements AdminService {
                         ));
 
         return toInventoryResponse(inventory);
+    }
+    private CustomerResponse toCustomerResponse(User user) {
+
+        return new CustomerResponse(
+
+                user.getId(),
+
+                user.getFirstName(),
+
+                user.getLastName(),
+
+                user.getEmail(),
+
+                user.getPhone(),
+
+                user.getRole(),
+
+                user.getVerified(),
+
+                user.getActive(),
+
+                user.getOrders() == null
+                        ? 0
+                        : user.getOrders().size(),
+
+                user.getCreatedAt()
+
+        );
+    }
+    @Override
+    public List<CustomerResponse> getAllCustomers() {
+
+        return userRepository
+                .findAll()
+                .stream()
+                .map(this::toCustomerResponse)
+                .toList();
+    }
+    @Override
+    public CustomerResponse getCustomerById(UUID customerId) {
+
+        User user = userRepository
+                .findById(customerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Customer not found."
+                        ));
+
+        return toCustomerResponse(user);
     }
 }
