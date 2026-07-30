@@ -15,5 +15,8 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     Optional<Payment> findByRazorpayPaymentId(String razorpayPaymentId);
 
     List<Payment> findByPaymentStatus(PaymentStatus paymentStatus);
+    long countByPaymentStatus(PaymentStatus paymentStatus);
+
+    List<Payment> findTop5ByOrderByPaidAtDesc();
 
 }

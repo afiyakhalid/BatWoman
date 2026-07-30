@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 import com.BatWoman.BatWoman_backend.dto.admin.CustomerResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.DashboardResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.settings.AdminProfileResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.settings.ChangeEmailRequest;
+import com.BatWoman.BatWoman_backend.dto.admin.settings.ChangePasswordRequest;
+import com.BatWoman.BatWoman_backend.dto.admin.settings.UpdateAdminProfileRequest;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -105,5 +112,66 @@ public class AdminController {
                 adminService.getCustomerById(customerId)
         );
     }
+    @GetMapping("/analytics")
+    public ResponseEntity<DashboardResponse> getAnalytics() {
 
-}
+        return ResponseEntity.ok(
+                adminService.getDashboard()
+        );
+
+    }
+    @GetMapping("/settings/profile")
+    public ResponseEntity<AdminProfileResponse> getAdminProfile() {
+
+        return ResponseEntity.ok(
+                adminService.getAdminProfile()
+        );
+
+    }
+    @PutMapping("/settings/profile")
+    public ResponseEntity<AdminProfileResponse> updateAdminProfile(
+
+            @Valid
+            @RequestBody
+            UpdateAdminProfileRequest request
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminService.updateAdminProfile(request)
+        );
+
+    }
+    @PutMapping("/settings/email")
+    public ResponseEntity<Void> changeEmail(
+
+            @Valid
+            @RequestBody
+            ChangeEmailRequest request
+
+    ) {
+
+        adminService.changeEmail(request);
+
+        return ResponseEntity.noContent().build();
+
+    }
+    @PutMapping("/settings/password")
+    public ResponseEntity<Void> changePassword(
+
+            @Valid
+            @RequestBody
+            ChangePasswordRequest request
+
+    ) {
+
+        adminService.changePassword(request);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    }
+
+
+

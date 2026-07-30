@@ -1,4 +1,12 @@
 package com.BatWoman.BatWoman_backend.dto.admin;
 
-public class InventoryAnalyticsResponse {
+public record InventoryAnalyticsResponse(
+
+        Long healthy,
+
+        Long lowStock,
+
+        Long outOfStock
+
+) {
 }

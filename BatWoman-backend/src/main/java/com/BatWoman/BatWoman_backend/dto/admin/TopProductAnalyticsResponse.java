@@ -1,4 +1,14 @@
 package com.BatWoman.BatWoman_backend.dto.admin;
 
-public class TopProductAnalyticsResponse {
+import java.util.UUID;
+
+public record TopProductAnalyticsResponse(
+
+        UUID productId,
+
+        String productName,
+
+        Long unitsSold
+
+) {
 }

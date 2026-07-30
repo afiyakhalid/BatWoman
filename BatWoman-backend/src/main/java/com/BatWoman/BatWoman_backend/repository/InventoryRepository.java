@@ -22,5 +22,10 @@ public interface InventoryRepository extends JpaRepository<Inventory, UUID> {
            WHERE i.product.id = :productId
            """)
     Optional<Inventory> lockInventory(UUID productId);
+    long countByAvailableQuantityGreaterThan(Integer quantity);
+
+    long countByAvailableQuantityBetween(Integer min, Integer max);
+
+    long countByAvailableQuantity(Integer quantity);
 
 }

@@ -1,4 +1,12 @@
 package com.BatWoman.BatWoman_backend.dto.admin;
 
-public class MonthlyRevenueResponse {
+import java.math.BigDecimal;
+
+public record MonthlyRevenueResponse(
+
+        String month,
+
+        BigDecimal revenue
+
+) {
 }
