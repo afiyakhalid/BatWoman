@@ -20,8 +20,8 @@ public class CorsConfig {
 
         // Allows any port on localhost or 127.0.0.1
         config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*"
+                "http://localhost:3000"
+
         ));
 
         config.setAllowedHeaders(List.of("*"));
