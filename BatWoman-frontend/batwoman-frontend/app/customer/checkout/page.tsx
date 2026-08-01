@@ -60,56 +60,33 @@ export default function CheckoutPage() {
                 name: "BatWoman",
                 description: "Luxury Abaya Purchase",
                 order_id: payment.razorpayOrderId,
-                    prefill: {
-
-                        name: address!.fullName,
-
-                        contact: address!.phone,
-
-                        email: user?.email,
-
-                    },
-                theme: {
-
-                    color: "#000000",
-
+                prefill: {
+                    name: address!.fullName,
+                    contact: address!.phone,
+                    email: user?.email,
                 },
-
+                theme: {
+                    color: "#000000",
+                },
                 modal: {
-
                     ondismiss() {
-
                         alert("Payment cancelled.");
-
                     }
-
                 },
                 handler: async function (response: any) {
-
                     try {
-
                         await verifyPaymentMutation.mutateAsync({
-
                             paymentId: payment.paymentId,
-
                             razorpayPaymentId: response.razorpay_payment_id,
-
                             razorpaySignature: response.razorpay_signature,
-
                         });
 
-                        router.push(
-
-                            `/customer/checkout/success?orderId=${order.orderId}`
-
-                        );
+                        // Redirect to Customer Orders list
+                        router.push("/customer/orders");
 
                     } catch (error) {
-
                         console.error("Payment verification failed", error);
-
                     }
-
                 }
             };
 
@@ -117,11 +94,8 @@ export default function CheckoutPage() {
             const razorpay = new (window as any).Razorpay(options);
 
             razorpay.on("payment.failed", function (response: any) {
-
                 console.error(response.error);
-
                 alert("Payment failed. Please try again.");
-
             });
 
             razorpay.open();
@@ -186,7 +160,6 @@ export default function CheckoutPage() {
                         shipping={cart.shipping}
                         total={cart.total}
                         onPlaceOrder={handlePlaceOrder}
-                        // Loading stays active throughout backend tasks
                         isLoading={checkoutMutation.isPending || createPaymentMutation.isPending}
                     />
                 </div>

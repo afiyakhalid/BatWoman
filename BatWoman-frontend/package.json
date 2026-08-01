@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "formatter": "^0.4.2",
+    "recharts": "^3.10.1"
+  }
+}
