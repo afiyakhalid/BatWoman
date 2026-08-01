@@ -1,20 +1,21 @@
 "use client";
 
+import { useOrders } from "@/hooks/useOrders";
+
 import EmptyOrders from "@/components/orders/EmptyOrders";
 import OrderCard from "@/components/orders/OrderCard";
-import { useMyOrders } from "@/hooks/useOrders";
 
 export default function OrdersPage() {
 
     const {
 
-        data: orders = [],
+        data: orders,
 
         isLoading,
 
         isError,
 
-    } = useMyOrders();
+    } = useOrders();
 
     if (isLoading) {
 
@@ -44,6 +45,12 @@ export default function OrdersPage() {
 
     }
 
+    if (!orders || orders.length === 0) {
+
+        return <EmptyOrders />;
+
+    }
+
     return (
 
         <section className="mx-auto max-w-7xl px-6 py-36">
@@ -58,47 +65,27 @@ export default function OrdersPage() {
 
                 <p className="mt-3 text-neutral-500">
 
-                    Track and manage all your purchases.
+                    View and track all your purchases.
 
                 </p>
 
             </div>
 
-            {
+            <div className="space-y-8">
 
-                orders.length === 0
+                {orders.map((order) => (
 
-                    ? (
+                    <OrderCard
 
-                        <EmptyOrders />
+                        key={order.orderId}
 
-                    )
+                        order={order}
 
-                    : (
+                    />
 
-                        <div className="space-y-8">
+                ))}
 
-                            {
-
-                                orders.map((order) => (
-
-                                    <OrderCard
-
-                                        key={order.orderId}
-
-                                        order={order}
-
-                                    />
-
-                                ))
-
-                            }
-
-                        </div>
-
-                    )
-
-            }
+            </div>
 
         </section>
 
