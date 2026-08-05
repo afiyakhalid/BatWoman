@@ -4,10 +4,10 @@ import { useParams } from "next/navigation";
 
 import { useOrder } from "@/hooks/useOrders";
 
+import OrderTimeline from "@/components/orders/OrderTimeline";
+import ShippingAddressCard from "@/components/orders/ShippingAddressCard";
 import OrderItemsCard from "@/components/orders/OrderItemsCard";
 import OrderSummaryCard from "@/components/orders/OrderSummaryCard";
-import ShippingAddressCard from "@/components/orders/ShippingAddressCard";
-import OrderTimeline from "@/components/orders/OrderTimeline";
 
 export default function OrderDetailsPage() {
 
@@ -31,7 +31,7 @@ export default function OrderDetailsPage() {
 
             <section className="mx-auto max-w-7xl px-6 py-36">
 
-                Loading order...
+                Loading...
 
             </section>
 
@@ -99,21 +99,17 @@ export default function OrderDetailsPage() {
 
                 </div>
 
-                <div>
+                <OrderSummaryCard
 
-                    <OrderSummaryCard
+                    subtotal={order.subtotal}
 
-                        subtotal={order.subtotal}
+                    shipping={order.shippingCharge}
 
-                        shipping={order.shippingCharge}
+                    discount={order.discount}
 
-                        discount={order.discount}
+                    total={order.total}
 
-                        total={order.total}
-
-                    />
-
-                </div>
+                />
 
             </div>
 

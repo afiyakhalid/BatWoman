@@ -24,7 +24,11 @@ import {
 
 } from "@/services/order.service";
 
+const ORDER_QUERY = ["orders"];
+
 export function useCheckout() {
+
+    const queryClient = useQueryClient();
 
     return useMutation({
 
@@ -32,15 +36,25 @@ export function useCheckout() {
 
             checkout(request),
 
+        onSuccess: () => {
+
+            queryClient.invalidateQueries({
+
+                queryKey: ORDER_QUERY,
+
+            });
+
+        },
+
     });
 
 }
 
-export function useMyOrders() {
+export function useOrders() {
 
     return useQuery({
 
-        queryKey: ["orders"],
+        queryKey: ORDER_QUERY,
 
         queryFn: getMyOrders,
 
@@ -48,11 +62,15 @@ export function useMyOrders() {
 
 }
 
-export function useOrder(orderId?: string) {
+export function useOrder(
+
+    orderId?: string
+
+) {
 
     return useQuery({
 
-        queryKey: ["orders", orderId],
+        queryKey: [...ORDER_QUERY, orderId],
 
         queryFn: () => getOrder(orderId!),
 
@@ -74,7 +92,7 @@ export function useCancelOrder() {
 
             queryClient.invalidateQueries({
 
-                queryKey: ["orders"],
+                queryKey: ORDER_QUERY,
 
             });
 

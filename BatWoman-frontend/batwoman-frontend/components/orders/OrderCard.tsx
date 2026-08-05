@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
-import { ArrowRight } from "lucide-react";
-
-import { Order } from "@/types/order";
+import { useRouter } from "next/navigation";
 
 import OrderStatusBadge from "./OrderStatusBadge";
+
+import { Order } from "@/types/order";
 
 interface Props {
 
@@ -20,15 +18,17 @@ export default function OrderCard({
 
                                   }: Props) {
 
+    const router = useRouter();
+
     return (
 
         <div className="rounded-xl border border-neutral-200 bg-white p-8">
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
 
                 <div>
 
-                    <h2 className="text-xl font-semibold">
+                    <h2 className="font-semibold text-xl">
 
                         {order.orderNumber}
 
@@ -62,33 +62,39 @@ export default function OrderCard({
 
                 <div>
 
-                    <p className="text-neutral-500">
+                    <p className="text-sm text-neutral-500">
 
-                        {order.items.length} Items
+                        Total
 
                     </p>
 
-                    <h3 className="mt-2 text-2xl font-semibold">
+                    <p className="text-2xl font-semibold">
 
                         ₹{order.total}
 
-                    </h3>
+                    </p>
 
                 </div>
 
-                <Link
+                <button
 
-                    href={`/customer/orders/${order.orderId}`}
+                    onClick={() =>
 
-                    className="flex items-center gap-2 font-medium"
+                        router.push(
+
+                            `/customer/orders/${order.orderId}`
+
+                        )
+
+                    }
+
+                    className="rounded-lg bg-black px-6 py-3 text-white transition hover:bg-neutral-800"
 
                 >
 
                     View Details
 
-                    <ArrowRight size={18} />
-
-                </Link>
+                </button>
 
             </div>
 
