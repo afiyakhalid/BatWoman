@@ -15,6 +15,19 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: afiyakhalid16@gmail.com
+    password: vgtcqnrmeitiubmw
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -23,6 +36,9 @@ logging:
 razorpay:
   key-id: rzp_test_TE5cqRrow9WPtc
   key-secret: FlFjlGWU7Gt3MujEcY02Bk4Y
+
+contact:
+  support-email: afiyakhalid16@gmail.com
 
 
 #spring:

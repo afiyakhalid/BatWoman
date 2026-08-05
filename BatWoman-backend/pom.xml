@@ -48,6 +48,7 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+
         <!-- Thymeleaf (Email Templates) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

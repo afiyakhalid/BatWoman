@@ -1,4 +1,9 @@
 package com.BatWoman.BatWoman_backend.service;
 
-public class ContactService {
+import com.BatWoman.BatWoman_backend.dto.contact.ContactRequest;
+
+public interface ContactService {
+
+    void sendMessage(ContactRequest request);
+
 }
