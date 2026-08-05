@@ -20,62 +20,42 @@ import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuthStore } from "@/store/auth.store";
 
-// Step 2: Added the logout service import
 import { logout as logoutService } from "@/services/auth.service";
 
-
 const navItems = [
-  {
-    title: "Collections",
-    href: "customer/collections",
-    featured: [
-      { name: "Luxury Collection", href: "/customer/collections/luxury" },
-      { name: "Summer Collection", href: "/customer/collections/summer" },
-      { name: "New Arrivals", href: "/customer/products?sort=newest" },
-      { name: "Best Sellers", href: "/customer/products?sort=bestseller" },
-      { name: "Editor's Picks", href: "/customer/collections/editors-picks" },
-    ],
-  },
   {
     title: "Shop",
     href: "/customer/products",
     featured: [
       { name: "All Products", href: "/customer/products" },
+      { name: "New Arrivals", href: "/customer/products?sort=newest" },
+      { name: "Best Sellers", href: "/customer/products?sort=bestseller" },
       { name: "Trending", href: "/customer/products?sort=trending" },
       { name: "Sale", href: "/customer/products?sale=true" },
     ],
   },
   {
-    title: "Categories",
-    href: "/customer/categories",
-    featured: [
-      { name: "Luxury", href: "/customer/categories/luxury" },
-      { name: "Casual", href: "/customer/categories/casual" },
-      { name: "Party Wear", href: "/customer/categories/party" },
-      { name: "Everyday", href: "/customer/categories/everyday" },
-    ],
+    title: "About Us",
+    href: "/customer/about",
+  },
+  {
+    title: "Contact Us",
+    href: "/customer/contact",
   },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
-
   const router = useRouter();
   const requireAuth = useRequireAuth();
   const { openLogin } = useAuthModal();
-  
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
 
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
   const { data: cart } = useCart();
 
   const cartItemCount =
-      cart?.items?.reduce(
-          (total, item) => total + item.quantity,
-          0
-      ) ?? 0;
+    cart?.items?.reduce((total, item) => total + item.quantity, 0) ?? 0;
 
-
-  // Step 2: Added refreshToken and logoutStore state selectors
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const logoutStore = useAuthStore((state) => state.logout);
 
@@ -83,7 +63,6 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Step 3: Created the logout handler
   async function handleLogout() {
     try {
       if (refreshToken) {
@@ -110,6 +89,10 @@ export default function Navbar() {
     setActiveDropdown(null);
   }, [pathname]);
 
+  const activeFeatured = navItems.find(
+    (item) => item.title === activeDropdown
+  )?.featured;
+
   return (
     <>
       <header
@@ -135,19 +118,27 @@ export default function Navbar() {
                 <div
                   key={item.title}
                   className="relative flex h-20 items-center"
-                  onMouseEnter={() => setActiveDropdown(item.title)}
+                  onMouseEnter={() => {
+                    if (item.featured) {
+                      setActiveDropdown(item.title);
+                    } else {
+                      setActiveDropdown(null);
+                    }
+                  }}
                 >
                   <Link
                     href={item.href}
                     className="flex items-center gap-1 text-xs font-medium uppercase tracking-[0.22em] transition hover:text-neutral-500"
                   >
                     {item.title}
-                    <ChevronDown
-                      size={12}
-                      className={`transition duration-300 ${
-                        activeDropdown === item.title ? "rotate-180" : ""
-                      }`}
-                    />
+                    {item.featured && (
+                      <ChevronDown
+                        size={12}
+                        className={`transition duration-300 ${
+                          activeDropdown === item.title ? "rotate-180" : ""
+                        }`}
+                      />
+                    )}
                   </Link>
                 </div>
               ))}
@@ -177,33 +168,12 @@ export default function Navbar() {
 
             <button onClick={() => requireAuth(() => router.push("/customer/cart"))}>
               <div className="relative">
-
                 <ShoppingBag className="h-5 w-5" />
-
                 {cartItemCount > 0 && (
-
-                    <span
-                        className="
-                absolute
-                -top-2
-                -right-2
-                flex
-                h-5
-                w-5
-                items-center
-                justify-center
-                rounded-full
-                bg-red-600
-                text-[11px]
-                font-semibold
-                text-white
-            "
-                    >
-            {cartItemCount}
-        </span>
-
+                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[11px] font-semibold text-white">
+                    {cartItemCount}
+                  </span>
                 )}
-
               </div>
             </button>
 
@@ -217,7 +187,6 @@ export default function Navbar() {
               </button>
             )}
 
-            {/* Added: Desktop Logout Button */}
             {isAuthenticated && (
               <button
                 onClick={handleLogout}
@@ -231,7 +200,7 @@ export default function Navbar() {
 
         {/* ================= DESKTOP MEGA MENU ================= */}
         <AnimatePresence mode="wait">
-          {activeDropdown && (
+          {activeDropdown && activeFeatured && (
             <motion.div
               key={activeDropdown}
               initial={{ opacity: 0, y: -15 }}
@@ -260,17 +229,15 @@ export default function Navbar() {
                 {/* RIGHT CARD */}
                 <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-5">
-                    {navItems
-                      .find((item) => item.title === activeDropdown)
-                      ?.featured?.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className="block text-lg transition-all duration-300 hover:translate-x-2 hover:text-black"
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
+                    {activeFeatured.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="block text-lg transition-all duration-300 hover:translate-x-2 hover:text-black"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
                   </div>
 
                   <div className="relative h-72 overflow-hidden rounded-2xl">
@@ -301,7 +268,7 @@ export default function Navbar() {
 
       {/* ================= BACKDROP ================= */}
       <AnimatePresence>
-        {activeDropdown && (
+        {activeDropdown && activeFeatured && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -379,7 +346,6 @@ export default function Navbar() {
                     >
                       Profile
                     </Link>
-                    {/* Added: Mobile Logout Button */}
                     <button
                       className="block text-left w-full text-lg text-neutral-500"
                       onClick={() => {
