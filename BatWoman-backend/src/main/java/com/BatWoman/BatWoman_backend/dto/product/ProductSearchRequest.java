@@ -13,13 +13,15 @@ public record ProductSearchRequest(
 
         BigDecimal maxPrice,
 
+        String fabric,
+
         String color,
-
-
 
         Integer page,
 
-        Integer size
+        Integer size,
+
+        String sort
 
 ) {
 }

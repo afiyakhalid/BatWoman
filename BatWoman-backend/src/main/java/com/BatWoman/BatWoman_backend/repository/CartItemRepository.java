@@ -7,12 +7,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
+public interface CartItemRepository
+        extends JpaRepository<CartItem, UUID> {
 
-    List<CartItem> findByCart_Id(UUID cartId);
+    List<CartItem> findByCart_Id(
+            UUID cartId
+    );
 
-    Optional<CartItem> findByCart_IdAndProduct_Id(UUID cartId,
-                                                  UUID productId);
-    void deleteByCart_Id(UUID cartId);
+    Optional<CartItem> findByCart_IdAndProduct_Id(
+            UUID cartId,
+            UUID productId
+    );
 
+    void deleteByCart_Id(
+            UUID cartId
+    );
+
+    /*
+     * Used when physically deleting a product.
+     *
+     * Every cart_item referencing the product must be removed
+     * before the product row can be deleted.
+     */
+    void deleteByProduct_Id(
+            UUID productId
+    );
 }

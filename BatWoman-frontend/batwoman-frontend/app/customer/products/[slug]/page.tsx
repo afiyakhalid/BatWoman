@@ -44,9 +44,9 @@ export default function ProductDetailsPage() {
 
                <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-20 items-start">
 
-                    <ProductGallery
-                        images={product.images}
-                    />
+                   <ProductGallery
+                       media={product.media}
+                   />
 
                     <ProductInfo
                         product={product}

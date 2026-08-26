@@ -1,9 +1,11 @@
-export interface ProductImage {
+export interface ProductMedia {
   id: string;
-  objectKey: string;
+  mediaType: "IMAGE" | "VIDEO";
+  mediaUrl: string;
   altText: string;
+  primaryMedia: boolean;
   displayOrder: number;
-  primary: boolean;
+  createdAt: string;
 }
 
 export interface Category {
@@ -17,7 +19,14 @@ export interface Product {
   name: string;
   slug: string;
   price: number;
-  discountPrice?: number;
+  discountPrice: number | null;
   category: Category;
-  images: ProductImage[];
+  media: ProductMedia[];
 }
+
+export type ProductSortOption =
+    | "featured"
+    | "newest"
+    | "price-low"
+    | "price-high"
+    | "name";

@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.controller;
-
+import com.BatWoman.BatWoman_backend.dto.product.ReorderProductMediaRequest;
+import jakarta.validation.Valid;
 import com.BatWoman.BatWoman_backend.dto.product.CreateProductRequest;
 import com.BatWoman.BatWoman_backend.dto.product.ProductCardResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductDetailResponse;
@@ -7,9 +8,10 @@ import com.BatWoman.BatWoman_backend.dto.product.ProductResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductSearchRequest;
 import com.BatWoman.BatWoman_backend.dto.product.UpdateProductRequest;
 import com.BatWoman.BatWoman_backend.service.ProductService;
-import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +52,34 @@ public class ProductController {
 
         return ResponseEntity.noContent().build();
     }
+    @PatchMapping(
+            value = "/{productId}/media/{mediaId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<Void> replaceProductMedia(
+            @PathVariable UUID productId,
+            @PathVariable UUID mediaId,
+            @RequestPart("file") MultipartFile file) {
+
+        productService.replaceProductMedia(
+                productId,
+                mediaId,
+                file
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping("/{productId}/media/{mediaId}/primary")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setPrimaryProductMedia(
+            @PathVariable UUID productId,
+            @PathVariable UUID mediaId) {
+
+        productService.setPrimaryProductMedia(
+                productId,
+                mediaId
+        );
+    }
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDetailResponse> getProductById(
@@ -66,6 +96,18 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 productService.getProductBySlug(slug)
+        );
+    }
+
+    @PatchMapping("/{productId}/media/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorderProductMedia(
+            @PathVariable UUID productId,
+            @Valid @RequestBody ReorderProductMediaRequest request) {
+
+        productService.reorderProductMedia(
+                productId,
+                request.mediaIds()
         );
     }
 
@@ -94,7 +136,7 @@ public class ProductController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<ProductCardResponse>> searchProducts(
+    public ResponseEntity<Page<ProductCardResponse>> searchProducts(
             @RequestBody ProductSearchRequest request) {
 
         return ResponseEntity.ok(
@@ -102,13 +144,40 @@ public class ProductController {
         );
     }
 
-    @PostMapping("/{productId}/images")
-    public ResponseEntity<Void> uploadImages(
+    @PostMapping(
+            value = "/{productId}/media",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<Void> uploadProductMedia(
             @PathVariable UUID productId,
-            @RequestParam("images") List<MultipartFile> images) {
+            @RequestPart("files") List<MultipartFile> files) {
 
-        productService.uploadProductImages(productId, images);
+        System.out.println("========== UPLOAD CONTROLLER HIT ==========");
+        System.out.println("Product ID: " + productId);
+        System.out.println("Number of files: " + files.size());
+
+        for (MultipartFile file : files) {
+            System.out.println(
+                    "FILE -> name=" + file.getOriginalFilename()
+                            + ", contentType=" + file.getContentType()
+                            + ", size=" + file.getSize()
+                            + ", empty=" + file.isEmpty()
+            );
+        }
+
+        productService.uploadProductFiles(productId, files);
 
         return ResponseEntity.ok().build();
+    }
+    @DeleteMapping("/{productId}/media/{mediaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProductMedia(
+            @PathVariable UUID productId,
+            @PathVariable UUID mediaId) {
+
+        productService.deleteProductMedia(
+                productId,
+                mediaId
+        );
     }
 }

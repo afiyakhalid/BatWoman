@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.entity;
 
+import com.BatWoman.BatWoman_backend.enums.MediaType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,13 +12,13 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_images")
+@Table(name = "product_media")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductImage {
+public class ProductMedia {
 
     @Id
     @Column(columnDefinition = "uuid")
@@ -32,22 +33,32 @@ public class ProductImage {
     private Product product;
 
     // ===========================
-    // Image Details
+    // Media Information
     // ===========================
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MediaType mediaType;
 
     @Column(name = "object_key", nullable = false)
     private String objectKey;
+
+    @Column(name = "media_url", nullable = false, columnDefinition = "TEXT")
+    private String mediaUrl;
 
     @Column(name = "alt_text")
     private String altText;
 
     @Column(name = "is_primary", nullable = false)
-    private Boolean primary;
+    private Boolean primaryMedia;
 
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
+    // ===========================
+    // Audit
+    // ===========================
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
-
 }

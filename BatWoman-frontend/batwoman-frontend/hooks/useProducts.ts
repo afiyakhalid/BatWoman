@@ -1,12 +1,30 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@/services/product.service";
 
+import {
+  searchProducts,
+  ProductFilters,
+} from "@/services/product.service";
 
-export function useProducts() {
+import { ProductSortOption } from "@/types/product";
+
+export function useProducts(
+    filters: ProductFilters,
+    sortBy: ProductSortOption
+) {
+
   return useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
+    queryKey: [
+      "products",
+      filters,
+      sortBy,
+    ],
+
+    queryFn: () =>
+        searchProducts(
+            filters,
+            sortBy
+        ),
   });
 }

@@ -125,8 +125,9 @@ public class SecurityConfig {
                                 ).permitAll()
 
 // Product Image Upload - Admin
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/products/*/images"
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/v1/products/*/media"
                                 ).hasRole("ADMIN")
 
 // Product CRUD - Admin
@@ -184,7 +185,7 @@ public class SecurityConfig {
                                         "/api/v1/payments/webhook"
                                 ).permitAll()
                                 // Admin APIs
-                                .requestMatchers("/api/v1/admin/**")
+                                    .requestMatchers("/api/v1/admin/**")
                                 .hasRole("ADMIN")
                                 .requestMatchers(
                                         "/v3/api-docs/**",

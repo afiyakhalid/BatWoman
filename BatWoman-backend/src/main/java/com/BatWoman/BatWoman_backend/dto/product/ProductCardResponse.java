@@ -18,6 +18,6 @@ public record ProductCardResponse(
 
         CategorySummary category,
 
-        List<ProductImageResponse> images
+        List<ProductMediaResponse> media
 
 ) {}

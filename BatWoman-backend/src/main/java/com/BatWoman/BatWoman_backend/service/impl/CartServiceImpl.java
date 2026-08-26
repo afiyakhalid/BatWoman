@@ -9,6 +9,7 @@ import com.BatWoman.BatWoman_backend.exception.ValidationException;
 import com.BatWoman.BatWoman_backend.repository.*;
 import com.BatWoman.BatWoman_backend.service.AuthService;
 import com.BatWoman.BatWoman_backend.service.CartService;
+import com.BatWoman.BatWoman_backend.service.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,9 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
-    private final ProductImageRepository productImageRepository;
+    private final ProductMediaRepository productMediaRepository;
     private final AuthService authService;
+    private final S3Service s3Service;
 
     private Cart getOrCreateCart() {
 
@@ -62,12 +64,16 @@ public class CartServiceImpl implements CartService {
 
             Product product = cartItem.getProduct();
 
-            ProductImage image =
-                    productImageRepository.findByProductAndPrimaryTrue(product);
+            ProductMedia media =
+                    productMediaRepository
+                            .findByProductAndPrimaryMediaTrue(product)
+                            .orElse(null);
 
-            String objectKey =
-                    image != null
-                            ? image.getObjectKey()
+            String mediaUrl =
+                    media != null
+                            ? s3Service.generatePresignedUrl(
+                            media.getObjectKey()
+                    )
                             : null;
 
             BigDecimal unitPrice =
@@ -83,25 +89,15 @@ public class CartServiceImpl implements CartService {
             subtotal = subtotal.add(itemSubtotal);
 
             items.add(
-
                     new CartResponse.CartItemResponse(
-
                             cartItem.getId(),
-
                             product.getId(),
-
                             product.getName(),
-
-                            objectKey,
-
+                            mediaUrl,
                             cartItem.getQuantity(),
-
                             unitPrice,
-
                             itemSubtotal,
-
                             product.getCategory().getName()
-
                     )
             );
         }
@@ -111,17 +107,11 @@ public class CartServiceImpl implements CartService {
         BigDecimal total = subtotal.add(shipping);
 
         return new CartResponse(
-
                 cart.getId(),
-
                 items,
-
                 subtotal,
-
                 shipping,
-
                 total
-
         );
     }
     @Override

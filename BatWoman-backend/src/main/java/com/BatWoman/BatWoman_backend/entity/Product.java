@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.ArrayList;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -84,8 +85,14 @@ public class Product {
     // Relationships
     // ===========================
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<ProductImage> images;
+
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<ProductMedia> media = new ArrayList<>();
 
 
 

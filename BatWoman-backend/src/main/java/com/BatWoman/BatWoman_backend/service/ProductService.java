@@ -3,6 +3,7 @@ package com.BatWoman.BatWoman_backend.service;
 import com.BatWoman.BatWoman_backend.dto.product.CreateProductRequest;
 import com.BatWoman.BatWoman_backend.dto.product.ProductSearchRequest;
 import com.BatWoman.BatWoman_backend.dto.product.UpdateProductRequest;
+import org.springframework.data.domain.Page;
 import com.BatWoman.BatWoman_backend.dto.product.ProductCardResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductDetailResponse;
 import com.BatWoman.BatWoman_backend.dto.product.ProductResponse;
@@ -22,6 +23,8 @@ public interface ProductService {
 
     void deleteProduct(UUID productId);
 
+    Page<ProductCardResponse> searchProducts(ProductSearchRequest request);
+
     ProductDetailResponse getProductById(UUID productId);
 
     ProductDetailResponse getProductBySlug(String slug);
@@ -32,13 +35,28 @@ public interface ProductService {
 
     List<ProductCardResponse> getNewArrivals();
 
-    List<ProductCardResponse> searchProducts(
-            ProductSearchRequest request
+
+    void uploadProductFiles(
+            UUID productId,
+            List<MultipartFile> files
+    );
+    void deleteProductMedia(
+            UUID productId,
+            UUID mediaId
     );
 
-    void uploadProductImages(
+    void setPrimaryProductMedia(
             UUID productId,
-            List<MultipartFile> images
+            UUID mediaId
+    );
+    void reorderProductMedia(
+            UUID productId,
+            List<UUID> mediaIds
+    );
+    void replaceProductMedia(
+            UUID productId,
+            UUID mediaId,
+            MultipartFile file
     );
 
 }

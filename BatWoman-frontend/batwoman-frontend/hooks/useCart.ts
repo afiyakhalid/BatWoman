@@ -1,6 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    useMutation,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query";
 
 import {
     getCart,
@@ -15,19 +19,15 @@ export function useCart() {
     const queryClient = useQueryClient();
 
     const cartQuery = useQuery({
-
         queryKey: ["cart"],
-
         queryFn: getCart,
-
     });
 
     const addMutation = useMutation({
-
         mutationFn: ({
-            productId,
-            quantity,
-        }: {
+                         productId,
+                         quantity,
+                     }: {
             productId: string;
             quantity: number;
         }) => addToCart(productId, quantity),
@@ -37,15 +37,13 @@ export function useCart() {
                 queryKey: ["cart"],
             });
         },
-
     });
 
     const updateMutation = useMutation({
-
         mutationFn: ({
-            cartItemId,
-            quantity,
-        }: {
+                         cartItemId,
+                         quantity,
+                     }: {
             cartItemId: string;
             quantity: number;
         }) => updateCartItem(cartItemId, quantity),
@@ -55,11 +53,9 @@ export function useCart() {
                 queryKey: ["cart"],
             });
         },
-
     });
 
     const removeMutation = useMutation({
-
         mutationFn: removeCartItem,
 
         onSuccess: () => {
@@ -67,11 +63,9 @@ export function useCart() {
                 queryKey: ["cart"],
             });
         },
-
     });
 
     const clearMutation = useMutation({
-
         mutationFn: clearCart,
 
         onSuccess: () => {
@@ -79,21 +73,14 @@ export function useCart() {
                 queryKey: ["cart"],
             });
         },
-
     });
 
     return {
-
         ...cartQuery,
 
         addToCart: addMutation.mutate,
-
         updateCartItem: updateMutation.mutate,
-
         removeCartItem: removeMutation.mutate,
-
         clearCart: clearMutation.mutate,
-
     };
-
 }

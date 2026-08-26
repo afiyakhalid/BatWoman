@@ -11,59 +11,67 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({
-  product,
-}: ProductCardProps) {
-
+                                      product,
+                                    }: ProductCardProps) {
   const primaryImage =
-    product.images.find((image) => image.primary) ??
-    product.images[0];
+      product.media?.find((media) => media.primaryMedia) ??
+      product.media?.[0];
 
   const hoverImage =
-    product.images[1] ??
-    primaryImage;
+      product.media?.[1] ?? primaryImage;
 
   return (
+      <Link
+          href={`/customer/products/${product.slug}`}
+          className="group block"
+      >
+        {/* IMAGE */}
+        <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
+          {primaryImage ? (
+              <>
+                {/* Primary image */}
+                <Image
+                    src={primaryImage.mediaUrl}
+                    alt={primaryImage.altText || product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="
+                object-cover
+                transition-opacity
+                duration-500
+                group-hover:opacity-0
+              "
+                />
 
-    <Link
-      href={`/customer/products/${product.slug}`}
-      className="group block"
-    >
+                {/* Hover image */}
+                <Image
+                    src={hoverImage?.mediaUrl ?? primaryImage.mediaUrl}
+                    alt={hoverImage?.altText || product.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="
+                object-cover
+                opacity-0
+                transition-opacity
+                duration-500
+                group-hover:opacity-100
+              "
+                />
+              </>
+          ) : (
+              <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+                No image
+              </div>
+          )}
 
-      {/* IMAGE */}
-
-      <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
-
-        <Image
-          src={primaryImage.objectKey}
-          alt={primaryImage.altText}
-          fill
-          sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
-          className="
-            object-cover
-            transition-opacity
-            duration-500
-            group-hover:opacity-0
-          "
-        />
-
-        <Image
-          src={hoverImage.objectKey}
-          alt={hoverImage.altText}
-          fill
-          sizes="(max-width:768px)100vw,(max-width:1200px)50vw,33vw"
-          className="
-            object-cover
-            opacity-0
-            transition-opacity
-            duration-500
-            group-hover:opacity-100
-          "
-        />
-
-        {/* Wishlist */}
-
-        <button
-          className="
+          {/* Wishlist */}
+          <button
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              className="
             absolute
             right-4
             top-4
@@ -74,47 +82,43 @@ export default function ProductCard({
             transition
             hover:scale-110
           "
-        >
-          <Heart size={18} />
-        </button>
+              aria-label={`Add ${product.name} to wishlist`}
+          >
+            <Heart size={18} />
+          </button>
+        </div>
 
-      </div>
+        {/* CONTENT */}
+        <div className="mt-5">
+          {/* Category */}
+          <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
+            {product.category.name}
+          </p>
 
-      {/* CONTENT */}
+          {/* Product name */}
+          <h3 className="mt-2 text-lg font-medium transition-colors group-hover:text-neutral-600">
+            {product.name}
+          </h3>
 
-      <div className="mt-5">
-
-        <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
-          {product.category.name}
-        </p>
-
-        <h3 className="mt-2 font-medium text-lg transition-colors group-hover:text-neutral-600">
-          {product.name}
-        </h3>
-
-        <div className="mt-3 flex items-center gap-3">
-
-          {product.discountPrice ? (
-            <>
+          {/* Price */}
+          <div className="mt-3 flex items-center gap-3">
+            {product.discountPrice !== null ? (
+                <>
               <span className="font-semibold text-black">
                 ₹{product.discountPrice}
               </span>
 
-              <span className="text-neutral-400 line-through">
+                  <span className="text-neutral-400 line-through">
                 ₹{product.price}
               </span>
-            </>
-          ) : (
-            <span className="font-semibold text-black">
+                </>
+            ) : (
+                <span className="font-semibold text-black">
               ₹{product.price}
             </span>
-          )}
-
+            )}
+          </div>
         </div>
-
-      </div>
-
-    </Link>
-
+      </Link>
   );
 }

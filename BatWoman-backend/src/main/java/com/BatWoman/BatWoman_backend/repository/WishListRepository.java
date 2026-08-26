@@ -7,11 +7,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface WishListRepository extends JpaRepository<Wishlist, UUID> {
+public interface WishListRepository
+        extends JpaRepository<Wishlist, UUID> {
 
-    List<Wishlist> findByUser_Id(UUID userId);
+    List<Wishlist> findByUser_Id(
+            UUID userId
+    );
 
-    Optional<Wishlist> findByUser_IdAndProduct_Id(UUID userId,
-                                                  UUID productId);
+    Optional<Wishlist> findByUser_IdAndProduct_Id(
+            UUID userId,
+            UUID productId
+    );
 
+    /*
+     * Used when physically deleting a product.
+     */
+    void deleteByProduct_Id(
+            UUID productId
+    );
 }

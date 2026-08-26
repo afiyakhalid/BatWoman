@@ -2,9 +2,30 @@
 
 import { useCategories } from "@/hooks/useCategories";
 
-export default function ProductSidebar() {
+import { ProductFilters } from "@/services/product.service";
+
+interface ProductSidebarProps {
+    filters: ProductFilters;
+    onFiltersChange: (filters: ProductFilters) => void;
+}
+
+export default function ProductSidebar({
+                                           filters,
+                                           onFiltersChange,
+                                       }: ProductSidebarProps) {
 
     const { data: categories = [] } = useCategories();
+
+    const updateFilter = (
+        changes: Partial<ProductFilters>
+    ) => {
+
+        onFiltersChange({
+            ...filters,
+            ...changes,
+        });
+
+    };
 
     return (
 
@@ -15,18 +36,34 @@ export default function ProductSidebar() {
             <div>
 
                 <h3 className="mb-6 text-lg font-medium uppercase tracking-wider">
-
                     Browse By
-
                 </h3>
 
                 <ul className="space-y-4 text-sm text-neutral-700">
+
+                    <li
+                        onClick={() =>
+                            onFiltersChange({})
+                        }
+                        className="cursor-pointer hover:text-black"
+                    >
+                        All Products
+                    </li>
 
                     {categories.map((category) => (
 
                         <li
                             key={category.id}
-                            className="cursor-pointer hover:text-black"
+                            onClick={() =>
+                                updateFilter({
+                                    categoryId: category.id,
+                                })
+                            }
+                            className={`cursor-pointer hover:text-black ${
+                                filters.categoryId === category.id
+                                    ? "font-medium text-black"
+                                    : ""
+                            }`}
                         >
                             {category.name}
                         </li>
@@ -44,16 +81,39 @@ export default function ProductSidebar() {
             <div>
 
                 <h3 className="mb-5 text-lg font-medium uppercase tracking-wider">
-
                     Price
-
                 </h3>
 
                 <div className="space-y-3 text-sm text-neutral-700">
 
                     <label className="flex items-center gap-3">
 
-                        <input type="checkbox" />
+                        <input
+                            type="checkbox"
+                            checked={
+                                filters.minPrice === undefined &&
+                                filters.maxPrice === 3000
+                            }
+                            onChange={(event) => {
+
+                                if (event.target.checked) {
+
+                                    updateFilter({
+                                        minPrice: undefined,
+                                        maxPrice: 3000,
+                                    });
+
+                                } else {
+
+                                    updateFilter({
+                                        minPrice: undefined,
+                                        maxPrice: undefined,
+                                    });
+
+                                }
+
+                            }}
+                        />
 
                         Under ₹3,000
 
@@ -61,7 +121,32 @@ export default function ProductSidebar() {
 
                     <label className="flex items-center gap-3">
 
-                        <input type="checkbox" />
+                        <input
+                            type="checkbox"
+                            checked={
+                                filters.minPrice === 3000 &&
+                                filters.maxPrice === 5000
+                            }
+                            onChange={(event) => {
+
+                                if (event.target.checked) {
+
+                                    updateFilter({
+                                        minPrice: 3000,
+                                        maxPrice: 5000,
+                                    });
+
+                                } else {
+
+                                    updateFilter({
+                                        minPrice: undefined,
+                                        maxPrice: undefined,
+                                    });
+
+                                }
+
+                            }}
+                        />
 
                         ₹3,000 - ₹5,000
 
@@ -69,7 +154,32 @@ export default function ProductSidebar() {
 
                     <label className="flex items-center gap-3">
 
-                        <input type="checkbox" />
+                        <input
+                            type="checkbox"
+                            checked={
+                                filters.minPrice === 5000 &&
+                                filters.maxPrice === undefined
+                            }
+                            onChange={(event) => {
+
+                                if (event.target.checked) {
+
+                                    updateFilter({
+                                        minPrice: 5000,
+                                        maxPrice: undefined,
+                                    });
+
+                                } else {
+
+                                    updateFilter({
+                                        minPrice: undefined,
+                                        maxPrice: undefined,
+                                    });
+
+                                }
+
+                            }}
+                        />
 
                         Above ₹5,000
 
@@ -86,44 +196,45 @@ export default function ProductSidebar() {
             <div>
 
                 <h3 className="mb-5 text-lg font-medium uppercase tracking-wider">
-
                     Fabric
-
                 </h3>
 
                 <div className="space-y-3 text-sm text-neutral-700">
 
-                    <label className="flex items-center gap-3">
+                    {[
+                        "Nida",
+                        "Linen",
+                        "Crepe",
+                        "Cotton",
+                    ].map((fabric) => (
 
-                        <input type="checkbox" />
+                        <label
+                            key={fabric}
+                            className="flex items-center gap-3"
+                        >
 
-                        Nida
+                            <input
+                                type="checkbox"
+                                checked={
+                                    filters.fabric?.toLowerCase() ===
+                                    fabric.toLowerCase()
+                                }
+                                onChange={(event) => {
 
-                    </label>
+                                    updateFilter({
+                                        fabric: event.target.checked
+                                            ? fabric
+                                            : undefined,
+                                    });
 
-                    <label className="flex items-center gap-3">
+                                }}
+                            />
 
-                        <input type="checkbox" />
+                            {fabric}
 
-                        Linen
+                        </label>
 
-                    </label>
-
-                    <label className="flex items-center gap-3">
-
-                        <input type="checkbox" />
-
-                        Crepe
-
-                    </label>
-
-                    <label className="flex items-center gap-3">
-
-                        <input type="checkbox" />
-
-                        Cotton
-
-                    </label>
+                    ))}
 
                 </div>
 
@@ -136,22 +247,43 @@ export default function ProductSidebar() {
             <div>
 
                 <h3 className="mb-5 text-lg font-medium uppercase tracking-wider">
-
                     Color
-
                 </h3>
 
                 <div className="flex flex-wrap gap-3">
 
-                    <button className="h-6 w-6 rounded-full border bg-black" />
+                    {/* Color filtering intentionally left untouched
+                        until the actual backend color values are confirmed. */}
 
-                    <button className="h-6 w-6 rounded-full border bg-white" />
+                    <button
+                        type="button"
+                        className="h-6 w-6 rounded-full border bg-black"
+                        aria-label="Black"
+                    />
 
-                    <button className="h-6 w-6 rounded-full border bg-gray-400" />
+                    <button
+                        type="button"
+                        className="h-6 w-6 rounded-full border bg-white"
+                        aria-label="White"
+                    />
 
-                    <button className="h-6 w-6 rounded-full border bg-green-700" />
+                    <button
+                        type="button"
+                        className="h-6 w-6 rounded-full border bg-gray-400"
+                        aria-label="Gray"
+                    />
 
-                    <button className="h-6 w-6 rounded-full border bg-yellow-200" />
+                    <button
+                        type="button"
+                        className="h-6 w-6 rounded-full border bg-green-700"
+                        aria-label="Green"
+                    />
+
+                    <button
+                        type="button"
+                        className="h-6 w-6 rounded-full border bg-yellow-200"
+                        aria-label="Yellow"
+                    />
 
                 </div>
 
@@ -160,5 +292,4 @@ export default function ProductSidebar() {
         </aside>
 
     );
-
 }
