@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
@@ -46,6 +47,10 @@ export default function RegisterForm() {
         });
 
     };
+    const handleGoogleLogin = () => {
+    window.location.href =
+        `${process.env.NEXT_PUBLIC_API_BASE}/oauth2/authorization/google`;
+};
 
     return (
 
@@ -110,6 +115,27 @@ export default function RegisterForm() {
                     : "Create Account"}
 
             </button>
+            <div className="relative py-2">
+    <div className="absolute inset-0 flex items-center">
+        <div className="w-full border-t border-neutral-200" />
+    </div>
+
+    <div className="relative flex justify-center">
+        <span className="bg-white px-4 text-xs uppercase tracking-[0.25em] text-neutral-400">
+            OR
+        </span>
+    </div>
+</div>
+
+<button
+    type="button"
+    onClick={handleGoogleLogin}
+    className="flex w-full items-center justify-center gap-3 border border-neutral-300 py-4 text-sm font-medium transition hover:border-black hover:bg-neutral-50"
+>
+    <FcGoogle size={22} />
+
+    Continue with Google
+</button>
 
         </form>
 
