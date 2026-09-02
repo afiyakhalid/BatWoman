@@ -19,6 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.BatWoman.BatWoman_backend.security.oauth2.CustomOAuth2UserService;
+import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationSuccessHandler;
+
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -26,14 +30,18 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
+    private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final PasswordEncoder passwordEncoder;
+    private final OAuth2AuthenticationFailureHandler failureHandler;
     /**
      * BCrypt Password Encoder
      */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder(12);
+//    }
 
     /**
      * Authentication Provider
@@ -45,7 +53,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(customUserDetailsService);
 
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
 
         return provider;
     }
@@ -84,34 +92,54 @@ public class SecurityConfig {
 
                 // Register Authentication Provider
                 .authenticationProvider(authenticationProvider())
+                .oauth2Login(oauth ->
+
+                        oauth
+
+                                .userInfoEndpoint(userInfo ->
+
+                                        userInfo.userService(
+                                                customOAuth2UserService
+                                        )
+
+                                )
+
+                                .successHandler(successHandler)
+
+                                .failureHandler(failureHandler)
+
+                )
 
                 // Route Authorization
                 .authorizeHttpRequests(auth -> auth
 
-                        // Public Authentication APIs
-                        .requestMatchers(
-                                "/api/v1/auth/register",
-                                "/api/v1/auth/login",
-                                "/api/v1/auth/refresh"
-                        ).permitAll()
+                                // Public Authentication APIs
+                                .requestMatchers(
+                                        "/api/v1/auth/register",
+                                        "/api/v1/auth/login",
+                                        "/api/v1/auth/refresh",
+                                        "/oauth2/**",
+                                        "/login/oauth2/**"
 
-                        // Categories - Public Read
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/categories/**"
-                        ).permitAll()
+                                ).permitAll()
 
-                        // Categories - Admin Only
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/v1/categories/**"
-                        ).hasRole("ADMIN")
+                                // Categories - Public Read
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/categories/**"
+                                ).permitAll()
 
-                        .requestMatchers(HttpMethod.PUT,
-                                "/api/v1/categories/**"
-                        ).hasRole("ADMIN")
+                                // Categories - Admin Only
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/categories/**"
+                                ).hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.DELETE,
-                                "/api/v1/categories/**"
-                        ).hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT,
+                                        "/api/v1/categories/**"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/categories/**"
+                                ).hasRole("ADMIN")
 
 
                                 // Products - Public Read
@@ -125,9 +153,8 @@ public class SecurityConfig {
                                 ).permitAll()
 
 // Product Image Upload - Admin
-                                .requestMatchers(
-                                        HttpMethod.POST,
-                                        "/api/v1/products/*/media"
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/products/*/images"
                                 ).hasRole("ADMIN")
 
 // Product CRUD - Admin
@@ -185,7 +212,7 @@ public class SecurityConfig {
                                         "/api/v1/payments/webhook"
                                 ).permitAll()
                                 // Admin APIs
-                                    .requestMatchers("/api/v1/admin/**")
+                                .requestMatchers("/api/v1/admin/**")
                                 .hasRole("ADMIN")
                                 .requestMatchers(
                                         "/v3/api-docs/**",

@@ -1,5 +1,6 @@
 package com.BatWoman.BatWoman_backend.entity;
 
+import com.BatWoman.BatWoman_backend.enums.AuthProvider;
 import com.BatWoman.BatWoman_backend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,6 +8,8 @@ import lombok.*;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "users")
@@ -33,8 +36,17 @@ public class User {
     @Column(unique = true, length = 20)
     private String phone;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+            nullable = false,
+            columnDefinition = "auth_provider"
+    )
+    private AuthProvider provider;
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
+    @Column(name = "provider_id", length = 255)
+    private String providerId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

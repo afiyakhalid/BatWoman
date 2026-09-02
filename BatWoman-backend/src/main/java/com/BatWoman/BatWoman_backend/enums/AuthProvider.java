@@ -1,4 +1,7 @@
 package com.BatWoman.BatWoman_backend.enums;
 
-public class AuthProvider {
+public enum AuthProvider {
+
+    LOCAL,
+    GOOGLE
 }
