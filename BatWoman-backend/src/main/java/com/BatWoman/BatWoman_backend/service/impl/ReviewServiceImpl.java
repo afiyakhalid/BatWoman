@@ -53,7 +53,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .rating(request.rating())
                 .title(request.title())
                 .comment(request.comment())
-                .status(ReviewStatus.PENDING)
+                .status(ReviewStatus.APPROVED)
                 .createdAt(OffsetDateTime.now())
                 .build();
 
