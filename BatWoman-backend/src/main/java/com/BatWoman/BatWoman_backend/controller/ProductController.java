@@ -81,6 +81,14 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<List<ProductCardResponse>> getAllProductsForAdmin() {
+
+        return ResponseEntity.ok(
+                productService.getAllProductsForAdmin()
+        );
+    }
+
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDetailResponse> getProductById(
             @PathVariable UUID productId) {

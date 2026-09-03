@@ -51,7 +51,7 @@ export async function createProduct(
 export async function getProducts(): Promise<AdminProduct[]> {
     const { data } =
         await api.get<AdminProduct[]>(
-            "/products"
+            "/products/admin"
         );
 
     return data;

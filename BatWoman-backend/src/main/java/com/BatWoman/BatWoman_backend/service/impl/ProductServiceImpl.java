@@ -665,26 +665,30 @@ public class ProductServiceImpl implements ProductService {
         if (usedInOrder) {
 
             /*
-             * Soft delete.
+             * Products that exist in order history must remain
+             * in the database so historical orders remain valid.
              *
-             * Product disappears from customer-facing queries
-             * because those queries use active=true.
+             * If the product is currently active, this is the
+             * first deletion request, so deactivate it.
              *
-             * We KEEP:
-             * - product row
-             * - product media DB rows
-             * - S3 objects
-             *
-             * This preserves order history.
+             * If it is already inactive, there is nothing more
+             * that can safely be deleted.
              */
-            product.setActive(false);
-            product.setUpdatedAt(
-                    OffsetDateTime.now()
+            if (Boolean.TRUE.equals(product.getActive())) {
+
+                product.setActive(false);
+                product.setUpdatedAt(
+                        OffsetDateTime.now()
+                );
+
+                productRepository.saveAndFlush(product);
+
+                return;
+            }
+
+            throw new ValidationException(
+                    "This product cannot be permanently deleted because it exists in order history."
             );
-
-            productRepository.saveAndFlush(product);
-
-            return;
         }
 
         /*
@@ -798,6 +802,21 @@ public class ProductServiceImpl implements ProductService {
                         )
                 )
                 .getContent()
+                .stream()
+                .map(this::toProductCardResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ProductCardResponse> getAllProductsForAdmin() {
+
+        return productRepository
+                .findAll(
+                        Sort.by(
+                                Sort.Direction.DESC,
+                                "createdAt"
+                        )
+                )
                 .stream()
                 .map(this::toProductCardResponse)
                 .toList();

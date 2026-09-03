@@ -15,7 +15,6 @@ import { useUpdateCategory } from "@/hooks/useUpdateCategory";
 import { useDeleteCategory } from "@/hooks/useDeleteCategory";
 
 export default function CategoriesPage() {
-
     const [search, setSearch] = useState("");
 
     const [formOpen, setFormOpen] = useState(false);
@@ -37,148 +36,116 @@ export default function CategoriesPage() {
     const deleteCategory = useDeleteCategory();
 
     const filteredCategories = useMemo(() => {
-
         return categories.filter((category) =>
             category.name
                 .toLowerCase()
                 .includes(search.toLowerCase())
         );
-
     }, [categories, search]);
 
     function handleAddCategory() {
-
         setSelectedCategory(null);
-
         setFormOpen(true);
-
     }
 
     function handleEdit(category: Category) {
-
         setSelectedCategory(category);
-
         setFormOpen(true);
-
     }
 
     function handleDelete(category: Category) {
-
         setSelectedCategory(category);
 
-        setDeleteOpen(true);
+        /*
+         * Clear any previous delete error before
+         * opening the dialog for a new category.
+         */
+        deleteCategory.reset();
 
+        setDeleteOpen(true);
     }
 
     function handleSave(
         name: string,
         description: string
     ) {
-
         if (selectedCategory) {
-
             updateCategory.mutate({
-
                 id: selectedCategory.id,
-
                 request: {
                     name,
                     description,
                 },
-
             });
-
         } else {
-
             createCategory.mutate({
-
                 name,
                 description,
-
             });
-
         }
 
         setFormOpen(false);
-
     }
 
     function confirmDelete() {
+        if (!selectedCategory) {
+            return;
+        }
 
-        if (!selectedCategory) return;
-
-        deleteCategory.mutate(selectedCategory.id);
-
-        setDeleteOpen(false);
-
+        deleteCategory.mutate(
+            selectedCategory.id,
+            {
+                onSuccess: () => {
+                    setDeleteOpen(false);
+                    setSelectedCategory(null);
+                },
+            }
+        );
     }
 
     if (isLoading) {
-
         return (
-
             <div className="p-8">
-
                 Loading categories...
-
             </div>
-
         );
-
     }
 
     return (
-
         <div className="space-y-8">
-
             <CategoryToolbar
-
                 search={search}
-
                 onSearchChange={setSearch}
-
                 onAddCategory={handleAddCategory}
-
             />
 
             <CategoryTable
-
                 categories={filteredCategories}
-
                 onEdit={handleEdit}
-
                 onDelete={handleDelete}
-
             />
 
             <CategoryForm
-
                 open={formOpen}
-
                 onOpenChange={setFormOpen}
-
                 category={selectedCategory}
-
                 onSave={handleSave}
-
             />
 
             <DeleteCategoryDialog
-
                 open={deleteOpen}
+                onOpenChange={(open) => {
+                    setDeleteOpen(open);
 
-                onOpenChange={setDeleteOpen}
-
+                    if (!open) {
+                        deleteCategory.reset();
+                    }
+                }}
                 category={selectedCategory}
-
                 onDelete={confirmDelete}
-
                 isLoading={deleteCategory.isPending}
-
+                error={deleteCategory.error}
             />
-
         </div>
-
     );
-
 }

@@ -28,6 +28,8 @@ public interface ProductRepository
             Pageable pageable
     );
 
+    long countByCategory_Id(UUID categoryId);
+
     Page<Product> findByNameContainingIgnoreCase(
             String keyword,
             Pageable pageable

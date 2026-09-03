@@ -31,6 +31,8 @@ public interface ProductService {
 
     List<ProductCardResponse> getAllProducts();
 
+    List<ProductCardResponse> getAllProductsForAdmin();
+
     List<ProductCardResponse> getFeaturedProducts();
 
     List<ProductCardResponse> getNewArrivals();

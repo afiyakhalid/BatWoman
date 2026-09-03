@@ -162,6 +162,11 @@ public class SecurityConfig {
                                         "/api/v1/products"
                                 ).hasRole("ADMIN")
 
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/v1/products/admin"
+                                ).hasRole("ADMIN")
+
                                 .requestMatchers(HttpMethod.PUT,
                                         "/api/v1/products/**"
                                 ).hasRole("ADMIN")

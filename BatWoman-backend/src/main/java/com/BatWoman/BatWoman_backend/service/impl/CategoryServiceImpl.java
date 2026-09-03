@@ -8,6 +8,7 @@ import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.exception.ValidationException;
 import com.BatWoman.BatWoman_backend.mapper.CategoryMapper;
 import com.BatWoman.BatWoman_backend.repository.CategoryRepository;
+import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.service.CategoryService;
 import com.BatWoman.BatWoman_backend.util.SlugUtil;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final ProductRepository productRepository;
 
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest request) {
@@ -75,9 +77,30 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(UUID categoryId) {
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Category not found."));
+        Category category =
+                categoryRepository.findById(categoryId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Category not found."
+                                )
+                        );
+
+        long productCount =
+                productRepository.countByCategory_Id(categoryId);
+
+        if (productCount > 0) {
+
+            throw new ValidationException(
+                    "Cannot delete category \"" +
+                            category.getName() +
+                            "\" because it has " +
+                            productCount +
+                            " product" +
+                            (productCount == 1 ? "" : "s") +
+                            " under it. " +
+                            "Delete or move those products first."
+            );
+        }
 
         categoryRepository.delete(category);
     }
