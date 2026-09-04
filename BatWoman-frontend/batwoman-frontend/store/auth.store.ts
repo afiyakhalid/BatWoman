@@ -6,6 +6,8 @@ export interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
 
+    hydrate: () => void;
+
     setTokens: (
         accessToken: string,
         refreshToken: string
@@ -17,15 +19,22 @@ export interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
-    accessToken:
-        typeof window !== "undefined"
-            ? localStorage.getItem("accessToken")
-            : null,
+    accessToken: null,
+    refreshToken: null,
 
-    refreshToken:
-        typeof window !== "undefined"
-            ? localStorage.getItem("refreshToken")
-            : null,
+    hydrate: () => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const accessToken = localStorage.getItem("accessToken");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        set({
+            accessToken,
+            refreshToken,
+        });
+    },
 
     setTokens: (accessToken, refreshToken) => {
         localStorage.setItem("accessToken", accessToken);
