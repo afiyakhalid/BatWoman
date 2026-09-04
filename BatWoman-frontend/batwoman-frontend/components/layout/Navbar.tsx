@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import {
   Heart,
@@ -50,14 +50,17 @@ const navItems = [
 ];
 
 export default function Navbar() {
-  const pathname = usePathname();
   const router = useRouter();
 
   const requireAuth = useRequireAuth();
   const { openLogin } = useAuthModal();
 
   const isAuthenticated = useAuthStore(
-    (state) => state.isAuthenticated()
+    (state) => !!state.accessToken
+  );
+
+  const hydrateAuth = useAuthStore(
+    (state) => state.hydrate
   );
 
   const refreshToken = useAuthStore(
@@ -82,6 +85,10 @@ export default function Navbar() {
       (total, item) => total + item.quantity,
       0
     ) ?? 0;
+
+  useEffect(() => {
+   hydrateAuth();
+  }, [hydrateAuth]);
 
   /*
    * Check the currently logged-in user's role.
@@ -145,11 +152,6 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setActiveDropdown(null);
-  }, [pathname]);
 
   const activeFeatured = navItems.find(
     (item) => item.title === activeDropdown

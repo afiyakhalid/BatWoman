@@ -6,7 +6,7 @@ import { useAuthModal } from "@/hooks/useAuthModal";
 export function useRequireAuth() {
 
     const isAuthenticated =
-        useAuthStore((state) => state.isAuthenticated());
+        useAuthStore((state) => !!state.accessToken);
 
     const { openLogin } = useAuthModal();
 
