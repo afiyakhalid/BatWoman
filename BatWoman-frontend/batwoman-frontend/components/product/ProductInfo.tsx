@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProductDetail } from "@/types/product-detail";
 import { Star, Minus, Plus } from "lucide-react";
 import { useReviews } from "@/hooks/useReviews";
 import ReviewForm from "./ReviewForm";
 import { useCreateReview } from "@/hooks/useCreateReview";
 import { useAddToCart } from "@/hooks/useAddToCart";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface ProductInfoProps {
     product: ProductDetail;
 }
 
 export default function ProductInfo({ product }: ProductInfoProps) {
+    const router = useRouter();
+    const requireAuth = useRequireAuth();
     const [quantity, setQuantity] = useState(1);
 
     const [isInfoOpen, setIsInfoOpen] = useState(true);
@@ -29,6 +33,25 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
     const createReviewMutation = useCreateReview(product.id);
     const addToCartMutation = useAddToCart();
+
+    const handleBuyNow = async () => {
+        if (isOutOfStock) {
+            return;
+        }
+
+        requireAuth(async () => {
+            try {
+                await addToCartMutation.mutateAsync({
+                    productId: product.id,
+                    quantity,
+                });
+
+                router.push("/customer/address");
+            } catch (error) {
+                console.error("Buy now failed:", error);
+            }
+        });
+    };
 
     /*
      * ============================================================
@@ -257,7 +280,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
                 <button
                     type="button"
-                    disabled={isOutOfStock}
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock || addToCartMutation.isPending}
                     className="
                         flex-1
                         border
@@ -274,7 +298,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                         disabled:opacity-50
                     "
                 >
-                    Buy Now
+                    {addToCartMutation.isPending ? "Preparing..." : "Buy Now"}
                 </button>
 
             </div>
