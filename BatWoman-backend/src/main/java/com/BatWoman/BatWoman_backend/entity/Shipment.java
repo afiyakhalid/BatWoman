@@ -103,7 +103,7 @@ public class Shipment {
         }
 
         if (status == null) {
-            status = ShipmentStatus.CREATED;
+            status = ShipmentStatus.PENDING;
         }
     }
 

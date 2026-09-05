@@ -47,7 +47,7 @@ public class ShippingServiceImpl implements ShippingService {
 
         Shipment shipment = Shipment.builder()
                 .order(order)
-                .status(ShipmentStatus.CREATED)
+                .status(ShipmentStatus.PENDING)
                 .build();
 
         shipment = shipmentRepository.save(shipment);
