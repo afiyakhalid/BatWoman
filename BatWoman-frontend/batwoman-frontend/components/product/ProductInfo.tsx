@@ -309,8 +309,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
             {addToCartMutation.isError && (
                 <p className="mt-4 text-sm text-red-600">
-                    Unable to add this product to your cart. Please try
-                    again.
+                    {(addToCartMutation.error as any)?.response?.data?.message ||
+                        "Unable to add this product to your cart. Please try again."}
                 </p>
             )}
 

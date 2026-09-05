@@ -154,7 +154,8 @@ public class CartServiceImpl implements CartService {
                     cartItem.getQuantity() + request.quantity();
 
             if (newQuantity > inventory.getAvailableQuantity()) {
-                throw new ValidationException("Not enough stock available.");
+                throw new ValidationException(
+                        "Requested quantity exceeds available stock. Only " + inventory.getAvailableQuantity() + " item(s) available.");
             }
 
             cartItem.setQuantity(newQuantity);
@@ -162,7 +163,8 @@ public class CartServiceImpl implements CartService {
         } else {
 
             if (request.quantity() > inventory.getAvailableQuantity()) {
-                throw new ValidationException("Not enough stock available.");
+                throw new ValidationException(
+                        "Requested quantity exceeds available stock. Only " + inventory.getAvailableQuantity() + " item(s) available.");
             }
 
             cartItem = CartItem.builder()
@@ -201,7 +203,8 @@ public class CartServiceImpl implements CartService {
                 cartItem.getProduct().getInventory();
 
         if (request.quantity() > inventory.getAvailableQuantity()) {
-            throw new ValidationException("Not enough stock available.");
+            throw new ValidationException(
+                    "Requested quantity exceeds available stock. Only " + inventory.getAvailableQuantity() + " item(s) available.");
         }
 
         cartItem.setQuantity(request.quantity());

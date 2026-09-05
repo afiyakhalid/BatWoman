@@ -94,3 +94,5 @@ temp/
 # =========================================================
 
 .vercel/
+
+BatWoman-backend/src/main/resources/application-dev.yml

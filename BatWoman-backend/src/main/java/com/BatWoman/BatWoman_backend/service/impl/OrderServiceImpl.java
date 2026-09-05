@@ -242,7 +242,8 @@ public class OrderServiceImpl implements OrderService {
                     cartItem.getQuantity()
             );
 
-            OrderItem orderItem = OrderItem.builder()
+            OrderItem orderItem =
+                    OrderItem.builder()
                     .id(UUID.randomUUID())
                     .order(order)
                     .product(product)
