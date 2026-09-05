@@ -2,20 +2,31 @@ package com.BatWoman.BatWoman_backend.enums;
 
 public enum ShipmentStatus {
 
-    PENDING,
+    CREATED,
 
-    PROCESSING,
+    READY_TO_SHIP,
 
-    PACKED,
+    PICKUP_SCHEDULED,
 
-    SHIPPED,
+    PICKED_UP,
+
+    IN_TRANSIT,
+
+    DESTINATION_HUB,
 
     OUT_FOR_DELIVERY,
 
     DELIVERED,
 
-    RETURNED,
+    DELAYED,
 
-    CANCELLED
+    FAILED,
 
+    RTO_INITIATED,
+
+    RTO_DELIVERED,
+
+    CANCELLED,
+
+    LOST
 }
