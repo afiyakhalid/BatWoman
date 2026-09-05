@@ -19,14 +19,13 @@ import java.util.UUID;
 public class ShippingController {
 
     private final ShippingService shippingService;
-
     private final TrackingService trackingService;
 
+    // Create a shipment for an order
     @PostMapping("/shipments")
     public ResponseEntity<ShipmentResponse> createShipment(
             @Valid @RequestBody CreateShipmentRequest request
     ) {
-
         ShipmentResponse response =
                 shippingService.createShipment(request);
 
@@ -35,32 +34,32 @@ public class ShippingController {
                 .body(response);
     }
 
+    // Get shipment by shipment ID
     @GetMapping("/shipments/{shipmentId}")
     public ResponseEntity<ShipmentResponse> getShipment(
             @PathVariable UUID shipmentId
     ) {
-
         return ResponseEntity.ok(
                 shippingService.getShipmentById(shipmentId)
         );
     }
 
+    // Get shipment by order ID
     @GetMapping("/orders/{orderId}/shipment")
     public ResponseEntity<ShipmentResponse> getShipmentByOrder(
             @PathVariable UUID orderId
     ) {
-
         return ResponseEntity.ok(
                 shippingService.getShipmentByOrderId(orderId)
         );
     }
 
+    // Update shipment status
     @PatchMapping("/shipments/{shipmentId}/status")
     public ResponseEntity<ShipmentResponse> updateShipmentStatus(
             @PathVariable UUID shipmentId,
             @RequestParam String status
     ) {
-
         return ResponseEntity.ok(
                 shippingService.updateShipmentStatus(
                         shipmentId,
@@ -69,37 +68,33 @@ public class ShippingController {
         );
     }
 
+    // Get tracking by shipment ID
     @GetMapping("/shipments/{shipmentId}/tracking")
-    public ResponseEntity<TrackingResponse> getTracking(
+    public ResponseEntity<TrackingResponse> getTrackingByShipment(
             @PathVariable UUID shipmentId
     ) {
-
         return ResponseEntity.ok(
-                trackingService.getTrackingByShipmentId(
-                        shipmentId
-                )
+                trackingService.getTrackingByShipmentId(shipmentId)
         );
     }
 
+    // Get tracking by order ID
     @GetMapping("/orders/{orderId}/tracking")
     public ResponseEntity<TrackingResponse> getTrackingByOrder(
             @PathVariable UUID orderId
     ) {
-
         return ResponseEntity.ok(
                 trackingService.getTrackingByOrderId(orderId)
         );
     }
 
+    // Get tracking by tracking number
     @GetMapping("/tracking/{trackingNumber}")
     public ResponseEntity<TrackingResponse> getTrackingByNumber(
             @PathVariable String trackingNumber
     ) {
-
         return ResponseEntity.ok(
-                trackingService.getTrackingByNumber(
-                        trackingNumber
-                )
+                trackingService.getTrackingByNumber(trackingNumber)
         );
     }
 }
