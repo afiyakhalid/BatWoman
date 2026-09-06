@@ -55,8 +55,18 @@ public class WishlistResponse {
 
         private UUID id;
 
-        private String url;
+        private String mediaType;
+
+        private String objectKey;
+
+        private String mediaUrl;
+
+        private String altText;
 
         private Boolean primaryMedia;
+
+        private Integer displayOrder;
+
+        private OffsetDateTime createdAt;
     }
 }

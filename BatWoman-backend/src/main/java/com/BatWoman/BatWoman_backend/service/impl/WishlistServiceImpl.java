@@ -8,8 +8,8 @@ import com.BatWoman.BatWoman_backend.entity.Wishlist;
 import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.repository.WishlistRepository;
-import com.BatWoman.BatWoman_backend.repository.WishlistRepository;
 import com.BatWoman.BatWoman_backend.security.UserPrincipal;
+import com.BatWoman.BatWoman_backend.service.S3Service;
 import com.BatWoman.BatWoman_backend.service.WishlistService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,7 @@ public class WishlistServiceImpl implements WishlistService {
     private final WishlistRepository wishlistRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     @Override
     @Transactional(readOnly = true)
@@ -131,10 +132,20 @@ public class WishlistServiceImpl implements WishlistService {
     private WishlistResponse.ProductMediaResponse toMediaResponse(
             ProductMedia media) {
 
+        String mediaUrl =
+                s3Service.generatePresignedUrl(
+                        media.getObjectKey()
+                );
+
         return WishlistResponse.ProductMediaResponse.builder()
                 .id(media.getId())
-
+                .mediaType(media.getMediaType().name())
+                .objectKey(media.getObjectKey())
+                .mediaUrl(mediaUrl)
+                .altText(media.getAltText())
                 .primaryMedia(media.getPrimaryMedia())
+                .displayOrder(media.getDisplayOrder())
+                .createdAt(media.getCreatedAt())
                 .build();
     }
 

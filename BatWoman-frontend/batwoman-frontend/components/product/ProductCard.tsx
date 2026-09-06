@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Product } from "@/types/product";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useAuthStore } from "@/store/auth.store";
 
 interface ProductCardProps {
   product: Product;
@@ -13,12 +16,49 @@ interface ProductCardProps {
 export default function ProductCard({
                                       product,
                                     }: ProductCardProps) {
+
+  const router = useRouter();
+
+  const { isAuthenticated } = useAuthStore();
+
+  const {
+    data: wishlist = [],
+    addToWishlist,
+    removeFromWishlist,
+    isAdding,
+    isRemoving,
+  } = useWishlist();
+
+  const isWishlisted = wishlist.some(
+      (item) => item.product.id === product.id
+  );
+
   const primaryImage =
       product.media?.find((media) => media.primaryMedia) ??
       product.media?.[0];
 
   const hoverImage =
       product.media?.[1] ?? primaryImage;
+
+  const handleWishlistClick = (
+      event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!isAuthenticated()) {
+      router.push("/login");
+      return;
+    }
+
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product.id);
+    }
+  };
+
+  const wishlistLoading = isAdding || isRemoving;
 
   return (
       <Link
@@ -67,10 +107,8 @@ export default function ProductCard({
           {/* Wishlist */}
           <button
               type="button"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-              }}
+              onClick={handleWishlistClick}
+              disabled={wishlistLoading}
               className="
             absolute
             right-4
@@ -81,10 +119,19 @@ export default function ProductCard({
             backdrop-blur
             transition
             hover:scale-110
+            disabled:cursor-not-allowed
+            disabled:opacity-60
           "
-              aria-label={`Add ${product.name} to wishlist`}
+              aria-label={
+                isWishlisted
+                    ? `Remove ${product.name} from wishlist`
+                    : `Add ${product.name} to wishlist`
+              }
           >
-            <Heart size={18} />
+            <Heart
+                size={18}
+                className={isWishlisted ? "fill-black" : ""}
+            />
           </button>
         </div>
 
