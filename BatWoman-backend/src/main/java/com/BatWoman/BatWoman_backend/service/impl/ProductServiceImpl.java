@@ -43,7 +43,7 @@ import com.BatWoman.BatWoman_backend.repository.OrderItemRepository;
 import com.BatWoman.BatWoman_backend.repository.ProductMediaRepository;
 import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.repository.ReviewRepository;
-import com.BatWoman.BatWoman_backend.repository.WishListRepository;
+import com.BatWoman.BatWoman_backend.repository.WishlistRepository;
 import com.BatWoman.BatWoman_backend.service.ProductService;
 import com.BatWoman.BatWoman_backend.service.S3Service;
 import com.BatWoman.BatWoman_backend.service.S3UploadResult;
@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ReviewRepository reviewRepository;
 
-    private final WishListRepository wishListRepository;
+    private final WishlistRepository wishlistRepository;
 
     private final OrderItemRepository orderItemRepository;
 

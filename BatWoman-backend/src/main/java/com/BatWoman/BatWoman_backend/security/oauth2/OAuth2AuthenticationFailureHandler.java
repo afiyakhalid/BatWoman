@@ -25,7 +25,7 @@ public class OAuth2AuthenticationFailureHandler
         log.error("Google OAuth2 authentication failed.", exception);
 
         response.sendRedirect(
-                "http://localhost:3000/customer/login?error=oauth2_failed"
+                "http://localhost:3001/customer/login?error=oauth2_failed"
         );
     }
 }

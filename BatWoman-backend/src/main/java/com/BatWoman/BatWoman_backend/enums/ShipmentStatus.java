@@ -17,5 +17,4 @@ public enum ShipmentStatus {
     RETURNED,
 
     CANCELLED
-
 }

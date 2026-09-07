@@ -8,7 +8,23 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "shipments")
+@Table(
+        name = "shipments",
+        indexes = {
+                @Index(
+                        name = "idx_shipments_order",
+                        columnList = "order_id"
+                ),
+                @Index(
+                        name = "idx_shipments_status",
+                        columnList = "status"
+                ),
+                @Index(
+                        name = "idx_shipments_tracking",
+                        columnList = "tracking_number"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,28 +34,38 @@ public class Shipment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "order_id",
             nullable = false,
-            unique = true,
-            foreignKey = @ForeignKey(name = "fk_shipment_order")
+            unique = true
     )
     private Order order;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ShipmentStatus status = ShipmentStatus.PENDING;
+    @Column(
+            nullable = false,
+            length = 30
+    )
+    private ShipmentStatus status;
 
-    @Column(length = 100)
+    @Column(name = "carrier", length = 100)
     private String carrier;
 
-    @Column(name = "tracking_number", unique = true)
+    @Column(
+            name = "tracking_number",
+            length = 255,
+            unique = true
+    )
     private String trackingNumber;
 
-    @Column(name = "tracking_url")
+    @Column(
+            name = "tracking_url",
+            columnDefinition = "TEXT"
+    )
     private String trackingUrl;
 
     @Column(name = "expected_delivery")
@@ -51,19 +77,30 @@ public class Shipment {
     @Column(name = "delivered_at")
     private OffsetDateTime deliveredAt;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(
+            name = "created_at",
+            nullable = false
+    )
     private OffsetDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(
+            name = "updated_at",
+            nullable = false
+    )
     private OffsetDateTime updatedAt;
 
     @PrePersist
-    public void prePersist() {
+    protected void onCreate() {
 
         OffsetDateTime now = OffsetDateTime.now();
 
-        createdAt = now;
-        updatedAt = now;
+        if (createdAt == null) {
+            createdAt = now;
+        }
+
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
 
         if (status == null) {
             status = ShipmentStatus.PENDING;
@@ -71,7 +108,7 @@ public class Shipment {
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void onUpdate() {
         updatedAt = OffsetDateTime.now();
     }
 }

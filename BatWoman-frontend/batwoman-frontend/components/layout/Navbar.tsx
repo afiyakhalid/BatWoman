@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { useRouter } from "next/navigation";
 
 import {
@@ -72,6 +73,7 @@ export default function Navbar() {
   );
 
   const { data: cart } = useCart();
+  const { data: wishlist = [] } = useWishlist();
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -86,8 +88,10 @@ export default function Navbar() {
       0
     ) ?? 0;
 
+  const wishlistItemCount = wishlist.length;
+
   useEffect(() => {
-   hydrateAuth();
+    hydrateAuth();
   }, [hydrateAuth]);
 
   /*
@@ -244,10 +248,18 @@ export default function Navbar() {
                 )
               }
             >
-              <Heart
-                size={19}
-                className="text-neutral-800 transition-colors duration-300 hover:text-neutral-400"
-              />
+              <div className="relative">
+                <Heart
+                  size={19}
+                  className="text-neutral-800 transition-colors duration-300 hover:text-neutral-400"
+                />
+
+                {wishlistItemCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[9px] font-medium text-white shadow-sm ring-2 ring-white transition-all">
+                    {wishlistItemCount}
+                  </span>
+                )}
+              </div>
             </button>
 
             {/* Cart */}
@@ -259,7 +271,10 @@ export default function Navbar() {
               }
             >
               <div className="relative">
-                <ShoppingBag size={19} className="text-neutral-800 transition-colors duration-300 hover:text-neutral-400" />
+                <ShoppingBag
+                  size={19}
+                  className="text-neutral-800 transition-colors duration-300 hover:text-neutral-400"
+                />
 
                 {cartItemCount > 0 && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-neutral-900 text-[9px] font-medium text-white shadow-sm ring-2 ring-white transition-all">

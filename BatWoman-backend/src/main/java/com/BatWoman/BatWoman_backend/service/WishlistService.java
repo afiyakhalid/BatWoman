@@ -1,16 +1,17 @@
 package com.BatWoman.BatWoman_backend.service;
 
-import com.BatWoman.BatWoman_backend.dto.product.ProductCardResponse;
+import com.BatWoman.BatWoman_backend.dto.wishlist.WishlistResponse;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface WishlistService {
 
-    void addProduct(UUID productId);
+    List<WishlistResponse> getMyWishlist();
 
-    void removeProduct(UUID productId);
+    WishlistResponse addToWishlist(UUID productId);
 
-    List<ProductCardResponse> getWishlist();
+    void removeFromWishlist(UUID productId);
 
+    boolean isInWishlist(UUID productId);
 }
