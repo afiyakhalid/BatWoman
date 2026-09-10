@@ -25,5 +25,6 @@ public interface PaymentService {
      * Handle Razorpay webhook.
      */
     void handleWebhook(String payload, String signature);
+    void handlePaymentFailure(UUID paymentId);
 
 }
