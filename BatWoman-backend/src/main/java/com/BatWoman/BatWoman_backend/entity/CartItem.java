@@ -28,12 +28,12 @@ public class CartItem {
     private Cart cart;
 
     // ===========================
-    // Product
+    // Product Variant
     // ===========================
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "variant_id", nullable = false)
+    private ProductVariant variant;
 
     // ===========================
     // Quantity
@@ -44,5 +44,4 @@ public class CartItem {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
-
 }

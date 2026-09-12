@@ -16,9 +16,12 @@ import com.BatWoman.BatWoman_backend.enums.PaymentStatus;
 import com.BatWoman.BatWoman_backend.enums.Role;
 import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.exception.ValidationException;
-import com.BatWoman.BatWoman_backend.repository.*;
+import com.BatWoman.BatWoman_backend.repository.InventoryRepository;
+import com.BatWoman.BatWoman_backend.repository.OrderRepository;
+import com.BatWoman.BatWoman_backend.repository.PaymentRepository;
+import com.BatWoman.BatWoman_backend.repository.ProductRepository;
+import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.service.AdminService;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -29,7 +32,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,32 +47,47 @@ public class AdminServiceImpl implements AdminService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void restockInventory(RestockInventoryRequest request) {
+    public void restockInventory(
+            RestockInventoryRequest request) {
 
-        Inventory inventory = inventoryRepository
-                .findByProduct_Id(request.productId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found for product: "
-                                        + request.productId()));
+        Inventory inventory =
+                inventoryRepository
+                        .findByVariant_Id(
+                                request.variantId()
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + request.variantId()
+                                )
+                        );
 
         inventory.setAvailableQuantity(
-                inventory.getAvailableQuantity() + request.quantity()
+                inventory.getAvailableQuantity()
+                        + request.quantity()
         );
 
         inventoryRepository.save(inventory);
     }
 
     @Override
-    public void updateOrderStatus(UUID orderId, UpdateOrderStatusRequest request) {
+    public void updateOrderStatus(
+            UUID orderId,
+            UpdateOrderStatusRequest request) {
 
-        Order order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Order not found with ID: " + orderId));
+        Order order =
+                orderRepository
+                        .findById(orderId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Order not found with ID: "
+                                                + orderId
+                                )
+                        );
 
-        order.setStatus(request.status());
+        order.setStatus(
+                request.status()
+        );
 
         orderRepository.save(order);
     }
@@ -86,40 +103,70 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public OrderResponse getOrderById(UUID orderId) {
+    public OrderResponse getOrderById(
+            UUID orderId) {
 
-        Order order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Order not found with ID: " + orderId
-                        ));
+        Order order =
+                orderRepository
+                        .findById(orderId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Order not found with ID: "
+                                                + orderId
+                                )
+                        );
 
         return toResponse(order);
     }
 
-    private OrderResponse toResponse(Order order) {
+    private OrderResponse toResponse(
+            Order order) {
 
         List<OrderResponse.OrderItemResponse> items =
                 order.getOrderItems()
                         .stream()
-                        .map(item -> new OrderResponse.OrderItemResponse(
-                                item.getProduct().getId(),
-                                item.getProduct().getName(),
-                                item.getQuantity(),
-                                item.getUnitPrice(),
-                                item.getSubtotal()
-                        ))
-                        .collect(Collectors.toList());
+                        .map(item ->
+                                new OrderResponse.OrderItemResponse(
+
+                                        item.getProduct().getId(),
+
+                                        item.getProduct().getName(),
+
+                                        item.getVariant() != null
+                                                ? item.getVariant().getId()
+                                                : null,
+
+                                        item.getVariantSku(),
+
+                                        item.getSize(),
+
+                                        item.getColor(),
+
+                                        item.getQuantity(),
+
+                                        item.getUnitPrice(),
+
+                                        item.getSubtotal()
+                                )
+                        )
+                        .toList();
 
         return new OrderResponse(
+
                 order.getId(),
+
                 order.getOrderNumber(),
+
                 order.getStatus(),
+
                 order.getSubtotal(),
+
                 order.getShippingCharge(),
+
                 order.getTotal(),
+
                 order.getCreatedAt(),
+
                 items
         );
     }
@@ -135,42 +182,79 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public PaymentResponse getPaymentById(UUID paymentId) {
+    public PaymentResponse getPaymentById(
+            UUID paymentId) {
 
-        Payment payment = paymentRepository
-                .findById(paymentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Payment not found."
-                        ));
+        Payment payment =
+                paymentRepository
+                        .findById(paymentId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Payment not found."
+                                )
+                        );
 
         return toPaymentResponse(payment);
     }
 
-    private PaymentResponse toPaymentResponse(Payment payment) {
+    private PaymentResponse toPaymentResponse(
+            Payment payment) {
 
         return new PaymentResponse(
+
                 payment.getId(),
+
                 payment.getOrder().getId(),
+
                 payment.getRazorpayOrderId(),
+
                 payment.getRazorpayPaymentId(),
+
                 payment.getAmount(),
+
                 payment.getCurrency(),
+
                 payment.getPaymentStatus(),
+
                 payment.getPaidAt()
         );
     }
 
-    private InventoryResponse toInventoryResponse(Inventory inventory) {
+    private InventoryResponse toInventoryResponse(
+            Inventory inventory) {
 
         return new InventoryResponse(
+
                 inventory.getId(),
-                inventory.getProduct().getId(),
-                inventory.getProduct().getName(),
+
+                inventory.getVariant().getId(),
+
+                inventory.getVariant()
+                        .getProduct()
+                        .getId(),
+
+                inventory.getVariant()
+                        .getProduct()
+                        .getName(),
+
+                inventory.getVariant()
+                        .getSku(),
+
+                inventory.getVariant()
+                        .getSize()
+                        .getLabel(),
+
+                inventory.getVariant()
+                        .getColor()
+                        .getName(),
+
                 inventory.getAvailableQuantity(),
+
                 inventory.getReservedQuantity(),
+
                 inventory.getAvailableQuantity()
                         + inventory.getReservedQuantity(),
+
                 inventory.getUpdatedAt()
         );
     }
@@ -186,32 +270,51 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public InventoryResponse getInventory(UUID productId) {
+    public InventoryResponse getInventory(
+            UUID variantId) {
 
-        Inventory inventory = inventoryRepository
-                .findByProduct_Id(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found for product: " + productId
-                        ));
+        Inventory inventory =
+                inventoryRepository
+                        .findByVariant_Id(
+                                variantId
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + variantId
+                                )
+                        );
 
-        return toInventoryResponse(inventory);
+        return toInventoryResponse(
+                inventory
+        );
     }
 
-    private CustomerResponse toCustomerResponse(User user) {
+    private CustomerResponse toCustomerResponse(
+            User user) {
 
         return new CustomerResponse(
+
                 user.getId(),
+
                 user.getFirstName(),
+
                 user.getLastName(),
+
                 user.getEmail(),
+
                 user.getPhone(),
+
                 user.getRole(),
+
                 user.getVerified(),
+
                 user.getActive(),
+
                 user.getOrders() == null
                         ? 0
                         : user.getOrders().size(),
+
                 user.getCreatedAt()
         );
     }
@@ -227,14 +330,17 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public CustomerResponse getCustomerById(UUID customerId) {
+    public CustomerResponse getCustomerById(
+            UUID customerId) {
 
-        User user = userRepository
-                .findById(customerId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Customer not found."
-                        ));
+        User user =
+                userRepository
+                        .findById(customerId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Customer not found."
+                                )
+                        );
 
         return toCustomerResponse(user);
     }
@@ -243,97 +349,209 @@ public class AdminServiceImpl implements AdminService {
     public DashboardResponse getDashboard() {
 
         // 1. Dashboard Stats
-        DashboardStatsResponse stats = new DashboardStatsResponse(
-                orderRepository.getTotalRevenue(),
-                orderRepository.getAverageOrderValue(),
-                orderRepository.count(),
-                userRepository.countByRole(Role.USER),
-                productRepository.count(),
-                inventoryRepository.countByAvailableQuantityBetween(1, 10),
-                inventoryRepository.countByAvailableQuantity(0)
-        );
+
+        DashboardStatsResponse stats =
+                new DashboardStatsResponse(
+
+                        orderRepository.getTotalRevenue(),
+
+                        orderRepository.getAverageOrderValue(),
+
+                        orderRepository.count(),
+
+                        userRepository.countByRole(
+                                Role.USER
+                        ),
+
+                        productRepository.count(),
+
+                        inventoryRepository
+                                .countByAvailableQuantityBetween(
+                                        1,
+                                        10
+                                ),
+
+                        inventoryRepository
+                                .countByAvailableQuantity(
+                                        0
+                                )
+                );
 
         // 2. Order Status Analytics
-        OrderStatusAnalyticsResponse orderStatus = new OrderStatusAnalyticsResponse(
-                orderRepository.countByStatus(OrderStatus.PENDING),
-                orderRepository.countByStatus(OrderStatus.PAID),
-                orderRepository.countByStatus(OrderStatus.SHIPPED),
-                orderRepository.countByStatus(OrderStatus.DELIVERED),
-                orderRepository.countByStatus(OrderStatus.CANCELLED)
-        );
+
+        OrderStatusAnalyticsResponse orderStatus =
+                new OrderStatusAnalyticsResponse(
+
+                        orderRepository.countByStatus(
+                                OrderStatus.PENDING
+                        ),
+
+                        orderRepository.countByStatus(
+                                OrderStatus.PAID
+                        ),
+
+                        orderRepository.countByStatus(
+                                OrderStatus.SHIPPED
+                        ),
+
+                        orderRepository.countByStatus(
+                                OrderStatus.DELIVERED
+                        ),
+
+                        orderRepository.countByStatus(
+                                OrderStatus.CANCELLED
+                        )
+                );
 
         // 3. Payment Status Analytics
-        PaymentStatusAnalyticsResponse paymentStatus = new PaymentStatusAnalyticsResponse(
-                paymentRepository.countByPaymentStatus(PaymentStatus.PENDING),
-                paymentRepository.countByPaymentStatus(PaymentStatus.SUCCESS),
-                paymentRepository.countByPaymentStatus(PaymentStatus.FAILED)
-        );
+
+        PaymentStatusAnalyticsResponse paymentStatus =
+                new PaymentStatusAnalyticsResponse(
+
+                        paymentRepository
+                                .countByPaymentStatus(
+                                        PaymentStatus.PENDING
+                                ),
+
+                        paymentRepository
+                                .countByPaymentStatus(
+                                        PaymentStatus.SUCCESS
+                                ),
+
+                        paymentRepository
+                                .countByPaymentStatus(
+                                        PaymentStatus.FAILED
+                                )
+                );
 
         // 4. Inventory Analytics
-        InventoryAnalyticsResponse inventory = new InventoryAnalyticsResponse(
-                inventoryRepository.countByAvailableQuantityGreaterThan(10),
-                inventoryRepository.countByAvailableQuantityBetween(1, 10),
-                inventoryRepository.countByAvailableQuantity(0)
-        );
+
+        InventoryAnalyticsResponse inventory =
+                new InventoryAnalyticsResponse(
+
+                        inventoryRepository
+                                .countByAvailableQuantityGreaterThan(
+                                        10
+                                ),
+
+                        inventoryRepository
+                                .countByAvailableQuantityBetween(
+                                        1,
+                                        10
+                                ),
+
+                        inventoryRepository
+                                .countByAvailableQuantity(
+                                        0
+                                )
+                );
 
         // 5. Top Selling Products
-        List<TopProductAnalyticsResponse> topProducts = orderRepository
-                .getTopSellingProducts()
-                .stream()
-                .map(row -> new TopProductAnalyticsResponse(
-                        (UUID) row[0],
-                        (String) row[1],
-                        ((Number) row[2]).longValue()
-                ))
-                .toList();
+
+        List<TopProductAnalyticsResponse> topProducts =
+                orderRepository
+                        .getTopSellingProducts()
+                        .stream()
+                        .map(row ->
+                                new TopProductAnalyticsResponse(
+
+                                        (UUID) row[0],
+
+                                        (String) row[1],
+
+                                        ((Number) row[2])
+                                                .longValue()
+                                )
+                        )
+                        .toList();
 
         // 6. Recent Orders
-        List<RecentOrderResponse> recentOrders = orderRepository
-                .findTop5ByOrderByCreatedAtDesc()
-                .stream()
-                .map(order -> new RecentOrderResponse(
-                        order.getId(),
-                        order.getOrderNumber(),
-                        order.getUser().getFirstName() + " " + order.getUser().getLastName(),
-                        order.getTotal(),
-                        order.getStatus(),
-                        order.getCreatedAt()
-                ))
-                .toList();
+
+        List<RecentOrderResponse> recentOrders =
+                orderRepository
+                        .findTop5ByOrderByCreatedAtDesc()
+                        .stream()
+                        .map(order ->
+                                new RecentOrderResponse(
+
+                                        order.getId(),
+
+                                        order.getOrderNumber(),
+
+                                        order.getUser()
+                                                .getFirstName()
+                                                + " "
+                                                + order.getUser()
+                                                .getLastName(),
+
+                                        order.getTotal(),
+
+                                        order.getStatus(),
+
+                                        order.getCreatedAt()
+                                )
+                        )
+                        .toList();
 
         // 7. Recent Payments
-        List<RecentPaymentResponse> recentPayments = paymentRepository
-                .findTop5ByOrderByPaidAtDesc()
-                .stream()
-                .map(payment -> new RecentPaymentResponse(
-                        payment.getId(),
-                        payment.getRazorpayPaymentId(),
-                        payment.getOrder().getOrderNumber(),
-                        payment.getAmount(),
-                        payment.getPaymentStatus(),
-                        payment.getPaidAt()
-                ))
-                .toList();
+
+        List<RecentPaymentResponse> recentPayments =
+                paymentRepository
+                        .findTop5ByOrderByPaidAtDesc()
+                        .stream()
+                        .map(payment ->
+                                new RecentPaymentResponse(
+
+                                        payment.getId(),
+
+                                        payment.getRazorpayPaymentId(),
+
+                                        payment.getOrder()
+                                                .getOrderNumber(),
+
+                                        payment.getAmount(),
+
+                                        payment.getPaymentStatus(),
+
+                                        payment.getPaidAt()
+                                )
+                        )
+                        .toList();
 
         // 8. Monthly Revenue
-        List<MonthlyRevenueResponse> monthlyRevenue = orderRepository
-                .getMonthlyRevenue()
-                .stream()
-                .map(row -> new MonthlyRevenueResponse(
-                        (String) row[0],
-                        (BigDecimal) row[1]
-                ))
-                .toList();
+
+        List<MonthlyRevenueResponse> monthlyRevenue =
+                orderRepository
+                        .getMonthlyRevenue()
+                        .stream()
+                        .map(row ->
+                                new MonthlyRevenueResponse(
+
+                                        (String) row[0],
+
+                                        (BigDecimal) row[1]
+                                )
+                        )
+                        .toList();
 
         // 9. Dashboard Response
+
         return new DashboardResponse(
+
                 stats,
+
                 monthlyRevenue,
+
                 orderStatus,
+
                 paymentStatus,
+
                 inventory,
+
                 topProducts,
+
                 recentOrders,
+
                 recentPayments
         );
     }
@@ -345,18 +563,23 @@ public class AdminServiceImpl implements AdminService {
                         .getContext()
                         .getAuthentication();
 
-        String email = authentication.getName();
+        String email =
+                authentication.getName();
 
-        return userRepository.findByEmail(email)
+        return userRepository
+                .findByEmail(email)
                 .orElseThrow(() ->
-                        new ValidationException("Admin not found."));
-
+                        new ValidationException(
+                                "Admin not found."
+                        )
+                );
     }
 
     @Override
     public AdminProfileResponse getAdminProfile() {
 
-        User admin = getCurrentAdmin();
+        User admin =
+                getCurrentAdmin();
 
         return new AdminProfileResponse(
 
@@ -371,22 +594,27 @@ public class AdminServiceImpl implements AdminService {
                 admin.getPhone(),
 
                 admin.getRole()
-
         );
-
     }
 
     @Override
     public AdminProfileResponse updateAdminProfile(
             UpdateAdminProfileRequest request) {
 
-        User admin = getCurrentAdmin();
+        User admin =
+                getCurrentAdmin();
 
-        admin.setFirstName(request.firstName());
+        admin.setFirstName(
+                request.firstName()
+        );
 
-        admin.setLastName(request.lastName());
+        admin.setLastName(
+                request.lastName()
+        );
 
-        admin.setPhone(request.phoneNumber());
+        admin.setPhone(
+                request.phoneNumber()
+        );
 
         userRepository.save(admin);
 
@@ -403,59 +631,64 @@ public class AdminServiceImpl implements AdminService {
                 admin.getPhone(),
 
                 admin.getRole()
-
         );
-
     }
 
     @Override
-    public void changeEmail(ChangeEmailRequest request) {
+    public void changeEmail(
+            ChangeEmailRequest request) {
 
-        User admin = getCurrentAdmin();
+        User admin =
+                getCurrentAdmin();
 
         if (!passwordEncoder.matches(
                 request.password(),
                 admin.getPasswordHash())) {
 
             throw new ValidationException(
-                    "Incorrect password.");
-
+                    "Incorrect password."
+            );
         }
 
-        if (userRepository.existsByEmail(request.newEmail())) {
+        if (userRepository.existsByEmail(
+                request.newEmail())) {
 
             throw new ValidationException(
-                    "Email already exists.");
-
+                    "Email already exists."
+            );
         }
 
-        admin.setEmail(request.newEmail());
+        admin.setEmail(
+                request.newEmail()
+        );
 
         userRepository.save(admin);
-
     }
 
     @Override
     public void changePassword(
             ChangePasswordRequest request) {
 
-        User admin = getCurrentAdmin();
+        User admin =
+                getCurrentAdmin();
 
         if (!passwordEncoder.matches(
                 request.currentPassword(),
                 admin.getPasswordHash())) {
 
             throw new ValidationException(
-                    "Current password is incorrect.");
-
+                    "Current password is incorrect."
+            );
         }
 
         if (!request.newPassword()
-                .equals(request.confirmPassword())) {
+                .equals(
+                        request.confirmPassword()
+                )) {
 
             throw new ValidationException(
-                    "Passwords do not match.");
-
+                    "Passwords do not match."
+            );
         }
 
         if (passwordEncoder.matches(
@@ -463,15 +696,16 @@ public class AdminServiceImpl implements AdminService {
                 admin.getPasswordHash())) {
 
             throw new ValidationException(
-                    "New password must be different from the current password.");
-
+                    "New password must be different from the current password."
+            );
         }
 
         admin.setPasswordHash(
                 passwordEncoder.encode(
-                        request.newPassword()));
+                        request.newPassword()
+                )
+        );
 
         userRepository.save(admin);
-
     }
 }

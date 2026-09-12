@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 
-import { CartItem as CartItemType } from "@/types/cart";
+import {
+    CartItem as CartItemType,
+} from "@/types/cart";
 
 import QuantitySelector from "./QuantitySelector";
 
@@ -21,15 +23,15 @@ interface CartItemProps {
 
 export default function CartItem({
 
-    item,
+                                     item,
 
-    onIncrease,
+                                     onIncrease,
 
-    onDecrease,
+                                     onDecrease,
 
-    onRemove,
+                                     onRemove,
 
-}: CartItemProps) {
+                                 }: CartItemProps) {
 
     return (
 
@@ -39,12 +41,26 @@ export default function CartItem({
 
             <div className="relative h-44 w-32 flex-shrink-0 overflow-hidden bg-neutral-100">
 
-                <Image
-                    src={item.image}
-                    alt={item.productName}
-                    fill
-                    className="object-cover"
-                />
+                {item.image ? (
+
+                    <Image
+                        src={
+                            item.image
+                        }
+                        alt={
+                            item.productName
+                        }
+                        fill
+                        className="object-cover"
+                    />
+
+                ) : (
+
+                    <div className="flex h-full w-full items-center justify-center px-3 text-center text-xs uppercase tracking-[0.15em] text-neutral-400">
+                        No Image
+                    </div>
+
+                )}
 
             </div>
 
@@ -56,19 +72,59 @@ export default function CartItem({
 
                     <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
 
-                        {item.categoryName}
+                        {
+                            item.categoryName
+                        }
 
                     </p>
 
                     <h2 className="mt-2 font-[var(--font-playfair)] text-2xl">
 
-                        {item.productName}
+                        {
+                            item.productName
+                        }
 
                     </h2>
 
+                    {/* Variant Information */}
+
+                    <div className="mt-3 space-y-1 text-sm text-neutral-500">
+
+                        <p>
+                            Color:{" "}
+                            <span className="text-neutral-800">
+                                {
+                                    item.color
+                                }
+                            </span>
+                        </p>
+
+                        <p>
+                            Size:{" "}
+                            <span className="text-neutral-800">
+                                {
+                                    item.size
+                                }
+                            </span>
+                        </p>
+
+                        <p>
+                            SKU:{" "}
+                            <span className="text-neutral-800">
+                                {
+                                    item.sku
+                                }
+                            </span>
+                        </p>
+
+                    </div>
+
                     <p className="mt-4 text-xl font-medium">
 
-                        ₹{item.price}
+                        ₹
+                        {
+                            item.price
+                        }
 
                     </p>
 
@@ -78,11 +134,17 @@ export default function CartItem({
 
                     <QuantitySelector
 
-                        quantity={item.quantity}
+                        quantity={
+                            item.quantity
+                        }
 
-                        onIncrease={onIncrease}
+                        onIncrease={
+                            onIncrease
+                        }
 
-                        onDecrease={onDecrease}
+                        onDecrease={
+                            onDecrease
+                        }
 
                     />
 
@@ -90,19 +152,32 @@ export default function CartItem({
 
                         <p className="text-lg font-semibold">
 
-                            ₹{item.subtotal}
+                            ₹
+                            {
+                                item.subtotal
+                            }
 
                         </p>
 
                         <button
 
-                            onClick={onRemove}
+                            type="button"
+
+                            onClick={
+                                onRemove
+                            }
 
                             className="text-neutral-500 transition hover:text-red-600"
 
+                            aria-label={
+                                `Remove ${item.productName} from cart`
+                            }
+
                         >
 
-                            <Trash2 size={20} />
+                            <Trash2
+                                size={20}
+                            />
 
                         </button>
 

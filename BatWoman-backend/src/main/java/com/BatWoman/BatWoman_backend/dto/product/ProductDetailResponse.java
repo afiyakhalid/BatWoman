@@ -16,15 +16,13 @@ public record ProductDetailResponse(
 
         String fabric,
 
-        String color,
-
-        String size,
-
         BigDecimal price,
 
         BigDecimal discountPrice,
 
         Integer availableQuantity,
+
+        List<ProductVariantResponse> variants,
 
         List<ProductMediaResponse> media
 

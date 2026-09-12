@@ -5,23 +5,22 @@ import java.util.UUID;
 public interface InventoryService {
 
     void reserveInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity
     );
 
     void releaseInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity
     );
 
     void reduceInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity
     );
 
     void increaseInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity
     );
-
 }

@@ -21,99 +21,154 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void reserveInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity) {
 
-        Inventory inventory = inventoryRepository
-                .lockInventory(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found."));
+        Inventory inventory =
+                inventoryRepository
+                        .lockInventory(variantId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + variantId
+                                )
+                        );
+
+        if (quantity == null || quantity < 1) {
+            throw new ValidationException(
+                    "Quantity must be at least 1."
+            );
+        }
 
         if (inventory.getAvailableQuantity() < quantity) {
             throw new ValidationException(
-                    "Insufficient inventory.");
+                    "Insufficient inventory."
+            );
         }
 
         inventory.setAvailableQuantity(
-                inventory.getAvailableQuantity() - quantity);
+                inventory.getAvailableQuantity() - quantity
+        );
 
         inventory.setReservedQuantity(
-                inventory.getReservedQuantity() + quantity);
+                inventory.getReservedQuantity() + quantity
+        );
 
-        inventory.setUpdatedAt(OffsetDateTime.now());
+        inventory.setUpdatedAt(
+                OffsetDateTime.now()
+        );
 
         inventoryRepository.save(inventory);
     }
 
     @Override
     public void releaseInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity) {
 
-        Inventory inventory = inventoryRepository
-                .lockInventory(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found."));
+        Inventory inventory =
+                inventoryRepository
+                        .lockInventory(variantId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + variantId
+                                )
+                        );
 
-        inventory.setReservedQuantity(
-                Math.max(
-                        0,
-                        inventory.getReservedQuantity() - quantity
-                )
-        );
-
-        inventory.setAvailableQuantity(
-                inventory.getAvailableQuantity() + quantity
-        );
-
-        inventory.setUpdatedAt(OffsetDateTime.now());
-
-        inventoryRepository.save(inventory);
-    }
-
-    @Override
-    public void reduceInventory(
-            UUID productId,
-            Integer quantity) {
-
-        Inventory inventory = inventoryRepository
-                .lockInventory(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found."));
+        if (quantity == null || quantity < 1) {
+            throw new ValidationException(
+                    "Quantity must be at least 1."
+            );
+        }
 
         if (inventory.getReservedQuantity() < quantity) {
             throw new ValidationException(
-                    "Reserved inventory is insufficient.");
+                    "Reserved inventory is insufficient."
+            );
         }
 
         inventory.setReservedQuantity(
                 inventory.getReservedQuantity() - quantity
         );
 
-        inventory.setUpdatedAt(OffsetDateTime.now());
+        inventory.setAvailableQuantity(
+                inventory.getAvailableQuantity() + quantity
+        );
+
+        inventory.setUpdatedAt(
+                OffsetDateTime.now()
+        );
+
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public void reduceInventory(
+            UUID variantId,
+            Integer quantity) {
+
+        Inventory inventory =
+                inventoryRepository
+                        .lockInventory(variantId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + variantId
+                                )
+                        );
+
+        if (quantity == null || quantity < 1) {
+            throw new ValidationException(
+                    "Quantity must be at least 1."
+            );
+        }
+
+        if (inventory.getReservedQuantity() < quantity) {
+            throw new ValidationException(
+                    "Reserved inventory is insufficient."
+            );
+        }
+
+        inventory.setReservedQuantity(
+                inventory.getReservedQuantity() - quantity
+        );
+
+        inventory.setUpdatedAt(
+                OffsetDateTime.now()
+        );
 
         inventoryRepository.save(inventory);
     }
 
     @Override
     public void increaseInventory(
-            UUID productId,
+            UUID variantId,
             Integer quantity) {
 
-        Inventory inventory = inventoryRepository
-                .lockInventory(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Inventory not found."));
+        Inventory inventory =
+                inventoryRepository
+                        .lockInventory(variantId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + variantId
+                                )
+                        );
+
+        if (quantity == null || quantity < 1) {
+            throw new ValidationException(
+                    "Quantity must be at least 1."
+            );
+        }
 
         inventory.setAvailableQuantity(
                 inventory.getAvailableQuantity() + quantity
         );
 
-        inventory.setUpdatedAt(OffsetDateTime.now());
+        inventory.setUpdatedAt(
+                OffsetDateTime.now()
+        );
 
         inventoryRepository.save(inventory);
     }

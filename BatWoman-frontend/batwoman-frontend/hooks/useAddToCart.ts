@@ -1,25 +1,41 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+    useMutation,
+    useQueryClient,
+} from "@tanstack/react-query";
 
 import { addToCart } from "@/services/cart.service";
 
+interface AddToCartVariables {
+    variantId: string;
+    quantity: number;
+}
+
 export function useAddToCart() {
-    const queryClient = useQueryClient();
+
+    const queryClient =
+        useQueryClient();
 
     return useMutation({
+
         mutationFn: ({
-                         productId,
+                         variantId,
                          quantity,
-                     }: {
-            productId: string;
-            quantity: number;
-        }) => addToCart(productId, quantity),
+                     }: AddToCartVariables) =>
+            addToCart(
+                variantId,
+                quantity
+            ),
 
         onSuccess: async () => {
+
             await queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
+
         },
+
     });
+
 }

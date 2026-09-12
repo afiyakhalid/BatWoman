@@ -2,6 +2,9 @@ package com.BatWoman.BatWoman_backend.config;
 
 import com.BatWoman.BatWoman_backend.security.CustomUserDetailsService;
 import com.BatWoman.BatWoman_backend.security.JwtAuthenticationFilter;
+import com.BatWoman.BatWoman_backend.security.oauth2.CustomOAuth2UserService;
+import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationFailureHandler;
+import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +17,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.BatWoman.BatWoman_backend.security.oauth2.CustomOAuth2UserService;
-import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationFailureHandler;
-import com.BatWoman.BatWoman_backend.security.oauth2.OAuth2AuthenticationSuccessHandler;
 
 @Configuration
 @EnableMethodSecurity
@@ -35,31 +33,30 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler successHandler;
     private final PasswordEncoder passwordEncoder;
     private final OAuth2AuthenticationFailureHandler failureHandler;
-    /**
-     * BCrypt Password Encoder
-     */
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder(12);
-//    }
 
     /**
      * Authentication Provider
+     *
      * Responsible for loading the user and validating passwords.
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
 
         DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(customUserDetailsService);
+                new DaoAuthenticationProvider(
+                        customUserDetailsService
+                );
 
-        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPasswordEncoder(
+                passwordEncoder
+        );
 
         return provider;
     }
 
     /**
      * Authentication Manager
+     *
      * Used during Login.
      */
     @Bean
@@ -74,160 +71,272 @@ public class SecurityConfig {
      * Main Spring Security Configuration
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http)
             throws Exception {
 
         http
 
                 // Disable CSRF for REST APIs
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf ->
+                        csrf.disable()
+                )
 
                 // Enable CORS
-                .cors(Customizer.withDefaults())
+                .cors(
+                        Customizer.withDefaults()
+                )
 
                 // Stateless Authentication
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+                                SessionCreationPolicy.STATELESS
+                        )
+                )
 
                 // Register Authentication Provider
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(
+                        authenticationProvider()
+                )
+
                 .oauth2Login(oauth ->
-
                         oauth
-
-                                .userInfoEndpoint(userInfo ->
-
-                                        userInfo.userService(
-                                                customOAuth2UserService
-                                        )
-
+                                .userInfoEndpoint(
+                                        userInfo ->
+                                                userInfo.userService(
+                                                        customOAuth2UserService
+                                                )
                                 )
-
-                                .successHandler(successHandler)
-
-                                .failureHandler(failureHandler)
-
+                                .successHandler(
+                                        successHandler
+                                )
+                                .failureHandler(
+                                        failureHandler
+                                )
                 )
 
                 // Route Authorization
                 .authorizeHttpRequests(auth -> auth
 
-                                // Public Authentication APIs
-                                .requestMatchers(
-                                        "/api/v1/auth/register",
-                                        "/api/v1/auth/login",
-                                        "/api/v1/auth/refresh",
-                                        "/api/v1/auth/forgot-password",
-                                        "/api/v1/auth/reset-password",
-                                        "/oauth2/**",
-                                        "/login/oauth2/**"
+                        // =====================================================
+                        // Public Authentication APIs
+                        // =====================================================
 
-                                ).permitAll()
+                        .requestMatchers(
+                                "/api/v1/auth/register",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh",
+                                "/oauth2/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
 
-                                // Categories - Public Read
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/categories/**"
-                                ).permitAll()
+                        // =====================================================
+                        // Categories - Public Read
+                        // =====================================================
 
-                                // Categories - Admin Only
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/categories/**"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/categories/**"
+                        ).permitAll()
 
-                                .requestMatchers(HttpMethod.PUT,
-                                        "/api/v1/categories/**"
-                                ).hasRole("ADMIN")
+                        // Categories - Admin Only
 
-                                .requestMatchers(HttpMethod.DELETE,
-                                        "/api/v1/categories/**"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
 
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
 
-                                // Products - Public Read
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/products/**"
-                                ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/categories/**"
+                        ).hasRole("ADMIN")
 
-// Product Search
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/products/search"
-                                ).permitAll()
+                        // =====================================================
+                        // Colors - Public Read
+                        // =====================================================
 
-// Product Image Upload - Admin
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/products/*/images"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/colors"
+                        ).permitAll()
 
-// Product CRUD - Admin
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/products"
-                                ).hasRole("ADMIN")
+                        // =====================================================
+                        // Colors - Admin Read
+                        // =====================================================
 
-                                .requestMatchers(
-                                        HttpMethod.GET,
-                                        "/api/v1/products/admin"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/colors/admin"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(HttpMethod.PUT,
-                                        "/api/v1/products/**"
-                                ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/colors/*"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(HttpMethod.DELETE,
-                                        "/api/v1/products/**"
-                                ).hasRole("ADMIN")
-                                // Cart - Authenticated Users
-                                .requestMatchers(
-                                        "/api/v1/cart/**"
-                                ).authenticated()
-                                // Wishlist - Authenticated Users
-                                .requestMatchers(
-                                        "/api/v1/wishlist/**"
-                                ).authenticated()
-                                // Reviews - Public Read
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/v1/reviews/**"
-                                ).permitAll()
+                        // =====================================================
+                        // Colors - Admin Write
+                        // =====================================================
 
-// Reviews - Logged-in Users
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/reviews/**"
-                                ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/colors"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(HttpMethod.PUT,
-                                        "/api/v1/reviews/**"
-                                ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/colors/*"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(HttpMethod.DELETE,
-                                        "/api/v1/reviews/**"
-                                ).authenticated()
-                                // Orders - Authenticated Users
-                                .requestMatchers(
-                                        "/api/v1/orders/**"
-                                ).authenticated()
-                                // Payment Creation & Verification
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/payments"
-                                ).authenticated()
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/colors/*"
+                        ).hasRole("ADMIN")
 
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/payments/verify"
-                                ).authenticated()
+                        // =====================================================
+                        // Products - Public Read
+                        // =====================================================
 
-// Razorpay Webhook
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/payments/webhook"
-                                ).permitAll()
-                                // Admin APIs
-                                .requestMatchers("/api/v1/admin/**")
-                                .hasRole("ADMIN")
-                                .requestMatchers(
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html"
-                                ).permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/products/**"
+                        ).permitAll()
 
+                        // Product Search
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/products/search"
+                        ).permitAll()
+
+                        // Product Image Upload - Admin
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/products/*/images"
+                        ).hasRole("ADMIN")
+
+                        // Product CRUD - Admin
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/products"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/products/admin"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/products/**"
+                        ).hasRole("ADMIN")
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/products/**"
+                        ).hasRole("ADMIN")
+
+                        // =====================================================
+                        // Cart - Authenticated Users
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/api/v1/cart/**"
+                        ).authenticated()
+
+                        // =====================================================
+                        // Wishlist - Authenticated Users
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/api/v1/wishlist/**"
+                        ).authenticated()
+
+                        // =====================================================
+                        // Reviews - Public Read
+                        // =====================================================
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/reviews/**"
+                        ).permitAll()
+
+                        // Reviews - Logged-in Users
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/reviews/**"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/reviews/**"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/v1/reviews/**"
+                        ).authenticated()
+
+                        // =====================================================
+                        // Orders - Authenticated Users
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/api/v1/orders/**"
+                        ).authenticated()
+
+                        // =====================================================
+                        // Payment Creation & Verification
+                        // =====================================================
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/payments"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/payments/verify"
+                        ).authenticated()
+
+                        // Razorpay Webhook
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/payments/webhook"
+                        ).permitAll()
+
+                        // =====================================================
+                        // Admin APIs
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/api/v1/admin/**"
+                        ).hasRole("ADMIN")
+
+                        // =====================================================
+                        // Swagger / OpenAPI
+                        // =====================================================
+
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // =====================================================
+                        // Everything Else
+                        // =====================================================
+
+                        .anyRequest().authenticated()
                 )
 
                 // Register JWT Filter
@@ -238,5 +347,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }

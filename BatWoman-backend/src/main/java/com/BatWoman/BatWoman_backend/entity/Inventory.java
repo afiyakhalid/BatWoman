@@ -24,16 +24,17 @@ public class Inventory {
     private UUID id;
 
     // ===========================
-    // Product
+    // Product Variant
     // ===========================
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
-    private Product product;
+    @JoinColumn(name = "variant_id", nullable = false, unique = true)
+    private ProductVariant variant;
 
     // ===========================
     // Inventory Details
     // ===========================
+
     @Builder.Default
     @Column(name = "available_quantity", nullable = false)
     private Integer availableQuantity = 0;
@@ -41,11 +42,11 @@ public class Inventory {
     @Builder.Default
     @Column(name = "reserved_quantity", nullable = false)
     private Integer reservedQuantity = 0;
+
     @Version
     @Column(nullable = false)
     private Long version;
 
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
-
 }

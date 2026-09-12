@@ -20,4 +20,5 @@ public record ProductCardResponse(
 
         List<ProductMediaResponse> media
 
-) {}
+) {
+}

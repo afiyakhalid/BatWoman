@@ -1,9 +1,12 @@
 package com.BatWoman.BatWoman_backend.dto.product;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 public record CreateProductRequest(
@@ -18,10 +21,6 @@ public record CreateProductRequest(
 
         String fabric,
 
-        String color,
-
-        String size,
-
         @NotNull
         BigDecimal price,
 
@@ -29,7 +28,10 @@ public record CreateProductRequest(
 
         Boolean featured,
 
-        Boolean newArrival
+        Boolean newArrival,
+
+        @NotEmpty
+        List<@Valid ProductVariantRequest> variants
 
 ) {
 }

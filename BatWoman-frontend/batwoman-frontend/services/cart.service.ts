@@ -8,15 +8,21 @@ export async function getCart(): Promise<Cart> {
     return data;
 }
 
+/**
+ * Add a variant to the cart.
+ *
+ * NOTE: The backend expects { variantId, quantity } — NOT productId.
+ * A variant uniquely identifies the product + size + color combination.
+ */
 export async function addToCart(
-    productId: string,
+    variantId: string,
     quantity: number
 ): Promise<Cart> {
 
     const { data } = await api.post<Cart>(
         "/cart",
         {
-            productId,
+            variantId,
             quantity,
         }
     );

@@ -1,142 +1,267 @@
 package com.BatWoman.BatWoman_backend.specification;
 
 import com.BatWoman.BatWoman_backend.dto.product.ProductSearchRequest;
+import com.BatWoman.BatWoman_backend.entity.Color;
 import com.BatWoman.BatWoman_backend.entity.Product;
+import com.BatWoman.BatWoman_backend.entity.ProductVariant;
+import com.BatWoman.BatWoman_backend.entity.Size;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.math.BigDecimal;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ProductSpecification {
 
     private ProductSpecification() {
     }
 
-    public static Specification<Product> hasCategory(
-            UUID categoryId
-    ) {
-
-        return (root, query, cb) ->
-                categoryId == null
-                        ? null
-                        : cb.equal(
-                        root.get("category").get("id"),
-                        categoryId
-                );
-    }
-
-    public static Specification<Product> hasKeyword(
-            String keyword
-    ) {
-
-        return (root, query, cb) ->
-                keyword == null || keyword.isBlank()
-                        ? null
-                        : cb.like(
-                        cb.lower(root.get("name")),
-                        "%" +
-                                keyword
-                                        .toLowerCase()
-                                        .trim() +
-                        "%"
-                );
-    }
-
-    public static Specification<Product> priceGreaterThanOrEqualTo(
-            BigDecimal minPrice
-    ) {
-
-        return (root, query, cb) ->
-                minPrice == null
-                        ? null
-                        : cb.greaterThanOrEqualTo(
-                        root.get("price"),
-                        minPrice
-                );
-    }
-
-    public static Specification<Product> priceLessThanOrEqualTo(
-            BigDecimal maxPrice
-    ) {
-
-        return (root, query, cb) ->
-                maxPrice == null
-                        ? null
-                        : cb.lessThanOrEqualTo(
-                        root.get("price"),
-                        maxPrice
-                );
-    }
-
-    public static Specification<Product> hasFabric(
-            String fabric
-    ) {
-
-        return (root, query, cb) ->
-                fabric == null || fabric.isBlank()
-                        ? null
-                        : cb.equal(
-                        cb.lower(root.get("fabric")),
-                        fabric.toLowerCase().trim()
-                );
-    }
-
-    public static Specification<Product> hasColor(
-            String color
-    ) {
-
-        return (root, query, cb) ->
-                color == null || color.isBlank()
-                        ? null
-                        : cb.equal(
-                        cb.lower(root.get("color")),
-                        color.toLowerCase().trim()
-                );
-    }
-
-    public static Specification<Product> isActive() {
-
-        return (root, query, cb) ->
-                cb.isTrue(root.get("active"));
-    }
-
     public static Specification<Product> build(
-            ProductSearchRequest request
-    ) {
+            ProductSearchRequest request) {
 
-        return Specification
-                .where(
-                        hasCategory(
+        return (root, query, criteriaBuilder) -> {
+
+            List<Predicate> predicates =
+                    new ArrayList<>();
+
+            /*
+             * A product can have multiple variants.
+             *
+             * Color and size filters must be applied to the
+             * SAME ProductVariant.
+             *
+             * Example:
+             *
+             * Product
+             *   ├── Black / L
+             *   └── White / M
+             *
+             * Searching:
+             *
+             * color = Black
+             * size  = M
+             *
+             * must NOT match this product.
+             *
+             * Therefore, when variant filters are present,
+             * we use one ProductVariant join and apply all
+             * variant predicates to that same join.
+             */
+            query.distinct(true);
+
+            // ====================================================
+            // Active Product
+            // ====================================================
+
+            predicates.add(
+                    criteriaBuilder.equal(
+                            root.get("active"),
+                            true
+                    )
+            );
+
+            // ====================================================
+            // Keyword
+            // ====================================================
+
+            if (
+                    request.keyword() != null
+                            &&
+                            !request.keyword().isBlank()
+            ) {
+
+                String keyword =
+                        "%" +
+                                request.keyword()
+                                        .trim()
+                                        .toLowerCase() +
+                                "%";
+
+                Predicate namePredicate =
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(
+                                        root.get("name")
+                                ),
+                                keyword
+                        );
+
+                Predicate descriptionPredicate =
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(
+                                        root.get("description")
+                                ),
+                                keyword
+                        );
+
+                Predicate fabricPredicate =
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(
+                                        root.get("fabric")
+                                ),
+                                keyword
+                        );
+
+                predicates.add(
+                        criteriaBuilder.or(
+                                namePredicate,
+                                descriptionPredicate,
+                                fabricPredicate
+                        )
+                );
+            }
+
+            // ====================================================
+            // Category
+            // ====================================================
+
+            if (request.categoryId() != null) {
+
+                predicates.add(
+                        criteriaBuilder.equal(
+                                root.get("category").get("id"),
                                 request.categoryId()
                         )
-                )
-                .and(
-                        hasKeyword(
-                                request.keyword()
-                        )
-                )
-                .and(
-                        priceGreaterThanOrEqualTo(
+                );
+            }
+
+            // ====================================================
+            // Price
+            // ====================================================
+
+            if (request.minPrice() != null) {
+
+                predicates.add(
+                        criteriaBuilder.greaterThanOrEqualTo(
+                                root.get("price"),
                                 request.minPrice()
                         )
-                )
-                .and(
-                        priceLessThanOrEqualTo(
+                );
+            }
+
+            if (request.maxPrice() != null) {
+
+                predicates.add(
+                        criteriaBuilder.lessThanOrEqualTo(
+                                root.get("price"),
                                 request.maxPrice()
                         )
-                )
-                .and(
-                        hasFabric(
-                                request.fabric()
-                        )
-                )
-                .and(
-                        hasColor(
-                                request.color()
-                        )
-                )
-                .and(
-                        isActive()
                 );
+            }
+
+            // ====================================================
+            // Fabric
+            // ====================================================
+
+            if (
+                    request.fabric() != null
+                            &&
+                            !request.fabric().isBlank()
+            ) {
+
+                predicates.add(
+                        criteriaBuilder.equal(
+                                criteriaBuilder.lower(
+                                        root.get("fabric")
+                                ),
+                                request.fabric()
+                                        .trim()
+                                        .toLowerCase()
+                        )
+                );
+            }
+
+            // ====================================================
+            // Variant Filters
+            // ====================================================
+
+            /*
+             * IMPORTANT:
+             *
+             * Create ONE variant join.
+             *
+             * Both color and size predicates are applied to
+             * this same ProductVariant.
+             *
+             * This guarantees:
+             *
+             * color = Black
+             * size  = M
+             *
+             * means:
+             *
+             * SAME VARIANT = Black / M
+             */
+            if (
+                    request.colorId() != null
+                            ||
+                            request.sizeId() != null
+            ) {
+
+                Join<Product, ProductVariant> variantJoin =
+                        root.join(
+                                "variants",
+                                JoinType.INNER
+                        );
+
+                // ------------------------------------------------
+                // Variant Active
+                // ------------------------------------------------
+
+                predicates.add(
+                        criteriaBuilder.equal(
+                                variantJoin.get("active"),
+                                true
+                        )
+                );
+
+                // ------------------------------------------------
+                // Color
+                // ------------------------------------------------
+
+                if (request.colorId() != null) {
+
+                    Join<ProductVariant, Color> colorJoin =
+                            variantJoin.join(
+                                    "color",
+                                    JoinType.INNER
+                            );
+
+                    predicates.add(
+                            criteriaBuilder.equal(
+                                    colorJoin.get("id"),
+                                    request.colorId()
+                            )
+                    );
+                }
+
+                // ------------------------------------------------
+                // Size
+                // ------------------------------------------------
+
+                if (request.sizeId() != null) {
+
+                    Join<ProductVariant, Size> sizeJoin =
+                            variantJoin.join(
+                                    "size",
+                                    JoinType.INNER
+                            );
+
+                    predicates.add(
+                            criteriaBuilder.equal(
+                                    sizeJoin.get("id"),
+                                    request.sizeId()
+                            )
+                    );
+                }
+            }
+
+            return criteriaBuilder.and(
+                    predicates.toArray(
+                            new Predicate[0]
+                    )
+            );
+        };
     }
 }

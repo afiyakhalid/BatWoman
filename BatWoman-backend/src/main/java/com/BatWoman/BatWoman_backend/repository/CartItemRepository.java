@@ -14,22 +14,12 @@ public interface CartItemRepository
             UUID cartId
     );
 
-    Optional<CartItem> findByCart_IdAndProduct_Id(
+    Optional<CartItem> findByCart_IdAndVariant_Id(
             UUID cartId,
-            UUID productId
+            UUID variantId
     );
 
     void deleteByCart_Id(
             UUID cartId
-    );
-
-    /*
-     * Used when physically deleting a product.
-     *
-     * Every cart_item referencing the product must be removed
-     * before the product row can be deleted.
-     */
-    void deleteByProduct_Id(
-            UUID productId
     );
 }

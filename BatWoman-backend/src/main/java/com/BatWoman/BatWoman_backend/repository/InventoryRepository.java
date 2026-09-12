@@ -1,4 +1,3 @@
-
 package com.BatWoman.BatWoman_backend.repository;
 
 import com.BatWoman.BatWoman_backend.entity.Inventory;
@@ -11,21 +10,33 @@ import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface InventoryRepository extends JpaRepository<Inventory, UUID> {
+public interface InventoryRepository
+        extends JpaRepository<Inventory, UUID> {
 
-    Optional<Inventory> findByProduct_Id(UUID productId);
+    Optional<Inventory> findByVariant_Id(
+            UUID variantId
+    );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
            SELECT i
            FROM Inventory i
-           WHERE i.product.id = :productId
+           WHERE i.variant.id = :variantId
            """)
-    Optional<Inventory> lockInventory(UUID productId);
-    long countByAvailableQuantityGreaterThan(Integer quantity);
+    Optional<Inventory> lockInventory(
+            UUID variantId
+    );
 
-    long countByAvailableQuantityBetween(Integer min, Integer max);
+    long countByAvailableQuantityGreaterThan(
+            Integer quantity
+    );
 
-    long countByAvailableQuantity(Integer quantity);
+    long countByAvailableQuantityBetween(
+            Integer min,
+            Integer max
+    );
 
+    long countByAvailableQuantity(
+            Integer quantity
+    );
 }

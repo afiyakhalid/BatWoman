@@ -1,6 +1,9 @@
 package com.BatWoman.BatWoman_backend.dto.product;
 
+import jakarta.validation.Valid;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 public record UpdateProductRequest(
@@ -13,10 +16,6 @@ public record UpdateProductRequest(
 
         String fabric,
 
-        String color,
-
-        String size,
-
         BigDecimal price,
 
         BigDecimal discountPrice,
@@ -25,7 +24,10 @@ public record UpdateProductRequest(
 
         Boolean newArrival,
 
-        Boolean active
+        Boolean active,
+
+        @Valid
+        List<UpdateProductVariantRequest> variants
 
 ) {
 }

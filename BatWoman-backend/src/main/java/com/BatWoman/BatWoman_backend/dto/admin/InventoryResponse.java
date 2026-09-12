@@ -7,9 +7,17 @@ public record InventoryResponse(
 
         UUID inventoryId,
 
+        UUID variantId,
+
         UUID productId,
 
         String productName,
+
+        String sku,
+
+        String size,
+
+        String color,
 
         Integer availableQuantity,
 

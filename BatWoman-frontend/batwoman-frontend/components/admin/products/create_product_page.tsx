@@ -1,41 +1,114 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
 
-import {ProductForm} from "@/components/admin/products/ProductForm";
+import ProductForm from "@/components/admin/products/ProductForm";
 import ProductMediaUploader from "@/components/admin/products/ProductMediaUploader";
 
 import { useCreateProduct } from "@/hooks/useCreateProduct";
 
+import {
+    AdminProductFormData,
+} from "@/types/admin-product";
+
+import {
+    CreateProductRequest,
+} from "@/services/adminProduct.service";
+
 export default function CreateProductPage() {
 
-    const router = useRouter();
+    const router =
+        useRouter();
 
-    const createProduct = useCreateProduct();
+    const createProduct =
+        useCreateProduct();
 
-    const [dialogOpen, setDialogOpen] = useState(true);
+    const [dialogOpen, setDialogOpen] =
+        useState(true);
 
     const [productId, setProductId] =
-        useState<string | null>(null);
+        useState<string | null>(
+            null
+        );
 
-    async function handleCreateProduct(request: any) {
+    function handleCreateProduct(
+        request: AdminProductFormData
+    ) {
 
-        createProduct.mutate(request, {
+        /*
+         * The ProductForm guarantees variants for create mode,
+         * but the shared AdminProductFormData type keeps variants
+         * optional because it is also used for product updates.
+         */
+        if (
+            !request.variants ||
+            request.variants.length === 0
+        ) {
 
-            onSuccess: (product) => {
+            console.error(
+                "Product creation requires at least one variant."
+            );
 
-                setProductId(product.id);
+            return;
 
-            },
+        }
 
-        });
+        const createRequest:
+            CreateProductRequest = {
+
+            categoryId:
+            request.categoryId,
+
+            name:
+            request.name,
+
+            description:
+            request.description,
+
+            fabric:
+            request.fabric,
+
+            price:
+            request.price,
+
+            discountPrice:
+            request.discountPrice,
+
+            featured:
+            request.featured,
+
+            newArrival:
+            request.newArrival,
+
+            variants:
+            request.variants,
+        };
+
+        createProduct.mutate(
+            createRequest,
+            {
+                onSuccess:
+                    (
+                        product
+                    ) => {
+
+                        setProductId(
+                            product.id
+                        );
+
+                    },
+            }
+        );
 
     }
 
     function handleUploadComplete() {
 
-        router.push("/admin/products");
+        router.push(
+            "/admin/products"
+        );
 
     }
 
@@ -46,9 +119,23 @@ export default function CreateProductPage() {
             {!productId ? (
 
                 <ProductForm
-                    open={dialogOpen}
-                    onOpenChange={setDialogOpen}
-                    onSave={handleCreateProduct}
+
+                    open={
+                        dialogOpen
+                    }
+
+                    onOpenChange={
+                        setDialogOpen
+                    }
+
+                    onSave={
+                        handleCreateProduct
+                    }
+
+                    isSaving={
+                        createProduct.isPending
+                    }
+
                 />
 
             ) : (
@@ -69,8 +156,15 @@ export default function CreateProductPage() {
                     </div>
 
                     <ProductMediaUploader
-                        productId={productId}
-                        onUploadComplete={handleUploadComplete}
+
+                        productId={
+                            productId
+                        }
+
+                        onUploadComplete={
+                            handleUploadComplete
+                        }
+
                     />
 
                 </div>
@@ -80,5 +174,4 @@ export default function CreateProductPage() {
         </div>
 
     );
-
 }

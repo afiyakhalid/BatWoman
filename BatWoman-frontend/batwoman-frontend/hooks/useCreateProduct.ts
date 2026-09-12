@@ -23,7 +23,7 @@ export function useCreateProduct() {
     >({
 
         mutationFn: (
-            request
+            request: CreateProductRequest
         ) => createProduct(request),
 
         onSuccess: async () => {

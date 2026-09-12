@@ -15,20 +15,22 @@ public interface ProductRepository
         extends JpaRepository<Product, UUID>,
         JpaSpecificationExecutor<Product> {
 
-    Optional<Product> findBySlug(String slug);
+    Optional<Product> findBySlug(
+            String slug
+    );
 
-    Optional<Product> findBySku(String sku);
-
-    boolean existsBySku(String sku);
-
-    Page<Product> findByActiveTrue(Pageable pageable);
+    Page<Product> findByActiveTrue(
+            Pageable pageable
+    );
 
     Page<Product> findByCategory_Id(
             UUID categoryId,
             Pageable pageable
     );
 
-    long countByCategory_Id(UUID categoryId);
+    long countByCategory_Id(
+            UUID categoryId
+    );
 
     Page<Product> findByNameContainingIgnoreCase(
             String keyword,

@@ -4,9 +4,17 @@ export interface Inventory {
 
     inventoryId: string;
 
+    variantId: string;
+
     productId: string;
 
     productName: string;
+
+    sku: string;
+
+    size: string;
+
+    color: string;
 
     availableQuantity: number;
 
@@ -20,7 +28,7 @@ export interface Inventory {
 
 export interface RestockInventoryRequest {
 
-    productId: string;
+    variantId: string;
 
     quantity: number;
 
@@ -28,7 +36,7 @@ export interface RestockInventoryRequest {
 
 export async function getInventory(): Promise<Inventory[]> {
 
-    const { data } = await api.get(
+    const { data } = await api.get<Inventory[]>(
         "/admin/inventory"
     );
 
@@ -36,12 +44,12 @@ export async function getInventory(): Promise<Inventory[]> {
 
 }
 
-export async function getInventoryByProduct(
-    productId: string
+export async function getInventoryByVariant(
+    variantId: string
 ): Promise<Inventory> {
 
-    const { data } = await api.get(
-        `/admin/inventory/${productId}`
+    const { data } = await api.get<Inventory>(
+        `/admin/inventory/${variantId}`
     );
 
     return data;

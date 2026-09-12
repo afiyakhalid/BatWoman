@@ -102,7 +102,7 @@ public class OAuth2AuthenticationSuccessHandler
                 );
 
         String redirectUrl =
-                "http://localhost:3001/auth/callback"
+                "http://localhost:3000/auth/callback"
                         + "?accessToken=" + loginResponse.accessToken()
                         + "&refreshToken=" + loginResponse.refreshToken()
                         + "&expiresIn=" + loginResponse.expiresIn()

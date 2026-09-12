@@ -19,12 +19,26 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "variants", ignore = true)
+    @Mapping(target = "media", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "orderItems", ignore = true)
+    @Mapping(target = "wishlists", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Product toEntity(CreateProductRequest request);
 
+    @Mapping(target = "variants", ignore = true)
     ProductResponse toResponse(Product product);
 
     ProductCardResponse toCardResponse(Product product);
 
+    @Mapping(target = "variants", ignore = true)
+    @Mapping(target = "availableQuantity", ignore = true)
+    @Mapping(target = "media", ignore = true)
     ProductDetailResponse toDetailResponse(Product product);
 
     CategorySummary toCategorySummary(Category category);
@@ -36,9 +50,17 @@ public interface ProductMapper {
             nullValuePropertyMappingStrategy =
                     NullValuePropertyMappingStrategy.IGNORE
     )
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "variants", ignore = true)
+    @Mapping(target = "media", ignore = true)
+    @Mapping(target = "reviews", ignore = true)
+    @Mapping(target = "orderItems", ignore = true)
+    @Mapping(target = "wishlists", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateProductFromDto(
             UpdateProductRequest request,
             @MappingTarget Product product
     );
-
 }

@@ -15,7 +15,9 @@ public record ProductSearchRequest(
 
         String fabric,
 
-        String color,
+        UUID colorId,
+
+        UUID sizeId,
 
         Integer page,
 

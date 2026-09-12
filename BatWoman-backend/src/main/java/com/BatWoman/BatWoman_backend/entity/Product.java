@@ -6,10 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.ArrayList;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,12 +33,6 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-    @OneToOne(
-            mappedBy = "product",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
-    )
-    private Inventory inventory;
 
     // ===========================
     // Product Details
@@ -50,17 +44,10 @@ public class Product {
     @Column(nullable = false, unique = true)
     private String slug;
 
-    @Column(unique = true)
-    private String sku;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 
     private String fabric;
-
-    private String color;
-
-    private String size;
 
     @Column(nullable = false)
     private BigDecimal price;
@@ -82,9 +69,20 @@ public class Product {
     private OffsetDateTime updatedAt;
 
     // ===========================
-    // Relationships
+    // Product Variants
     // ===========================
 
+    @OneToMany(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<ProductVariant> variants = new ArrayList<>();
+
+    // ===========================
+    // Product Media
+    // ===========================
 
     @OneToMany(
             mappedBy = "product",
@@ -94,18 +92,24 @@ public class Product {
     )
     private List<ProductMedia> media = new ArrayList<>();
 
-
+    // ===========================
+    // Reviews
+    // ===========================
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<CartItem> cartItems;
+    // ===========================
+    // Order Items
+    // ===========================
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
+    // ===========================
+    // Wishlists
+    // ===========================
+
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<Wishlist> wishlists;
-
 }

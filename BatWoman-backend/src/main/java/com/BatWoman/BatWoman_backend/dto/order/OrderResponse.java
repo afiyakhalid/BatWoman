@@ -33,6 +33,14 @@ public record OrderResponse(
 
             String productName,
 
+            UUID variantId,
+
+            String variantSku,
+
+            String size,
+
+            String color,
+
             Integer quantity,
 
             BigDecimal unitPrice,

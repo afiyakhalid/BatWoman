@@ -24,7 +24,15 @@ public record CartResponse(
 
             UUID productId,
 
+            UUID variantId,
+
             String productName,
+
+            String sku,
+
+            String size,
+
+            String color,
 
             String image,
 
