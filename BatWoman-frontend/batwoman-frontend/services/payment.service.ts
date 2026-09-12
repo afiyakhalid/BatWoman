@@ -47,3 +47,11 @@ export async function verifyPayment(
 
     return data;
 }
+export async function handlePaymentFailure(
+    paymentId: string
+): Promise<void> {
+
+    await api.post(
+        `/payments/failure/${paymentId}`
+    );
+}

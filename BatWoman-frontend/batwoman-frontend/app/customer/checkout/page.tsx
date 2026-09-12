@@ -8,7 +8,11 @@ import CheckoutItems from "@/components/checkout/CheckoutItems";
 import CheckoutSummary from "@/components/checkout/CheckoutSummary";
 import PaymentMethod from "@/components/checkout/PaymentMethod";
 import { useCheckout } from "@/hooks/useOrders";
-import { useCreatePayment, useVerifyPayment } from "@/hooks/usePayments";
+import {
+    useCreatePayment,
+    useVerifyPayment,
+    useHandlePaymentFailure,
+} from "@/hooks/usePayments";
 
 import { useAddress } from "@/hooks/useAddresses";
 import { useCart } from "@/hooks/useCart";
@@ -21,7 +25,7 @@ export default function CheckoutPage() {
     const checkoutMutation = useCheckout();
     const createPaymentMutation = useCreatePayment();
     const verifyPaymentMutation = useVerifyPayment();
-
+    const handlePaymentFailureMutation = useHandlePaymentFailure();
     const addressId = searchParams.get("addressId");
 
     const {
@@ -68,11 +72,22 @@ export default function CheckoutPage() {
                 theme: {
                     color: "#000000",
                 },
-                modal: {
-                    ondismiss() {
-                        alert("Payment cancelled.");
-                    }
-                },
+               modal: {
+                   async ondismiss() {
+                       try {
+                           await handlePaymentFailureMutation.mutateAsync(
+                               payment.paymentId
+                           );
+
+                           alert("Payment cancelled.");
+                       } catch (error) {
+                           console.error(
+                               "Failed to release inventory after payment cancellation",
+                               error
+                           );
+                       }
+                   }
+               },
                 handler: async function (response: any) {
                     try {
                         await verifyPaymentMutation.mutateAsync({
@@ -93,10 +108,26 @@ export default function CheckoutPage() {
             // Using type assertion (window as any) to keep TypeScript happy 
             const razorpay = new (window as any).Razorpay(options);
 
-            razorpay.on("payment.failed", function (response: any) {
-                console.error(response.error);
-                alert("Payment failed. Please try again.");
-            });
+            razorpay.on(
+                "payment.failed",
+                async function (response: any) {
+
+                    console.error(response.error);
+
+                    try {
+                        await handlePaymentFailureMutation.mutateAsync(
+                            payment.paymentId
+                        );
+
+                        alert("Payment failed. Please try again.");
+                    } catch (error) {
+                        console.error(
+                            "Failed to release inventory after payment failure",
+                            error
+                        );
+                    }
+                }
+            );
 
             razorpay.open();
 
