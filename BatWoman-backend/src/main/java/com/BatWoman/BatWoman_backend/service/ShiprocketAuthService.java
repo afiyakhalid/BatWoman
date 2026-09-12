@@ -1,4 +1,4 @@
-package com.BatWoman.BatWoman_backend.service.shipping;
+package com.BatWoman.BatWoman_backend.service;
 
 import com.BatWoman.BatWoman_backend.config.ShiprocketConfig;
 import com.BatWoman.BatWoman_backend.dto.shipping.shiprocket.ShiprocketAuthRequest;

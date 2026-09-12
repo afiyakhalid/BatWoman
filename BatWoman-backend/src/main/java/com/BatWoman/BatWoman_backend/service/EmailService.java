@@ -1,4 +1,6 @@
 package com.BatWoman.BatWoman_backend.service;
 
-public class EmailService {
+public interface EmailService {
+
+    void sendPasswordResetOtp(String toEmail, String otpCode);
 }

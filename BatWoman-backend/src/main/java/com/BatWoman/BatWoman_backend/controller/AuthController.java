@@ -83,5 +83,20 @@ public class AuthController {
 
 
     }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<java.util.Map<String, String>> forgotPassword(
+            @Valid @RequestBody com.BatWoman.BatWoman_backend.dto.auth.ForgotPasswordRequest request) {
+
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(java.util.Map.of("message", "Verification code sent to your email."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<java.util.Map<String, String>> resetPassword(
+            @Valid @RequestBody com.BatWoman.BatWoman_backend.dto.auth.ResetPasswordRequest request) {
+
+        authService.resetPassword(request);
+        return ResponseEntity.ok(java.util.Map.of("message", "Password reset successfully."));
+    }
 
 }

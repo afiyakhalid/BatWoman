@@ -33,5 +33,8 @@ public interface AuthService {
      * Returns currently authenticated user.
      */
     User getCurrentUser();
+    void forgotPassword(com.BatWoman.BatWoman_backend.dto.auth.ForgotPasswordRequest request);
+
+    void resetPassword(com.BatWoman.BatWoman_backend.dto.auth.ResetPasswordRequest request);
 
 }

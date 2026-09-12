@@ -6,15 +6,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 import com.BatWoman.BatWoman_backend.enums.Role;
+
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByEmailIgnoreCase(String email);
 
     Optional<User> findByPhone(String phone);
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailIgnoreCase(String email);
+
     boolean existsByPhone(String phone);
+
     long countByRole(Role role);
 
 }

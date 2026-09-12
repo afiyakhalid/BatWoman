@@ -1,20 +1,26 @@
 package com.BatWoman.BatWoman_backend.service.impl;
 
+import com.BatWoman.BatWoman_backend.dto.auth.ForgotPasswordRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.LoginRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.LoginResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.RefreshTokenRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterResponse;
+import com.BatWoman.BatWoman_backend.dto.auth.ResetPasswordRequest;
+import com.BatWoman.BatWoman_backend.entity.PasswordResetToken;
 import com.BatWoman.BatWoman_backend.entity.RefreshToken;
 import com.BatWoman.BatWoman_backend.entity.User;
+import com.BatWoman.BatWoman_backend.enums.AuthProvider;
 import com.BatWoman.BatWoman_backend.enums.Role;
 import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.exception.ValidationException;
+import com.BatWoman.BatWoman_backend.repository.PasswordResetTokenRepository;
 import com.BatWoman.BatWoman_backend.repository.RefreshTokenRepository;
 import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.security.JwtService;
 import com.BatWoman.BatWoman_backend.security.UserPrincipal;
 import com.BatWoman.BatWoman_backend.service.AuthService;
+import com.BatWoman.BatWoman_backend.service.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -38,11 +45,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     @Override
     public RegisterResponse register(RegisterRequest request) {
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailIgnoreCase(request.email().trim())) {
             throw new ValidationException("Email already registered.");
         }
 
@@ -55,9 +64,10 @@ public class AuthServiceImpl implements AuthService {
                 .id(UUID.randomUUID())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
-                .email(request.email())
+                .email(request.email().trim())
                 .phone(request.phone())
                 .passwordHash(passwordEncoder.encode(request.password()))
+                .provider(AuthProvider.LOCAL)
                 .role(Role.USER)
                 .verified(false)
                 .active(true)
@@ -89,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
         UserPrincipal userPrincipal =
                 (UserPrincipal) authentication.getPrincipal();
 
-        User user = userRepository.findByEmail(userPrincipal.getUsername())
+        User user = userRepository.findByEmailIgnoreCase(userPrincipal.getUsername())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
 
@@ -160,6 +170,57 @@ public class AuthServiceImpl implements AuthService {
                         new ValidationException("Invalid refresh token."));
 
         refreshTokenRepository.delete(token);
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmailIgnoreCase(request.email().trim())
+                .orElseThrow(() -> new ResourceNotFoundException("No account found with this email address."));
+
+        // Generate 6-digit numeric OTP
+        String otp = String.format("%06d", new SecureRandom().nextInt(1_000_000));
+
+        PasswordResetToken token = PasswordResetToken.builder()
+                .id(UUID.randomUUID())
+                .email(user.getEmail())
+                .token(otp)
+                .expiresAt(OffsetDateTime.now().plusMinutes(10))
+                .used(false)
+                .createdAt(OffsetDateTime.now())
+                .build();
+
+        passwordResetTokenRepository.save(token);
+
+        emailService.sendPasswordResetOtp(user.getEmail(), otp);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = request.email().trim();
+
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No account found with this email address."));
+
+        PasswordResetToken token = passwordResetTokenRepository
+                .findTopByEmailIgnoreCaseAndUsedFalseOrderByCreatedAtDesc(email)
+                .orElseThrow(() -> new ValidationException("Invalid or expired verification code. Please request a new code."));
+
+        if (token.getExpiresAt().isBefore(OffsetDateTime.now())) {
+            throw new ValidationException("Verification code has expired. Please request a new code.");
+        }
+
+        if (!token.getToken().equals(request.code().trim())) {
+            throw new ValidationException("Incorrect verification code.");
+        }
+
+        // Set new encoded password
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        user.setUpdatedAt(OffsetDateTime.now());
+        userRepository.save(user);
+
+        // Invalidate code
+        token.setUsed(true);
+        passwordResetTokenRepository.save(token);
     }
 
     @Override
