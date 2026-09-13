@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { useAuthModal } from "@/hooks/useAuthModal";
 
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ import { useLogin } from "@/hooks/useLogin";
 export default function LoginForm() {
 
     const [email, setEmail] = useState("");
+    const { openForgotPassword } = useAuthModal();
 
     const [password, setPassword] = useState("");
 
@@ -57,16 +59,15 @@ export default function LoginForm() {
                 onChange={setPassword}
             />
 
-            <div className="flex justify-end">
-
-                <Link
-                    href="/auth/forgot-password"
-                    className="text-sm text-neutral-600 hover:text-black"
-                >
-                    Forgot Password?
-                </Link>
-
-            </div>
+           <div className="flex justify-end">
+               <button
+                   type="button"
+                   onClick={openForgotPassword}
+                   className="text-sm text-neutral-600 hover:text-black"
+               >
+                   Forgot Password?
+               </button>
+           </div>
 
             {login.isError && (
 
