@@ -232,7 +232,7 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
 
             {/* Search */}
-            <Link href="/search">
+            <Link href="/customer/search">
               <Search
                 size={19}
                 className="text-neutral-800 transition-colors duration-300 hover:text-neutral-400"
