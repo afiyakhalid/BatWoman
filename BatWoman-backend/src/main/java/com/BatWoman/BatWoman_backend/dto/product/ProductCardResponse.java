@@ -18,7 +18,11 @@ public record ProductCardResponse(
 
         CategorySummary category,
 
-        List<ProductMediaResponse> media
+        Boolean active,
+
+        List<ProductMediaResponse> media,
+
+        Integer variantCount
 
 ) {
 }

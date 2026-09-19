@@ -191,19 +191,39 @@ public class OrderServiceImpl implements OrderService {
             }
 
             if (!Boolean.TRUE.equals(
-                    variant.getActive())) {
+                   product.getActive())) {
 
                 throw new ValidationException(
-                        "Selected product variant is no longer available."
+                       "This product is no longer available."
                 );
+            }
+
+            if (!Boolean.TRUE.equals(
+                   variant.getActive())) {
+
+               throw new ValidationException(
+                       "Selected product variant is no longer available."
+               );
+            }
+
+            if (variant.getSize() == null) {
+               throw new ValidationException(
+                       "Selected product variant is missing size information."
+               );
+            }
+
+            if (variant.getColor() == null) {
+               throw new ValidationException(
+                       "Selected product variant is missing color information."
+               );
             }
 
             /*
              * Reserve inventory for the exact variant.
              */
             inventoryService.reserveInventory(
-                    variant.getId(),
-                    cartItem.getQuantity()
+                   variant.getId(),
+                   cartItem.getQuantity()
             );
 
             BigDecimal lineSubtotal =

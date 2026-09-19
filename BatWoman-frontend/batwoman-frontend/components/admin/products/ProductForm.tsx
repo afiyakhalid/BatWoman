@@ -50,6 +50,10 @@ interface ProductFormProps {
     onOpenChange: (open: boolean) => void;
     product?: AdminProduct | null;
     onSave: (request: AdminProductFormData) => void;
+    onDiscontinue?: (
+        request: AdminProductFormData
+    ) => Promise<void> | void;
+    isDiscontinuing?: boolean;
     isSaving?: boolean;
 }
 
@@ -119,7 +123,7 @@ function productToForm(
             product.discountPrice?.toString() ?? "",
         featured: product.featured,
         newArrival: product.newArrival,
-        active: product.active,
+        active: product.active ?? true,
 
         variants: product.variants.map(
             (variant) => ({
@@ -169,6 +173,8 @@ export default function ProductForm({
                                         onOpenChange,
                                         product,
                                         onSave,
+                                        onDiscontinue,
+                                        isDiscontinuing = false,
                                         isSaving = false,
                                     }: ProductFormProps) {
 
@@ -206,6 +212,8 @@ export default function ProductForm({
 
     const [errorMessage, setErrorMessage] =
         useState("");
+    const [discontinueDialogOpen, setDiscontinueDialogOpen] =
+        useState(false);
 
     /*
      * Load categories, colors and sizes.
@@ -268,24 +276,6 @@ export default function ProductForm({
             cancelled = true;
         };
     }, [open]);
-
-    /*
-     * Synchronize form state when switching between
-     * create and edit modes.
-     */
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        setForm(
-            product
-                ? productToForm(product)
-                : createEmptyForm()
-        );
-
-        setErrorMessage("");
-    }, [open, product]);
 
     function updateProductField<
         K extends Exclude<
@@ -764,6 +754,57 @@ export default function ProductForm({
         });
     }
 
+    async function handleConfirmDiscontinue() {
+        if (!product || !onDiscontinue) {
+            return;
+        }
+
+        setErrorMessage("");
+
+        try {
+            await onDiscontinue({
+                categoryId: form.categoryId,
+                name: form.name.trim(),
+                description: form.description.trim(),
+                fabric: form.fabric.trim(),
+                price: Number(form.price),
+                discountPrice:
+                    form.discountPrice.trim() === ""
+                        ? null
+                        : Number(form.discountPrice),
+                featured:
+                form.featured,
+                newArrival:
+                form.newArrival,
+                active: false,
+                variants: form.variants.map(
+                    (variant) => ({
+                        id:
+                        variant.id,
+                        sizeId:
+                        variant.sizeId,
+                        colorId:
+                        variant.colorId,
+                        sku:
+                        variant.sku.trim(),
+                        initialStock:
+                        variant.initialStock,
+                        active:
+                        variant.active,
+                    })
+                ),
+            });
+
+            updateProductField("active", false);
+            setDiscontinueDialogOpen(false);
+        } catch (error) {
+            console.error(
+                "Failed to discontinue product.",
+                error
+            );
+        }
+    }
+
     return (
         <>
             {/* =========================================================
@@ -828,7 +869,8 @@ export default function ProductForm({
                                         )
                                     }
                                     disabled={
-                                        isSaving
+                                        isSaving ||
+                                        isDiscontinuing
                                     }
                                     className="
                                         w-full
@@ -884,7 +926,8 @@ export default function ProductForm({
                                         )
                                     }
                                     disabled={
-                                        isSaving
+                                        isSaving ||
+                                        isDiscontinuing
                                     }
                                     placeholder="Premium Black Abaya"
                                 />
@@ -916,7 +959,8 @@ export default function ProductForm({
                                     )
                                 }
                                 disabled={
-                                    isSaving
+                                    isSaving ||
+                                    isDiscontinuing
                                 }
                                 placeholder="Describe the product..."
                             />
@@ -1571,6 +1615,25 @@ export default function ProductForm({
                     </div>
 
                     <DialogFooter>
+                        {product && form.active && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="border-red-300 text-red-700 hover:bg-red-50 hover:text-red-800"
+                                onClick={() =>
+                                    setDiscontinueDialogOpen(
+                                        true
+                                    )
+                                }
+                                disabled={
+                                    isSaving ||
+                                    isDiscontinuing
+                                }
+                            >
+                                Discontinue Product
+                            </Button>
+                        )}
+
                         <Button
                             type="button"
                             variant="outline"
@@ -1578,7 +1641,8 @@ export default function ProductForm({
                                 onOpenChange(false)
                             }
                             disabled={
-                                isSaving
+                                isSaving ||
+                                isDiscontinuing
                             }
                         >
                             Cancel
@@ -1590,7 +1654,8 @@ export default function ProductForm({
                                 handleSubmit
                             }
                             disabled={
-                                isSaving
+                                isSaving ||
+                                isDiscontinuing
                             }
                         >
                             {isSaving
@@ -1606,6 +1671,49 @@ export default function ProductForm({
             {/* =============================================================
                 CREATE COLOR DIALOG
             ============================================================= */}
+
+            <Dialog
+                open={discontinueDialogOpen}
+                onOpenChange={setDiscontinueDialogOpen}
+            >
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="font-[var(--font-playfair)] text-3xl">
+                            Discontinue Product?
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    <p className="text-sm text-muted-foreground">
+                        This will make this product unavailable to customers. The product, variants, inventory, media, and existing order history will be preserved.
+                    </p>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                setDiscontinueDialogOpen(
+                                    false
+                                )
+                            }
+                            disabled={isDiscontinuing}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={handleConfirmDiscontinue}
+                            disabled={isDiscontinuing}
+                        >
+                            {isDiscontinuing
+                                ? "Discontinuing..."
+                                : "Discontinue Product"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <Dialog
                 open={colorDialogOpen}

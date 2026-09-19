@@ -83,7 +83,12 @@ export default function CreateProductPage() {
             request.newArrival,
 
             variants:
-            request.variants,
+            request.variants.map((variant) => ({
+                sizeId: variant.sizeId,
+                colorId: variant.colorId,
+                sku: variant.sku,
+                initialStock: variant.initialStock ?? 0,
+            })),
         };
 
         createProduct.mutate(

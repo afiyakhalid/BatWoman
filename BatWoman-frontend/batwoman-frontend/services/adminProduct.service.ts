@@ -33,6 +33,7 @@ export interface ProductDetailResponse {
     fabric: string | null;
     price: number;
     discountPrice: number | null;
+    active: boolean;
     availableQuantity: number;
     variants: AdminProductVariant[];
     media: ProductMedia[];

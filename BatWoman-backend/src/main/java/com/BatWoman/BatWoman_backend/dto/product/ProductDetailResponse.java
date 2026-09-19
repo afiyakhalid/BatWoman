@@ -20,6 +20,8 @@ public record ProductDetailResponse(
 
         BigDecimal discountPrice,
 
+        Boolean active,
+
         Integer availableQuantity,
 
         List<ProductVariantResponse> variants,

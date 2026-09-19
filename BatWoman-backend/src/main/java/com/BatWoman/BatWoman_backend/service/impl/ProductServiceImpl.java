@@ -1036,6 +1036,12 @@ public class ProductServiceImpl implements ProductService {
                                 )
                         );
 
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new ResourceNotFoundException(
+                    "Product not found."
+            );
+        }
+
         return toProductDetailResponse(
                 product
         );
@@ -1251,6 +1257,7 @@ public class ProductServiceImpl implements ProductService {
                 baseResponse.fabric(),
                 baseResponse.price(),
                 baseResponse.discountPrice(),
+                product.getActive(),
                 availableQuantity,
                 variantResponses,
                 media
@@ -1333,7 +1340,11 @@ public class ProductServiceImpl implements ProductService {
                 response.price(),
                 response.discountPrice(),
                 response.category(),
-                media
+                product.getActive(),
+                media,
+                product.getVariants() == null
+                        ? 0
+                        : product.getVariants().size()
         );
     }
 

@@ -132,6 +132,7 @@ export default function ProductsPage() {
                 fabric: detail.fabric,
                 price: detail.price,
                 discountPrice: detail.discountPrice,
+                active: detail.active ?? product.active,
 
                 media: normalizedMedia,
 
@@ -140,6 +141,7 @@ export default function ProductsPage() {
                  * for existing variants.
                  */
                 variants: detail.variants ?? [],
+                variantCount: product.variantCount,
             };
 
             setSelectedProduct(completeProduct);
@@ -241,12 +243,18 @@ export default function ProductsPage() {
 
                                 discountPrice:
                                 updated.discountPrice,
+                                active:
+                                    updated.active ??
+                                    selectedProduct.active,
 
                                 media:
                                 normalizedMedia,
 
                                 variants:
                                     updated.variants ?? [],
+                                variantCount:
+                                    updated.variants?.length ??
+                                    selectedProduct.variantCount,
                             };
 
                             setSelectedProduct(
@@ -383,6 +391,29 @@ export default function ProductsPage() {
         );
     }
 
+    async function handleDiscontinue(
+        request: AdminProductFormData
+    ) {
+        if (!selectedProduct) {
+            return;
+        }
+
+        await updateProduct.mutateAsync(
+            {
+                id: selectedProduct.id,
+                request: {
+                    ...request,
+                    active: false,
+                },
+            },
+            {
+                onSuccess: () => {
+                    setFormOpen(false);
+                },
+            }
+        );
+    }
+
     async function confirmDelete() {
         if (!selectedProduct) {
             return;
@@ -468,6 +499,11 @@ export default function ProductsPage() {
             />
 
             <ProductForm
+                key={
+                    selectedProduct
+                        ? `product-${selectedProduct.id}-${selectedProduct.name}-${selectedProduct.active}-${selectedProduct.variantCount}-${selectedProduct.price}-${selectedProduct.discountPrice ?? "none"}-${formOpen ? "open" : "closed"}`
+                        : `new-product-form-${formOpen ? "open" : "closed"}`
+                }
                 open={formOpen}
                 onOpenChange={
                     setFormOpen
@@ -477,6 +513,12 @@ export default function ProductsPage() {
                 }
                 onSave={
                     handleSave
+                }
+                onDiscontinue={
+                    handleDiscontinue
+                }
+                isDiscontinuing={
+                    updateProduct.isPending
                 }
                 isSaving={
                     loadingProductId !==

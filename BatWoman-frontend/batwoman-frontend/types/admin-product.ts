@@ -53,6 +53,7 @@ export interface AdminProduct {
     media: AdminProductMedia[];
 
     variants: AdminProductVariant[];
+    variantCount: number;
 }
 
 export interface AdminProductFormData {
