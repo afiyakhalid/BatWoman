@@ -1,6 +1,8 @@
 package com.BatWoman.BatWoman_backend.service.impl;
 
 import com.BatWoman.BatWoman_backend.dto.admin.*;
+import java.time.OffsetDateTime;
+import com.BatWoman.BatWoman_backend.dto.common.PageResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.settings.AdminProfileResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.settings.ChangeEmailRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.settings.ChangePasswordRequest;
@@ -22,8 +24,13 @@ import com.BatWoman.BatWoman_backend.repository.PaymentRepository;
 import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.service.AdminService;
+import com.BatWoman.BatWoman_backend.dto.admin.AdjustInventoryRequest;
+import com.BatWoman.BatWoman_backend.enums.InventoryAdjustmentType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,12 +38,17 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AdminServiceImpl implements AdminService {
+    private static final int LOW_STOCK_THRESHOLD = 10;
 
     private final InventoryRepository inventoryRepository;
     private final OrderRepository orderRepository;
@@ -68,6 +80,62 @@ public class AdminServiceImpl implements AdminService {
         );
 
         inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public void adjustInventory(
+            AdjustInventoryRequest request) {
+
+        Inventory inventory =
+                inventoryRepository
+                        .findByVariant_Id(
+                                request.variantId()
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Inventory not found for variant: "
+                                                + request.variantId()
+                                )
+                        );
+
+        int quantity = request.quantity();
+
+        if (request.adjustmentType()
+                == InventoryAdjustmentType.INCREASE) {
+
+            inventory.setAvailableQuantity(
+                    inventory.getAvailableQuantity()
+                            + quantity
+            );
+
+        } else if (request.adjustmentType()
+                == InventoryAdjustmentType.DECREASE) {
+
+            if (inventory.getAvailableQuantity()
+                    < quantity) {
+
+                throw new ValidationException(
+                        "Cannot decrease inventory by "
+                                + quantity
+                                + ". Only "
+                                + inventory.getAvailableQuantity()
+                                + " units are currently available."
+                );
+            }
+
+            inventory.setAvailableQuantity(
+                    inventory.getAvailableQuantity()
+                            - quantity
+            );
+        }
+
+        inventory.setUpdatedAt(
+                OffsetDateTime.now()
+        );
+
+        inventoryRepository.save(
+                inventory
+        );
     }
 
     @Override
@@ -260,13 +328,222 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<InventoryResponse> getAllInventory() {
+    public AdminInventoryPageResponse getAllInventory(
+            String search,
+            String filter,
+            int page,
+            int size) {
 
-        return inventoryRepository
-                .findAll()
-                .stream()
-                .map(this::toInventoryResponse)
-                .toList();
+        int resolvedPage = Math.max(page, 0);
+        int resolvedSize = Math.min(
+                Math.max(size, 1),
+                100
+        );
+
+        String normalizedSearch =
+                search == null ? "" : search.trim();
+
+        String normalizedFilter = normalizeInventoryFilter(filter);
+
+        Pageable pageable = PageRequest.of(
+                resolvedPage,
+                resolvedSize
+        );
+
+        Page<UUID> productIdsPage =
+                inventoryRepository.findProductIdsForAdminInventory(
+                        normalizedSearch,
+                        normalizedFilter,
+                        LOW_STOCK_THRESHOLD,
+                        pageable
+                );
+
+        List<AdminInventoryProductResponse> content = new ArrayList<>();
+
+        if (!productIdsPage.isEmpty()) {
+            List<UUID> productIds = productIdsPage.getContent();
+
+            List<Inventory> inventories =
+                    inventoryRepository.findByProductIdsWithVariantDetails(
+                            productIds
+                    );
+
+            Map<UUID, List<Inventory>> byProduct =
+                    new LinkedHashMap<>();
+
+            for (UUID productId : productIds) {
+                byProduct.put(productId, new ArrayList<>());
+            }
+
+            for (Inventory inventory : inventories) {
+                UUID productId =
+                        inventory.getVariant()
+                                .getProduct()
+                                .getId();
+                if (byProduct.containsKey(productId)) {
+                    byProduct.get(productId).add(inventory);
+                }
+            }
+
+            for (UUID productId : productIds) {
+                List<Inventory> productInventories =
+                        byProduct.get(productId);
+                if (productInventories == null || productInventories.isEmpty()) {
+                    continue;
+                }
+                content.add(
+                        toAdminInventoryProductResponse(productInventories)
+                );
+            }
+        }
+
+        PageResponse<AdminInventoryProductResponse> pageResponse =
+                new PageResponse<>(
+                        content,
+                        productIdsPage.getNumber(),
+                        productIdsPage.getSize(),
+                        productIdsPage.getTotalElements(),
+                        productIdsPage.getTotalPages(),
+                        productIdsPage.isFirst(),
+                        productIdsPage.isLast()
+                );
+
+        AdminInventorySummaryResponse summary =
+                buildInventorySummary(normalizedSearch);
+
+        return new AdminInventoryPageResponse(
+                pageResponse,
+                summary
+        );
+    }
+
+    private String normalizeInventoryFilter(String filter) {
+        if (filter == null || filter.isBlank()) {
+            return "ALL";
+        }
+        return switch (filter.trim().toUpperCase()) {
+            case "IN_STOCK" -> "IN_STOCK";
+            case "LOW_STOCK" -> "LOW_STOCK";
+            case "OUT_OF_STOCK" -> "OUT_OF_STOCK";
+            case "HAS_RESERVED_STOCK" -> "HAS_RESERVED_STOCK";
+            default -> "ALL";
+        };
+    }
+
+    private AdminInventorySummaryResponse buildInventorySummary(
+            String search) {
+
+        List<Object[]> rows =
+                inventoryRepository
+                        .findProductInventorySummary(
+                                search
+                        );
+
+        if (rows.isEmpty()) {
+
+            return new AdminInventorySummaryResponse(
+                    0,
+                    0,
+                    0,
+                    0
+            );
+        }
+
+        long totalProducts = rows.size();
+
+        long availableUnits = 0L;
+        long reservedUnits = 0L;
+        long outOfStockProducts = 0L;
+
+        for (Object[] row : rows) {
+
+            long available =
+                    ((Number) row[1])
+                            .longValue();
+
+            long reserved =
+                    ((Number) row[2])
+                            .longValue();
+
+            availableUnits += available;
+            reservedUnits += reserved;
+
+            if (available == 0) {
+                outOfStockProducts++;
+            }
+        }
+
+        return new AdminInventorySummaryResponse(
+                totalProducts,
+                availableUnits,
+                reservedUnits,
+                outOfStockProducts
+        );
+    }
+
+    private AdminInventoryProductResponse toAdminInventoryProductResponse(
+            List<Inventory> inventories) {
+
+        Inventory first = inventories.get(0);
+        String productName =
+                first.getVariant().getProduct().getName();
+        UUID productId =
+                first.getVariant().getProduct().getId();
+
+        int available = 0;
+        int reserved = 0;
+        OffsetDateTime latestUpdate = first.getUpdatedAt();
+
+        List<AdminInventoryVariantResponse> variants =
+                inventories.stream()
+                        .sorted(Comparator.comparing(Inventory::getUpdatedAt).reversed())
+                        .map(inventory -> {
+                            int variantTotal =
+                                    inventory.getAvailableQuantity()
+                                            + inventory.getReservedQuantity();
+                            return new AdminInventoryVariantResponse(
+                                    inventory.getId(),
+                                    inventory.getVariant().getId(),
+                                    inventory.getVariant().getSku(),
+                                    inventory.getVariant().getSize().getLabel(),
+                                    inventory.getVariant().getColor().getName(),
+                                    inventory.getAvailableQuantity(),
+                                    inventory.getReservedQuantity(),
+                                    variantTotal,
+                                    inventory.getUpdatedAt()
+                            );
+                        })
+                        .toList();
+
+        for (Inventory inventory : inventories) {
+            available += inventory.getAvailableQuantity();
+            reserved += inventory.getReservedQuantity();
+            if (inventory.getUpdatedAt().isAfter(latestUpdate)) {
+                latestUpdate = inventory.getUpdatedAt();
+            }
+        }
+
+        int total = available + reserved;
+        String status;
+        if (available == 0) {
+            status = "OUT_OF_STOCK";
+        } else if (available <= LOW_STOCK_THRESHOLD) {
+            status = "LOW_STOCK";
+        } else {
+            status = "IN_STOCK";
+        }
+
+        return new AdminInventoryProductResponse(
+                productId,
+                productName,
+                variants.size(),
+                available,
+                reserved,
+                total,
+                status,
+                latestUpdate,
+                variants
+        );
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.BatWoman.BatWoman_backend.controller;
 
 import com.BatWoman.BatWoman_backend.dto.admin.CustomerResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.DashboardResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.AdminInventoryPageResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.AdjustInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
@@ -32,6 +34,15 @@ public class AdminController {
             @Valid @RequestBody RestockInventoryRequest request) {
 
         adminService.restockInventory(request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/inventory/adjust")
+    public ResponseEntity<Void> adjustInventory(
+            @Valid @RequestBody AdjustInventoryRequest request) {
+
+        adminService.adjustInventory(request);
 
         return ResponseEntity.ok().build();
     }
@@ -84,10 +95,19 @@ public class AdminController {
     }
 
     @GetMapping("/inventory")
-    public ResponseEntity<List<InventoryResponse>> getAllInventory() {
+    public ResponseEntity<AdminInventoryPageResponse> getAllInventory(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "ALL") String filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(
-                adminService.getAllInventory()
+                adminService.getAllInventory(
+                        search,
+                        filter,
+                        page,
+                        size
+                )
         );
     }
 

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    useEffect,
     useState,
 } from "react";
 
@@ -19,39 +18,67 @@ import { Input } from "@/components/ui/input";
 
 import {
     Inventory,
+    InventoryAdjustmentType,
 } from "@/services/adminInventory.service";
 
 import {
-    useRestockInventory,
-} from "@/hooks/useRestockInventory";
+    useAdjustInventory,
+} from "@/hooks/useAdjustInventory";
 
 interface RestockInventoryDialogProps {
+
     open: boolean;
-    onOpenChange: (open: boolean) => void;
+
+    onOpenChange: (
+        open: boolean
+    ) => void;
+
     inventory: Inventory | null;
+
 }
 
 export default function RestockInventoryDialog({
+
                                                    open,
+
                                                    onOpenChange,
+
                                                    inventory,
+
                                                }: RestockInventoryDialogProps) {
 
     const [quantity, setQuantity] =
         useState(1);
 
+    const [adjustmentType, setAdjustmentType] =
+        useState<InventoryAdjustmentType>(
+            "INCREASE"
+        );
+
     const mutation =
-        useRestockInventory();
+        useAdjustInventory();
 
-    useEffect(() => {
+    function handleDialogOpenChange(
+        nextOpen: boolean
+    ) {
 
-        if (open) {
+        if (!nextOpen) {
+
             setQuantity(1);
+
+            setAdjustmentType(
+                "INCREASE"
+            );
+
         }
 
-    }, [open]);
+        onOpenChange(
+            nextOpen
+        );
 
-    function handleRestock() {
+    }
+
+    function handleAdjustment() {
 
         if (!inventory) {
             return;
@@ -61,14 +88,28 @@ export default function RestockInventoryDialog({
             return;
         }
 
+        if (
+            adjustmentType === "DECREASE" &&
+            quantity >
+            inventory.availableQuantity
+        ) {
+            return;
+        }
+
         mutation.mutate(
+
             {
                 variantId:
                 inventory.variantId,
 
                 quantity,
+
+                adjustmentType,
+
             },
+
             {
+
                 onSuccess: () => {
 
                     onOpenChange(
@@ -76,22 +117,31 @@ export default function RestockInventoryDialog({
                     );
 
                 },
+
             }
+
         );
+
     }
 
     if (!inventory) {
         return null;
     }
 
+    const isDecrease =
+        adjustmentType === "DECREASE";
+
+    const exceedsAvailableStock =
+        isDecrease &&
+        quantity >
+        inventory.availableQuantity;
+
     return (
 
         <Dialog
-            open={
-                open
-            }
+            open={open}
             onOpenChange={
-                onOpenChange
+                handleDialogOpenChange
             }
         >
 
@@ -100,12 +150,15 @@ export default function RestockInventoryDialog({
                 <DialogHeader>
 
                     <DialogTitle>
-                        Restock Inventory
+                        Adjust Inventory
                     </DialogTitle>
 
                     <DialogDescription>
 
-                        Increase stock for
+                        {isDecrease
+                            ? "Decrease stock for"
+                            : "Increase stock for"
+                        }
 
                         <span className="ml-1 font-semibold">
                             {
@@ -161,34 +214,121 @@ export default function RestockInventoryDialog({
 
                     <div className="space-y-2">
 
+                        <p className="text-sm font-medium">
+                            Adjustment
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-2">
+
+                            <Button
+                                type="button"
+                                variant={
+                                    adjustmentType ===
+                                    "INCREASE"
+                                        ? "default"
+                                        : "outline"
+                                }
+                                onClick={() =>
+                                    setAdjustmentType(
+                                        "INCREASE"
+                                    )
+                                }
+                                disabled={
+                                    mutation.isPending
+                                }
+                            >
+                                Increase
+                            </Button>
+
+                            <Button
+                                type="button"
+                                variant={
+                                    adjustmentType ===
+                                    "DECREASE"
+                                        ? "default"
+                                        : "outline"
+                                }
+                                onClick={() =>
+                                    setAdjustmentType(
+                                        "DECREASE"
+                                    )
+                                }
+                                disabled={
+                                    mutation.isPending ||
+                                    inventory.availableQuantity ===
+                                    0
+                                }
+                            >
+                                Decrease
+                            </Button>
+
+                        </div>
+
+                    </div>
+
+                    <div className="space-y-2">
+
                         <label
-                            htmlFor="restock-quantity"
+                            htmlFor="inventory-adjustment-quantity"
                             className="text-sm font-medium"
                         >
                             Quantity
                         </label>
 
                         <Input
-                            id="restock-quantity"
+                            id="inventory-adjustment-quantity"
                             type="number"
                             min={1}
-                            value={quantity}
-                            onChange={(
-                                event
-                            ) =>
-                                setQuantity(
-                                    Math.max(
-                                        1,
-                                        Number(
-                                            event.target.value
-                                        ) || 1
-                                    )
-                                )
+                            max={
+                                isDecrease
+                                    ? inventory.availableQuantity
+                                    : undefined
                             }
+                            value={quantity}
+                            onChange={(event) => {
+
+                                const value =
+                                    Number(
+                                        event.target.value
+                                    );
+
+                                if (
+                                    !Number.isFinite(
+                                        value
+                                    ) ||
+                                    value < 1
+                                ) {
+
+                                    setQuantity(1);
+
+                                    return;
+
+                                }
+
+                                setQuantity(
+                                    Math.floor(value)
+                                );
+
+                            }}
                             disabled={
                                 mutation.isPending
                             }
                         />
+
+                        {exceedsAvailableStock && (
+
+                            <p className="text-sm text-red-600">
+
+                                Cannot decrease stock by more than the
+                                current available quantity of{" "}
+
+                                {
+                                    inventory.availableQuantity
+                                }.
+
+                            </p>
+
+                        )}
 
                     </div>
 
@@ -199,7 +339,7 @@ export default function RestockInventoryDialog({
                     <Button
                         variant="outline"
                         onClick={() =>
-                            onOpenChange(
+                            handleDialogOpenChange(
                                 false
                             )
                         }
@@ -212,18 +352,25 @@ export default function RestockInventoryDialog({
 
                     <Button
                         onClick={
-                            handleRestock
+                            handleAdjustment
                         }
                         disabled={
                             mutation.isPending ||
-                            quantity < 1
+                            quantity < 1 ||
+                            exceedsAvailableStock
                         }
                     >
-                        {
-                            mutation.isPending
-                                ? "Restocking..."
-                                : "Restock"
+
+                        {mutation.isPending
+
+                            ? "Updating..."
+
+                            : isDecrease
+                                ? "Decrease Stock"
+                                : "Increase Stock"
+
                         }
+
                     </Button>
 
                 </DialogFooter>
@@ -233,4 +380,5 @@ export default function RestockInventoryDialog({
         </Dialog>
 
     );
+
 }

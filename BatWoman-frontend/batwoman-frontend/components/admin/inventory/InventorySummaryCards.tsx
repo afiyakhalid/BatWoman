@@ -1,55 +1,27 @@
 "use client";
 
 import {
-
     Archive,
-
     AlertTriangle,
-
     Package,
-
     Boxes,
-
 } from "lucide-react";
 
-import { Inventory } from "@/services/adminInventory.service";
+import {
+    AdminInventorySummaryResponse,
+} from "@/services/adminInventory.service";
 
 interface InventorySummaryCardsProps {
 
-    inventory: Inventory[];
+    summary: AdminInventorySummaryResponse;
 
 }
 
 export default function InventorySummaryCards({
 
-    inventory,
+                                                  summary,
 
-}: InventorySummaryCardsProps) {
-
-    const totalProducts = inventory.length;
-
-    const lowStock = inventory.filter(
-
-        (item) =>
-
-            item.availableQuantity > 0 &&
-            item.availableQuantity <= 10
-
-    ).length;
-
-    const outOfStock = inventory.filter(
-
-        (item) => item.availableQuantity === 0
-
-    ).length;
-
-    const totalUnits = inventory.reduce(
-
-        (sum, item) => sum + item.totalQuantity,
-
-        0
-
-    );
+                                              }: InventorySummaryCardsProps) {
 
     const cards = [
 
@@ -57,7 +29,7 @@ export default function InventorySummaryCards({
 
             title: "Products",
 
-            value: totalProducts,
+            value: summary.totalProducts,
 
             icon: Package,
 
@@ -65,9 +37,9 @@ export default function InventorySummaryCards({
 
         {
 
-            title: "Total Units",
+            title: "Available Units",
 
-            value: totalUnits,
+            value: summary.availableUnits,
 
             icon: Boxes,
 
@@ -75,9 +47,9 @@ export default function InventorySummaryCards({
 
         {
 
-            title: "Low Stock",
+            title: "Reserved Units",
 
-            value: lowStock,
+            value: summary.reservedUnits,
 
             icon: AlertTriangle,
 
@@ -87,7 +59,7 @@ export default function InventorySummaryCards({
 
             title: "Out Of Stock",
 
-            value: outOfStock,
+            value: summary.outOfStockProducts,
 
             icon: Archive,
 

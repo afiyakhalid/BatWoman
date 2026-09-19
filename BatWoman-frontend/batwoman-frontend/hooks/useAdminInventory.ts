@@ -2,15 +2,24 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getInventory } from "@/services/adminInventory.service";
+import {
+    getInventory,
+    GetInventoryParams,
+} from "@/services/adminInventory.service";
 
-export function useAdminInventory() {
+export function useAdminInventory(
+    params: GetInventoryParams
+) {
 
     return useQuery({
 
-        queryKey: ["admin-inventory"],
+        queryKey: [
+            "admin-inventory",
+            params,
+        ],
 
-        queryFn: getInventory,
+        queryFn: () =>
+            getInventory(params),
 
     });
 

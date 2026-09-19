@@ -1,12 +1,19 @@
 "use client";
 
-import { Inventory } from "@/services/adminInventory.service";
+import {
+    useState,
+} from "react";
+
+import {
+    AdminInventoryProductResponse,
+    Inventory,
+} from "@/services/adminInventory.service";
 
 import InventoryRow from "./InventoryRow";
 
 interface InventoryTableProps {
 
-    inventory: Inventory[];
+    inventory: AdminInventoryProductResponse[];
 
     onRestock: (inventory: Inventory) => void;
 
@@ -14,11 +21,51 @@ interface InventoryTableProps {
 
 export default function InventoryTable({
 
-    inventory,
+                                           inventory,
 
-    onRestock,
+                                           onRestock,
 
-}: InventoryTableProps) {
+                                       }: InventoryTableProps) {
+
+    const [expandedProductIds, setExpandedProductIds] =
+        useState<Set<string>>(
+            new Set()
+        );
+
+    function toggleProduct(
+        productId: string
+    ) {
+
+        setExpandedProductIds(
+            (current) => {
+
+                const next =
+                    new Set(current);
+
+                if (
+                    next.has(
+                        productId
+                    )
+                ) {
+
+                    next.delete(
+                        productId
+                    );
+
+                } else {
+
+                    next.add(
+                        productId
+                    );
+
+                }
+
+                return next;
+
+            }
+        );
+
+    }
 
     return (
 
@@ -30,84 +77,88 @@ export default function InventoryTable({
 
                     <thead className="bg-neutral-50">
 
-                        <tr>
+                    <tr>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Product
+                        </th>
 
-                                Product
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Available
+                        </th>
 
-                            </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Reserved
+                        </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Total
+                        </th>
 
-                                Available
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Status
+                        </th>
 
-                            </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Updated
+                        </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                        <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                            Variants
+                        </th>
 
-                                Reserved
-
-                            </th>
-
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Total
-
-                            </th>
-
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Status
-
-                            </th>
-
-                            <th className="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Updated
-
-                            </th>
-
-                            <th className="px-6 py-4 text-right text-sm font-semibold uppercase tracking-wide text-neutral-500">
-
-                                Actions
-
-                            </th>
-
-                        </tr>
+                    </tr>
 
                     </thead>
 
                     <tbody>
 
-                        {inventory.length === 0 ? (
+                    {inventory.length === 0 ? (
 
-                            <tr>
+                        <tr>
 
-                                <td
-                                    colSpan={7}
-                                    className="px-6 py-16 text-center text-neutral-500"
-                                >
+                            <td
+                                colSpan={7}
+                                className="px-6 py-16 text-center text-neutral-500"
+                            >
 
-                                    No inventory found.
+                                No inventory found.
 
-                                </td>
+                            </td>
 
-                            </tr>
+                        </tr>
 
-                        ) : (
+                    ) : (
 
-                            inventory.map((item) => (
+                        inventory.map(
+                            (item) => (
 
                                 <InventoryRow
-                                    key={item.inventoryId}
-                                    inventory={item}
-                                    onRestock={onRestock}
+                                    key={
+                                        item.productId
+                                    }
+                                    inventory={
+                                        item
+                                    }
+                                    expanded={
+                                        expandedProductIds.has(
+                                            item.productId
+                                        )
+                                    }
+                                    onToggle={() =>
+                                        toggleProduct(
+                                            item.productId
+                                        )
+                                    }
+                                    onRestock={
+                                        onRestock
+                                    }
                                 />
 
-                            ))
+                            )
+                        )
 
-                        )}
+                    )}
 
                     </tbody>
 

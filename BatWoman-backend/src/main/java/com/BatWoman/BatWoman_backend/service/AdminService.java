@@ -2,6 +2,8 @@ package com.BatWoman.BatWoman_backend.service;
 
 import com.BatWoman.BatWoman_backend.dto.admin.CustomerResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.DashboardResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.AdminInventoryPageResponse;
+import com.BatWoman.BatWoman_backend.dto.admin.AdjustInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.InventoryResponse;
 import com.BatWoman.BatWoman_backend.dto.admin.RestockInventoryRequest;
 import com.BatWoman.BatWoman_backend.dto.admin.UpdateOrderStatusRequest;
@@ -17,7 +19,13 @@ import java.util.UUID;
 
 public interface AdminService {
 
-    void restockInventory(RestockInventoryRequest request);
+    void restockInventory(
+            RestockInventoryRequest request
+    );
+
+    void adjustInventory(
+            AdjustInventoryRequest request
+    );
 
     void updateOrderStatus(
             UUID orderId,
@@ -26,19 +34,32 @@ public interface AdminService {
 
     List<OrderResponse> getAllOrders();
 
-    OrderResponse getOrderById(UUID orderId);
+    OrderResponse getOrderById(
+            UUID orderId
+    );
 
     List<PaymentResponse> getAllPayments();
 
-    PaymentResponse getPaymentById(UUID paymentId);
+    PaymentResponse getPaymentById(
+            UUID paymentId
+    );
 
-    List<InventoryResponse> getAllInventory();
+    AdminInventoryPageResponse getAllInventory(
+            String search,
+            String filter,
+            int page,
+            int size
+    );
 
-    InventoryResponse getInventory(UUID variantId);
+    InventoryResponse getInventory(
+            UUID variantId
+    );
 
     List<CustomerResponse> getAllCustomers();
 
-    CustomerResponse getCustomerById(UUID customerId);
+    CustomerResponse getCustomerById(
+            UUID customerId
+    );
 
     DashboardResponse getDashboard();
 
@@ -48,7 +69,11 @@ public interface AdminService {
             UpdateAdminProfileRequest request
     );
 
-    void changeEmail(ChangeEmailRequest request);
+    void changeEmail(
+            ChangeEmailRequest request
+    );
 
-    void changePassword(ChangePasswordRequest request);
+    void changePassword(
+            ChangePasswordRequest request
+    );
 }

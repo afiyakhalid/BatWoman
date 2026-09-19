@@ -409,7 +409,7 @@ public class PaymentServiceImpl implements PaymentService {
         for (OrderItem item : order.getOrderItems()) {
 
             inventoryService.reduceInventory(
-                    item.getProduct().getId(),
+                    item.getVariant().getId(),
                     item.getQuantity()
             );
         }
@@ -493,7 +493,7 @@ public class PaymentServiceImpl implements PaymentService {
         for (OrderItem item : order.getOrderItems()) {
 
             inventoryService.releaseInventory(
-                    item.getProduct().getId(),
+                    item.getVariant().getId(),
                     item.getQuantity()
             );
         }
