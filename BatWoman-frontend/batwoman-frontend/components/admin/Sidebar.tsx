@@ -170,11 +170,19 @@ export default function Sidebar({
                                 >
                                     <Icon
                                         size={22}
-                                        className="shrink-0"
+                                        className={cn(
+                                            "shrink-0",
+                                            active && "text-black"
+                                        )}
                                     />
 
                                     {!collapsed && (
-                                        <span className="flex-1 text-sm font-medium">
+                                        <span
+                                            className={cn(
+                                                "flex-1 text-sm font-medium",
+                                                active && "text-black"
+                                            )}
+                                        >
                                             {item.title}
                                         </span>
                                     )}
