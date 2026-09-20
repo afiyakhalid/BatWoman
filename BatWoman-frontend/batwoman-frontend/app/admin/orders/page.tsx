@@ -20,21 +20,27 @@ export default function OrdersPage() {
 
     const filteredOrders = useMemo(() => {
 
-        return orders.filter((order) => {
+        return [...orders]
+            .sort(
+                (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+            )
+            .filter((order) => {
 
-            const matchesSearch =
-                order.orderNumber
-                    .toLowerCase()
-                    .includes(search.toLowerCase());
+                const matchesSearch =
+                    order.orderNumber
+                        .toLowerCase()
+                        .includes(search.toLowerCase());
 
-            const matchesStatus =
-                status === "ALL"
-                    ? true
-                    : order.status === status;
+                const matchesStatus =
+                    status === "ALL"
+                        ? true
+                        : order.status === status;
 
-            return matchesSearch && matchesStatus;
+                return matchesSearch && matchesStatus;
 
-        });
+            });
 
     }, [orders, search, status]);
 
