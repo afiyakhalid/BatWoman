@@ -14,4 +14,5 @@ public class ShiprocketConfig {
     private String baseUrl;
     private String email;
     private String password;
+    private String pickupLocation;
 }

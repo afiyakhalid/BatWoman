@@ -17,4 +17,5 @@ public interface ShippingProviderClient {
     void cancelShipment(
             Shipment shipment
     );
+
 }
