@@ -21,10 +21,9 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6">
 
         {/* Newsletter */}
-
         <section className="border-b py-20 text-center">
 
-          <p className="uppercase tracking-[0.45em] text-sm text-neutral-500">
+          <p className="text-sm uppercase tracking-[0.45em] text-neutral-500">
             Newsletter
           </p>
 
@@ -42,11 +41,29 @@ export default function Footer() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 border-b border-black bg-transparent py-4 outline-none"
+              className="
+                flex-1
+                border-b
+                border-black
+                bg-transparent
+                py-4
+                outline-none
+                placeholder:text-neutral-400
+              "
             />
 
             <button
-              className="rounded-full bg-black px-8 py-4 text-white transition duration-300 hover:bg-neutral-800"
+              type="submit"
+              className="
+                rounded-full
+                bg-black
+                px-8
+                py-4
+                text-white
+                transition
+                duration-300
+                hover:bg-neutral-800
+              "
             >
               Subscribe
             </button>
@@ -55,15 +72,27 @@ export default function Footer() {
 
         </section>
 
-        {/* Links */}
-
-        <section className="grid gap-16 py-20 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+        {/* Main Footer */}
+        <section
+          className="
+            grid
+            gap-16
+            py-20
+            md:grid-cols-2
+            lg:grid-cols-[2fr_1fr_1fr_1.3fr]
+          "
+        >
 
           {/* Brand */}
-
           <div>
 
-            <h2 className="font-[var(--font-playfair)] text-5xl tracking-[0.2em]">
+            <h2
+              className="
+                font-[var(--font-playfair)]
+                text-5xl
+                tracking-[0.2em]
+              "
+            >
               BATWOMAN
             </h2>
 
@@ -76,17 +105,29 @@ export default function Footer() {
 
               <div className="flex items-center gap-3">
                 <MapPin size={18} />
-                Bangalore, Karnataka
+                <span>Bangalore, Karnataka</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail size={18} />
-                support@batwoman.com
+
+                <a
+                  href="mailto:support@batwoman.com"
+                  className="transition hover:text-black"
+                >
+                  support@batwoman.com
+                </a>
               </div>
 
               <div className="flex items-center gap-3">
                 <Phone size={18} />
-                +91 98765 43210
+
+                <a
+                  href="tel:+919876543210"
+                  className="transition hover:text-black"
+                >
+                  +91 98765 43210
+                </a>
               </div>
 
             </div>
@@ -94,7 +135,6 @@ export default function Footer() {
           </div>
 
           {/* Shop */}
-
           <div>
 
             <h3 className="mb-8 uppercase tracking-[0.3em]">
@@ -107,7 +147,12 @@ export default function Footer() {
                 <Link
                   key={link.title}
                   href={link.href}
-                  className="block transition hover:text-black text-neutral-600"
+                  className="
+                    block
+                    text-neutral-600
+                    transition
+                    hover:text-black
+                  "
                 >
                   {link.title}
                 </Link>
@@ -118,7 +163,6 @@ export default function Footer() {
           </div>
 
           {/* Company */}
-
           <div>
 
             <h3 className="mb-8 uppercase tracking-[0.3em]">
@@ -131,7 +175,12 @@ export default function Footer() {
                 <Link
                   key={link.title}
                   href={link.href}
-                  className="block transition hover:text-black text-neutral-600"
+                  className="
+                    block
+                    text-neutral-600
+                    transition
+                    hover:text-black
+                  "
                 >
                   {link.title}
                 </Link>
@@ -142,7 +191,6 @@ export default function Footer() {
           </div>
 
           {/* Support */}
-
           <div>
 
             <h3 className="mb-8 uppercase tracking-[0.3em]">
@@ -155,11 +203,41 @@ export default function Footer() {
                 <Link
                   key={link.title}
                   href={link.href}
-                  className="block transition hover:text-black text-neutral-600"
+                  className="
+                    block
+                    text-neutral-600
+                    transition
+                    hover:text-black
+                  "
                 >
                   {link.title}
                 </Link>
               ))}
+
+              <div className="pt-4">
+
+                <p className="text-sm leading-7 text-neutral-500">
+                  Have a question about your order or need assistance?
+                  Our support team is here to help.
+                </p>
+
+                <a
+                  href="mailto:support@batwoman.com"
+                  className="
+                    mt-4
+                    inline-block
+                    text-sm
+                    text-black
+                    underline
+                    underline-offset-4
+                    transition
+                    hover:text-neutral-500
+                  "
+                >
+                  support@batwoman.com
+                </a>
+
+              </div>
 
             </div>
 
@@ -168,29 +246,48 @@ export default function Footer() {
         </section>
 
         {/* Bottom */}
-
-        <section className="flex flex-col items-center justify-between gap-8 border-t py-8 md:flex-row">
+        <section
+          className="
+            flex
+            flex-col
+            items-center
+            justify-between
+            gap-8
+            border-t
+            py-8
+            md:flex-row
+          "
+        >
 
           <p className="text-neutral-500">
             © {new Date().getFullYear()} BATWOMAN. All Rights Reserved.
           </p>
 
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
 
-           <FaInstagram
-  size={20}
-  className="cursor-pointer transition hover:scale-110"
-/>
+            <a
+              href="#"
+              aria-label="Instagram"
+              className="transition hover:scale-110"
+            >
+              <FaInstagram size={20} />
+            </a>
 
-<FaFacebookF
-  size={20}
-  className="cursor-pointer transition hover:scale-110"
-/>
+            <a
+              href="#"
+              aria-label="Facebook"
+              className="transition hover:scale-110"
+            >
+              <FaFacebookF size={20} />
+            </a>
 
-<FaPinterestP
-  size={20}
-  className="cursor-pointer transition hover:scale-110"
-/>
+            <a
+              href="#"
+              aria-label="Pinterest"
+              className="transition hover:scale-110"
+            >
+              <FaPinterestP size={20} />
+            </a>
 
           </div>
 

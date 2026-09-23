@@ -1,19 +1,36 @@
 export const shopLinks = [
-  { title: "Products", href: "/products" },
-  { title: "Collections", href: "/collections" },
-  { title: "Categories", href: "/categories" },
-  { title: "Sale", href: "/products?sale=true" },
+  {
+    title: "Products",
+    href: "/customer/products",
+  },
+  {
+    title: "Categories",
+    href: "/customer/categories",
+  },
+  {
+    title: "Sale",
+    href: "/customer/products?sale=true",
+  },
 ];
 
 export const companyLinks = [
-  { title: "About Us", href: "/about" },
-  { title: "Privacy Policy", href: "/privacy" },
-  { title: "Terms & Conditions", href: "/terms" },
+  {
+    title: "About Us",
+    href: "/customer/about",
+  },
+  {
+    title: "Privacy Policy",
+    href: "/customer/privacy",
+  },
+  {
+    title: "Terms & Conditions",
+    href: "/customer/terms",
+  },
 ];
 
 export const supportLinks = [
-  { title: "Contact", href: "/contact" },
-  { title: "Shipping", href: "/shipping" },
-  { title: "Returns", href: "/refund" },
-  { title: "FAQ", href: "/faq" },
+  {
+    title: "Contact",
+    href: "/customer/contact",
+  },
 ];
