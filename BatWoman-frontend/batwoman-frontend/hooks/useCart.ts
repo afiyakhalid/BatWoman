@@ -14,13 +14,20 @@ import {
     clearCart,
 } from "@/services/cart.service";
 
+import { useAuthStore } from "@/store/auth.store";
+
 export function useCart() {
 
     const queryClient = useQueryClient();
 
+    const isAuthenticated = useAuthStore(
+        (state) => !!state.accessToken
+    );
+
     const cartQuery = useQuery({
         queryKey: ["cart"],
         queryFn: getCart,
+        enabled: isAuthenticated,
     });
 
     const addMutation = useMutation({
@@ -30,12 +37,18 @@ export function useCart() {
                      }: {
             productId: string;
             quantity: number;
-        }) => addToCart(productId, quantity),
+        }) =>
+            addToCart(
+                productId,
+                quantity
+            ),
 
         onSuccess: () => {
+
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
+
         },
     });
 
@@ -46,12 +59,18 @@ export function useCart() {
                      }: {
             cartItemId: string;
             quantity: number;
-        }) => updateCartItem(cartItemId, quantity),
+        }) =>
+            updateCartItem(
+                cartItemId,
+                quantity
+            ),
 
         onSuccess: () => {
+
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
+
         },
     });
 
@@ -59,9 +78,11 @@ export function useCart() {
         mutationFn: removeCartItem,
 
         onSuccess: () => {
+
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
+
         },
     });
 
@@ -69,18 +90,27 @@ export function useCart() {
         mutationFn: clearCart,
 
         onSuccess: () => {
+
             queryClient.invalidateQueries({
                 queryKey: ["cart"],
             });
+
         },
     });
 
     return {
         ...cartQuery,
 
-        addToCart: addMutation.mutate,
-        updateCartItem: updateMutation.mutate,
-        removeCartItem: removeMutation.mutate,
-        clearCart: clearMutation.mutate,
+        addToCart:
+        addMutation.mutate,
+
+        updateCartItem:
+        updateMutation.mutate,
+
+        removeCartItem:
+        removeMutation.mutate,
+
+        clearCart:
+        clearMutation.mutate,
     };
 }
