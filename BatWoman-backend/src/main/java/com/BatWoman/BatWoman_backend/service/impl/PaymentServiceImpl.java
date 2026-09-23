@@ -418,8 +418,7 @@ public class PaymentServiceImpl implements PaymentService {
         cartService.clearCart();
 
         // 9. Send Notifications
-        notificationService.sendPaymentSuccessEmail(payment);
-        notificationService.sendOrderConfirmation(order);
+        notificationService.sendOrderConfirmationEmail(order, payment);
 
         return new PaymentResponse(
                 payment.getId(),
