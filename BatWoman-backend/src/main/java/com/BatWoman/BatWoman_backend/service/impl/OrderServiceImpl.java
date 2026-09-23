@@ -113,11 +113,13 @@ public class OrderServiceImpl implements OrderService {
                         cart.getCartItems()
                 );
 
+        BigDecimal discount =
+                calculateDiscount(
+                        cart.getCartItems()
+                );
+
         BigDecimal shipping =
                 calculateShipping(subtotal);
-
-        BigDecimal discount =
-                calculateDiscount();
 
         BigDecimal total =
                 subtotal
@@ -158,18 +160,8 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> orderItems =
                 new ArrayList<>();
 
-        for (CartItem cartItem :
-                cart.getCartItems()) {
+        for (CartItem cartItem : cart.getCartItems()) {
 
-            /*
-             * CartItem contains the ProductVariant.
-             *
-             * CartItem
-             *     ↓
-             * ProductVariant
-             *     ↓
-             * Product
-             */
             ProductVariant variant =
                     cartItem.getVariant();
 
@@ -190,44 +182,49 @@ public class OrderServiceImpl implements OrderService {
                 );
             }
 
-            if (!Boolean.TRUE.equals(
-                   product.getActive())) {
+            if (!Boolean.TRUE.equals(product.getActive())) {
 
                 throw new ValidationException(
-                       "This product is no longer available."
+                        "This product is no longer available."
                 );
             }
 
-            if (!Boolean.TRUE.equals(
-                   variant.getActive())) {
+            if (!Boolean.TRUE.equals(variant.getActive())) {
 
-               throw new ValidationException(
-                       "Selected product variant is no longer available."
-               );
+                throw new ValidationException(
+                        "Selected product variant is no longer available."
+                );
             }
 
             if (variant.getSize() == null) {
-               throw new ValidationException(
-                       "Selected product variant is missing size information."
-               );
+
+                throw new ValidationException(
+                        "Selected product variant is missing size information."
+                );
             }
 
             if (variant.getColor() == null) {
-               throw new ValidationException(
-                       "Selected product variant is missing color information."
-               );
+
+                throw new ValidationException(
+                        "Selected product variant is missing color information."
+                );
             }
 
-            /*
-             * Reserve inventory for the exact variant.
-             */
+            // Reserve inventory for the exact variant
             inventoryService.reserveInventory(
-                   variant.getId(),
-                   cartItem.getQuantity()
+                    variant.getId(),
+                    cartItem.getQuantity()
             );
 
+            // Actual selling price
+            BigDecimal sellingPrice =
+                    product.getDiscountPrice() != null
+                            ? product.getDiscountPrice()
+                            : product.getPrice();
+
+            // Actual amount charged for this line item
             BigDecimal lineSubtotal =
-                    product.getPrice()
+                    sellingPrice
                             .multiply(
                                     BigDecimal.valueOf(
                                             cartItem.getQuantity()
@@ -242,42 +239,18 @@ public class OrderServiceImpl implements OrderService {
                     OrderItem.builder()
                             .id(UUID.randomUUID())
                             .order(order)
-
-                            /*
-                             * Product identity.
-                             */
                             .product(product)
-
-                            /*
-                             * Exact purchased variant.
-                             */
                             .variant(variant)
+                            .variantSku(variant.getSku())
+                            .size(variant.getSize().getLabel())
+                            .color(variant.getColor().getName())
+                            .quantity(cartItem.getQuantity())
 
-                            /*
-                             * Historical variant snapshots.
-                             */
-                            .variantSku(
-                                    variant.getSku()
-                            )
-                            .size(
-                                    variant.getSize()
-                                            .getLabel()
-                            )
-                            .color(
-                                    variant.getColor()
-                                            .getName()
-                            )
+                            // Customer actually pays this price
+                            .unitPrice(sellingPrice)
 
-                            .quantity(
-                                    cartItem.getQuantity()
-                            )
-                            .unitPrice(
-                                    product.getPrice()
-                            )
                             .subtotal(lineSubtotal)
-                            .createdAt(
-                                    OffsetDateTime.now()
-                            )
+                            .createdAt(OffsetDateTime.now())
                             .build();
 
             orderItems.add(orderItem);
@@ -615,9 +588,56 @@ public class OrderServiceImpl implements OrderService {
                 );
     }
 
-    private BigDecimal calculateDiscount() {
+    private BigDecimal calculateDiscount(
+            List<CartItem> cartItems
+    ) {
 
-        return BigDecimal.ZERO
+        return cartItems
+                .stream()
+                .map(cartItem -> {
+
+                    ProductVariant variant =
+                            cartItem.getVariant();
+
+                    if (variant == null) {
+                        throw new ValidationException(
+                                "Cart item is missing its product variant."
+                        );
+                    }
+
+                    Product product =
+                            variant.getProduct();
+
+                    if (product == null) {
+                        throw new ValidationException(
+                                "Selected product variant is not associated with a product."
+                        );
+                    }
+
+                    BigDecimal originalPrice =
+                            product.getPrice();
+
+                    BigDecimal sellingPrice =
+                            product.getDiscountPrice() != null
+                                    ? product.getDiscountPrice()
+                                    : originalPrice;
+
+                    BigDecimal discountPerUnit =
+                            originalPrice
+                                    .subtract(sellingPrice);
+
+                    return discountPerUnit
+                            .multiply(
+                                    BigDecimal.valueOf(
+                                            cartItem.getQuantity()
+                                    )
+                            );
+
+                })
+                .reduce(
+                        BigDecimal.ZERO,
+                        BigDecimal::add
+                )
                 .setScale(
                         2,
                         RoundingMode.HALF_UP
