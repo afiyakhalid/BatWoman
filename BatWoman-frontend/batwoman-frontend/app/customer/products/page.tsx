@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import ProductHeader from "@/components/product/ProductHeader";
@@ -12,8 +13,15 @@ import { ProductSortOption } from "@/types/product";
 
 export default function ProductsPage() {
 
+    const searchParams = useSearchParams();
+
+    const categoryId =
+        searchParams.get("categoryId") ?? undefined;
+
     const [filters, setFilters] =
-        useState<ProductFilters>({});
+        useState<ProductFilters>(() => ({
+            categoryId,
+        }));
 
     const [sortBy, setSortBy] =
         useState<ProductSortOption>("price-low");

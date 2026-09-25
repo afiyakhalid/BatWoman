@@ -37,7 +37,7 @@ export default function CategoriesPage() {
 
                     <Link
                         key={category.id}
-                        href="#"
+                        href={`/customer/products?categoryId=${category.id}`}
                         className="rounded-2xl border border-neutral-200 bg-white p-8 transition hover:-translate-y-1 hover:shadow-lg"
                     >
 
