@@ -1,9 +1,11 @@
 package com.BatWoman.BatWoman_backend.service.impl;
 
+import com.BatWoman.BatWoman_backend.dto.shipment.TrackingEventResponse;
 import com.BatWoman.BatWoman_backend.dto.shipment.TrackingResponse;
 import com.BatWoman.BatWoman_backend.entity.Shipment;
 import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.repository.ShipmentRepository;
+import com.BatWoman.BatWoman_backend.repository.ShipmentTrackingEventRepository;
 import com.BatWoman.BatWoman_backend.service.TrackingService;
 import com.BatWoman.BatWoman_backend.service.shipping.ShippingProviderClient;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -21,6 +24,7 @@ public class TrackingServiceImpl implements TrackingService {
 
     private final ShipmentRepository shipmentRepository;
     private final ShippingProviderClient shippingProviderClient;
+    private final ShipmentTrackingEventRepository trackingEventRepository;
 
     // =========================================================
     // TRACK BY SHIPMENT ID
@@ -29,7 +33,8 @@ public class TrackingServiceImpl implements TrackingService {
     @Override
     public TrackingResponse getTrackingByShipmentId(UUID shipmentId) {
 
-        Shipment shipment = shipmentRepository.findById(shipmentId)
+        Shipment shipment = shipmentRepository
+                .findById(shipmentId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Shipment not found."
@@ -59,6 +64,40 @@ public class TrackingServiceImpl implements TrackingService {
         refreshTracking(shipment);
 
         return toResponse(shipment);
+    }
+
+    // =========================================================
+    // GET TRACKING EVENTS BY ORDER ID
+    // =========================================================
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrackingEventResponse> getTrackingEventsByOrderId(
+            UUID orderId
+    ) {
+
+        Shipment shipment = shipmentRepository
+                .findByOrder_Id(orderId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Shipment not found for order."
+                        )
+                );
+
+        return trackingEventRepository
+                .findByShipment_IdOrderByEventTimeDesc(
+                        shipment.getId()
+                )
+                .stream()
+                .map(event -> new TrackingEventResponse(
+                        event.getStatus(),
+                        event.getDescription(),
+                        event.getLocation(),
+                        event.getLatitude(),
+                        event.getLongitude(),
+                        event.getEventTime()
+                ))
+                .toList();
     }
 
     // =========================================================
@@ -95,7 +134,9 @@ public class TrackingServiceImpl implements TrackingService {
     // REFRESH FROM SHIPROCKET
     // =========================================================
 
-    private void refreshTracking(Shipment shipment) {
+    private void refreshTracking(
+            Shipment shipment
+    ) {
 
         /*
          * A shipment cannot be tracked through Shiprocket
@@ -166,19 +207,12 @@ public class TrackingServiceImpl implements TrackingService {
     ) {
 
         return new TrackingResponse(
-
                 shipment.getStatus(),
-
                 shipment.getCarrier(),
-
                 shipment.getTrackingNumber(),
-
                 shipment.getTrackingUrl(),
-
                 shipment.getExpectedDelivery(),
-
                 shipment.getShippedAt(),
-
                 shipment.getDeliveredAt()
         );
     }

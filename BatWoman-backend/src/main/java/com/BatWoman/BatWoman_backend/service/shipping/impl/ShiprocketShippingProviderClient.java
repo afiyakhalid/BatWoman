@@ -827,21 +827,78 @@ public class ShiprocketShippingProviderClient implements ShippingProviderClient 
     private Map<String, Object> buildCreateOrderPayload(Order order) {
 
         Map<String, Object> payload = new HashMap<>();
+
         Address address = order.getAddress();
 
         if (address == null) {
-            throw new IllegalStateException("Cannot create Shiprocket shipment: order has no shipping address.");
+            throw new IllegalStateException(
+                    "Cannot create Shiprocket shipment: order has no shipping address."
+            );
         }
+
+        // =========================================================
+        // ORDER DETAILS
+        // =========================================================
 
         payload.put("order_id", order.getOrderNumber());
         payload.put("order_date", order.getCreatedAt().toString());
-        payload.put("pickup_location", properties.getPickupLocation());
 
-        payload.put("billing_customer_name", address.getFullName());
+        String pickupLocation = properties.getPickupLocation();
+
+        if (pickupLocation == null || pickupLocation.isBlank()) {
+            throw new IllegalStateException(
+                    "Shiprocket pickup location is not configured."
+            );
+        }
+
+        payload.put("pickup_location", pickupLocation);
+
+        // =========================================================
+        // CUSTOMER NAME
+        // =========================================================
+
+        String fullName = address.getFullName();
+
+        if (fullName == null || fullName.isBlank()) {
+            throw new IllegalStateException(
+                    "Cannot create Shiprocket shipment: customer name is missing."
+            );
+        }
+
+        String trimmedName = fullName.trim();
+
+        String firstName;
+        String lastName;
+
+        int firstSpace = trimmedName.indexOf(' ');
+
+        if (firstSpace > 0 && firstSpace < trimmedName.length() - 1) {
+
+            firstName = trimmedName.substring(0, firstSpace).trim();
+            lastName = trimmedName.substring(firstSpace + 1).trim();
+
+        } else {
+
+            firstName = trimmedName;
+            lastName = "Customer";
+        }
+
+        payload.put("billing_customer_name", firstName);
+        payload.put("billing_last_name", lastName);
+
+        // =========================================================
+        // BILLING ADDRESS
+        // =========================================================
+
         payload.put("billing_address", address.getAddressLine1());
 
-        if (address.getAddressLine2() != null && !address.getAddressLine2().isBlank()) {
-            payload.put("billing_address_2", address.getAddressLine2());
+        if (address.getAddressLine2() != null
+                && !address.getAddressLine2().isBlank()) {
+
+            payload.put(
+                    "billing_address_2",
+                    address.getAddressLine2()
+            );
         }
 
         payload.put("billing_city", address.getCity());
@@ -850,12 +907,21 @@ public class ShiprocketShippingProviderClient implements ShippingProviderClient 
         payload.put("billing_pincode", address.getPostalCode());
         payload.put("billing_phone", address.getPhone());
 
+        // =========================================================
+        // SHIPPING ADDRESS
+        // =========================================================
+
         payload.put("shipping_is_billing", true);
-        payload.put("shipping_customer_name", address.getFullName());
+        payload.put("shipping_customer_name", firstName);
         payload.put("shipping_address", address.getAddressLine1());
 
-        if (address.getAddressLine2() != null && !address.getAddressLine2().isBlank()) {
-            payload.put("shipping_address_2", address.getAddressLine2());
+        if (address.getAddressLine2() != null
+                && !address.getAddressLine2().isBlank()) {
+
+            payload.put(
+                    "shipping_address_2",
+                    address.getAddressLine2()
+            );
         }
 
         payload.put("shipping_city", address.getCity());
@@ -864,27 +930,99 @@ public class ShiprocketShippingProviderClient implements ShippingProviderClient 
         payload.put("shipping_pincode", address.getPostalCode());
         payload.put("shipping_phone", address.getPhone());
 
+        // =========================================================
+        // ORDER ITEMS
+        // =========================================================
+
         List<Map<String, Object>> items = new ArrayList<>();
 
-        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
-            throw new IllegalStateException("Cannot create Shiprocket shipment: order has no order items.");
+        if (order.getOrderItems() == null
+                || order.getOrderItems().isEmpty()) {
+
+            throw new IllegalStateException(
+                    "Cannot create Shiprocket shipment: order has no order items."
+            );
         }
 
         for (OrderItem item : order.getOrderItems()) {
+
             Map<String, Object> shiprocketItem = new HashMap<>();
 
-            shiprocketItem.put("name", item.getVariantSku());
-            shiprocketItem.put("sku", item.getVariantSku());
-            shiprocketItem.put("units", item.getQuantity());
-            shiprocketItem.put("selling_price", item.getUnitPrice());
-            shiprocketItem.put("discount", BigDecimal.ZERO);
+            shiprocketItem.put(
+                    "name",
+                    item.getProduct().getName()
+            );
+
+            shiprocketItem.put(
+                    "sku",
+                    item.getVariantSku()
+            );
+
+            shiprocketItem.put(
+                    "units",
+                    item.getQuantity()
+            );
+
+            shiprocketItem.put(
+                    "selling_price",
+                    item.getUnitPrice()
+            );
+
+            shiprocketItem.put(
+                    "discount",
+                    BigDecimal.ZERO
+            );
 
             items.add(shiprocketItem);
         }
 
         payload.put("order_items", items);
+
+        // =========================================================
+        // PAYMENT
+        // =========================================================
+
         payload.put("payment_method", "Prepaid");
-        payload.put("sub_total", order.getSubtotal());
+
+        // =========================================================
+        // ORDER TOTALS
+        // =========================================================
+
+        payload.put(
+                "sub_total",
+                order.getSubtotal()
+        );
+
+        if (order.getDiscount() != null) {
+            payload.put(
+                    "total_discount",
+                    order.getDiscount()
+            );
+        } else {
+            payload.put(
+                    "total_discount",
+                    BigDecimal.ZERO
+            );
+        }
+
+        // =========================================================
+        // PACKAGE DETAILS
+        // =========================================================
+        /*
+         * Temporary package defaults.
+         *
+         * These values are required by Shiprocket.
+         * Replace them with your actual packaging measurements
+         * before production shipping.
+         *
+         * Dimensions are in centimeters.
+         * Weight is in kilograms.
+         */
+
+        payload.put("length", 20);
+        payload.put("breadth", 20);
+        payload.put("height", 10);
+        payload.put("weight", 0.5);
 
         return payload;
     }

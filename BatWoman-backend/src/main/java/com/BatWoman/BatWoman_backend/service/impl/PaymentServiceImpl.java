@@ -241,6 +241,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
+import com.BatWoman.BatWoman_backend.event.OrderPaidEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import com.BatWoman.BatWoman_backend.dto.shipping.CreateShipmentRequest;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -256,9 +259,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final InventoryService inventoryService;
     private final CartService cartService;
     private final NotificationService notificationService;
-    private final ShippingService shipmentService;
+//    private final ShippingService shipmentService;
     private final RazorpayClient razorpayClient;
     private final RazorpayProperties razorpayProperties;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public PaymentResponse createPayment(CreatePaymentRequest request) {
@@ -402,9 +406,17 @@ public class PaymentServiceImpl implements PaymentService {
 
         // 6. Automatically Create Shipment
 //        System.out.println(">>> Creating shipment for order: " + order.getId());
-//        shipmentService.createShipment(order);
-//        System.out.println(">>> Shipment created successfully");
-
+        log.info(
+                "========== PUBLISHING ORDER PAID EVENT: {} ==========",
+                order.getId()
+        );
+        eventPublisher.publishEvent(
+                new OrderPaidEvent(order.getId())
+        );
+        log.info(
+                "========== ORDER PAID EVENT PUBLISHED: {} ==========",
+                order.getId()
+        );
         // 7. Reduce Inventory
         for (OrderItem item : order.getOrderItems()) {
 

@@ -46,7 +46,7 @@ public class ShiprocketAuthenticationServiceImpl
 
         Map<?, ?> response = shiprocketRestClient
                 .post()
-                .uri("/auth/login")
+                .uri("/v1/external/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()

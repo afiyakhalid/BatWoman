@@ -2,6 +2,7 @@ package com.BatWoman.BatWoman_backend.controller;
 
 import com.BatWoman.BatWoman_backend.dto.shipping.CreateShipmentRequest;
 import com.BatWoman.BatWoman_backend.dto.shipping.ShipmentResponse;
+import com.BatWoman.BatWoman_backend.dto.shipment.TrackingEventResponse;
 import com.BatWoman.BatWoman_backend.dto.shipment.TrackingResponse;
 import com.BatWoman.BatWoman_backend.service.ShippingService;
 import com.BatWoman.BatWoman_backend.service.TrackingService;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,7 +22,6 @@ public class ShippingController {
 
     private final ShippingService shippingService;
     private final TrackingService trackingService;
-
 
     // =========================================================
     // CREATE SHIPMENT
@@ -39,7 +40,6 @@ public class ShippingController {
                 .body(response);
     }
 
-
     // =========================================================
     // GET SHIPMENT BY ID
     // =========================================================
@@ -54,7 +54,6 @@ public class ShippingController {
         );
     }
 
-
     // =========================================================
     // GET SHIPMENT BY ORDER ID
     // =========================================================
@@ -68,7 +67,6 @@ public class ShippingController {
                 shippingService.getShipmentByOrderId(orderId)
         );
     }
-
 
     // =========================================================
     // UPDATE SHIPMENT STATUS
@@ -88,9 +86,8 @@ public class ShippingController {
         );
     }
 
-
     // =========================================================
-    // TRACKING BY SHIPMENT ID
+    // GET TRACKING BY SHIPMENT ID
     // =========================================================
 
     @GetMapping("/shipments/{shipmentId}/tracking")
@@ -105,9 +102,8 @@ public class ShippingController {
         );
     }
 
-
     // =========================================================
-    // TRACKING BY ORDER ID
+    // GET TRACKING BY ORDER ID
     // =========================================================
 
     @GetMapping("/orders/{orderId}/tracking")
@@ -122,9 +118,24 @@ public class ShippingController {
         );
     }
 
+    // =========================================================
+    // GET TRACKING EVENTS BY ORDER ID
+    // =========================================================
+
+    @GetMapping("/orders/{orderId}/tracking/events")
+    public ResponseEntity<List<TrackingEventResponse>> getTrackingEventsByOrder(
+            @PathVariable UUID orderId
+    ) {
+
+        return ResponseEntity.ok(
+                trackingService.getTrackingEventsByOrderId(
+                        orderId
+                )
+        );
+    }
 
     // =========================================================
-    // TRACKING BY AWB / TRACKING NUMBER
+    // GET TRACKING BY AWB / TRACKING NUMBER
     // =========================================================
 
     @GetMapping("/tracking/{trackingNumber}")
