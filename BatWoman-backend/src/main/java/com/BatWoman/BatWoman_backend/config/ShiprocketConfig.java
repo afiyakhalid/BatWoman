@@ -15,4 +15,5 @@ public class ShiprocketConfig {
     private String email;
     private String password;
     private String pickupLocation;
+    private String webhookToken;
 }

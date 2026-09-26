@@ -1,6 +1,6 @@
 package com.BatWoman.BatWoman_backend.service;
 
-import com.BatWoman.BatWoman_backend.dto.shipping.TrackingResponse;
+import com.BatWoman.BatWoman_backend.dto.shipment.TrackingResponse;
 
 import java.util.UUID;
 
