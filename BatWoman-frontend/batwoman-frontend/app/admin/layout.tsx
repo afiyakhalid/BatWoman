@@ -4,19 +4,26 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import AdminLayout from "@/components/admin/AdminLayout";
+
+import { useAuthStore } from "@/store/auth.store";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Layout({
 
-    children,
+                                   children,
 
-}: {
+                               }: {
 
     children: React.ReactNode;
 
 }) {
 
     const router = useRouter();
+
+    const accessToken =
+        useAuthStore(
+            (state) => state.accessToken
+        );
 
     const {
 
@@ -26,15 +33,35 @@ export default function Layout({
 
     } = useCurrentUser();
 
+    /*
+     * Authentication guard.
+     *
+     * This is intentionally based on the auth store,
+     * not only on the cached /me response.
+     *
+     * Therefore, if the user logs out and then presses
+     * the browser Back button, the admin page cannot
+     * remain accessible.
+     */
     useEffect(() => {
 
-        if (!isLoading && user?.role !== "ADMIN") {
+        if (!accessToken) {
 
             router.replace("/");
 
         }
 
-    }, [user, isLoading]);
+    }, [accessToken, router]);
+
+    /*
+     * Wait for the authenticated user's role only when
+     * an access token actually exists.
+     */
+    if (!accessToken) {
+
+        return null;
+
+    }
 
     if (isLoading) {
 
@@ -42,6 +69,10 @@ export default function Layout({
 
     }
 
+    /*
+     * Authentication exists, but this user is not an
+     * administrator.
+     */
     if (user?.role !== "ADMIN") {
 
         return null;

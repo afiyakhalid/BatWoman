@@ -3,11 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { Product } from "@/types/product";
 import { useWishlist } from "@/hooks/useWishlist";
-import { useAuthStore } from "@/store/auth.store";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface ProductCardProps {
   product: Product;
@@ -17,9 +16,7 @@ export default function ProductCard({
                                       product,
                                     }: ProductCardProps) {
 
-  const router = useRouter();
-
-  const { isAuthenticated } = useAuthStore();
+  const requireAuth = useRequireAuth();
 
   const {
     data: wishlist = [],
@@ -43,36 +40,42 @@ export default function ProductCard({
   const handleWishlistClick = (
       event: React.MouseEvent<HTMLButtonElement>
   ) => {
+
     event.preventDefault();
     event.stopPropagation();
 
-    if (!isAuthenticated()) {
-      router.push("/login");
-      return;
-    }
+    requireAuth(() => {
 
-    if (isWishlisted) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product.id);
-    }
+      if (isWishlisted) {
+        removeFromWishlist(product.id);
+      } else {
+        addToWishlist(product.id);
+      }
+
+    });
   };
 
-  const wishlistLoading = isAdding || isRemoving;
+  const wishlistLoading =
+      isAdding || isRemoving;
 
   return (
       <Link
           href={`/customer/products/${product.slug}`}
           className="group block"
       >
+
         {/* IMAGE */}
         <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
+
           {primaryImage ? (
               <>
                 {/* Primary image */}
                 <Image
                     src={primaryImage.mediaUrl}
-                    alt={primaryImage.altText || product.name}
+                    alt={
+                        primaryImage.altText ||
+                        product.name
+                    }
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="
@@ -85,8 +88,14 @@ export default function ProductCard({
 
                 {/* Hover image */}
                 <Image
-                    src={hoverImage?.mediaUrl ?? primaryImage.mediaUrl}
-                    alt={hoverImage?.altText || product.name}
+                    src={
+                        hoverImage?.mediaUrl ??
+                        primaryImage.mediaUrl
+                    }
+                    alt={
+                        hoverImage?.altText ||
+                        product.name
+                    }
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="
@@ -130,13 +139,19 @@ export default function ProductCard({
           >
             <Heart
                 size={18}
-                className={isWishlisted ? "fill-black" : ""}
+                className={
+                  isWishlisted
+                      ? "fill-black"
+                      : ""
+                }
             />
           </button>
+
         </div>
 
         {/* CONTENT */}
         <div className="mt-5">
+
           {/* Category */}
           <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
             {product.category.name}
@@ -149,6 +164,7 @@ export default function ProductCard({
 
           {/* Price */}
           <div className="mt-3 flex items-center gap-3">
+
             {product.discountPrice !== null ? (
                 <>
               <span className="font-semibold text-black">
@@ -164,8 +180,11 @@ export default function ProductCard({
               ₹{product.price}
             </span>
             )}
+
           </div>
+
         </div>
+
       </Link>
   );
 }

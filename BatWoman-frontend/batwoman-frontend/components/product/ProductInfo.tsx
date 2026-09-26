@@ -114,10 +114,6 @@ export default function ProductInfo({
      * ============================================================
      * AVAILABLE COLORS
      * ============================================================
-     *
-     * One representative variant is kept for each color.
-     * This gives us the color name/code/hex without requiring
-     * another API request.
      */
 
     const availableColors =
@@ -149,9 +145,6 @@ export default function ProductInfo({
      * ============================================================
      * SELECTED VARIANT
      * ============================================================
-     *
-     * This is the exact size + color combination the customer
-     * is purchasing.
      */
 
     const selectedVariant =
@@ -167,8 +160,6 @@ export default function ProductInfo({
      * ============================================================
      * INVENTORY
      * ============================================================
-     *
-     * Inventory belongs to the selected variant.
      */
 
     const availableQuantity =
@@ -201,10 +192,6 @@ export default function ProductInfo({
             colorId
         );
 
-        /*
-         * Automatically select the first size belonging
-         * to the newly selected color.
-         */
         const firstVariant =
             activeVariants.find(
                 (variant) =>
@@ -308,6 +295,35 @@ export default function ProductInfo({
                     );
 
                 }
+
+            }
+        );
+    };
+
+    /*
+     * ============================================================
+     * ADD TO CART
+     * ============================================================
+     */
+
+    const handleAddToCart = () => {
+
+        if (
+            !selectedVariant ||
+            isOutOfStock
+        ) {
+            return;
+        }
+
+        requireAuth(
+            () => {
+
+                addToCartMutation.mutate({
+                    variantId:
+                    selectedVariant.id,
+
+                    quantity,
+                });
 
             }
         );
@@ -731,23 +747,9 @@ export default function ProductInfo({
 
                 <button
                     type="button"
-                    onClick={() => {
-
-                        if (
-                            !selectedVariant ||
-                            isOutOfStock
-                        ) {
-                            return;
-                        }
-
-                        addToCartMutation.mutate({
-                            variantId:
-                            selectedVariant.id,
-
-                            quantity,
-                        });
-
-                    }}
+                    onClick={
+                        handleAddToCart
+                    }
                     disabled={
                         !selectedVariant ||
                         isOutOfStock ||
@@ -1021,9 +1023,9 @@ export default function ProductInfo({
                                 Orders are processed within
                                 1–2 business days. Delivery
                                 times vary by location. Once
-                                dispatched, you will receive a
-                                tracking number to monitor your
-                                shipment.
+                                dispatched, you will receive
+                                a tracking number to monitor
+                                your shipment.
                             </p>
 
                         </div>
