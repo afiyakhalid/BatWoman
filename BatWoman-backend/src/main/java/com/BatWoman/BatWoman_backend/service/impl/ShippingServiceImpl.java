@@ -1,5 +1,5 @@
 package com.BatWoman.BatWoman_backend.service.impl;
-
+import org.springframework.transaction.annotation.Propagation;
 import com.BatWoman.BatWoman_backend.dto.shipping.CreateShipmentRequest;
 import com.BatWoman.BatWoman_backend.dto.shipping.ShipmentResponse;
 import com.BatWoman.BatWoman_backend.entity.Order;
@@ -13,9 +13,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,50 +28,109 @@ public class ShippingServiceImpl implements ShippingService {
 
     private final ShippingProviderClient shippingProviderClient;
 
-    @Override
-    public ShipmentResponse createShipment(
-            CreateShipmentRequest request
-    ) {
+//    @Override
+//    public ShipmentResponse createShipment(
+//            CreateShipmentRequest request
+//    ) {
+//
+//        Order order = orderRepository.findById(request.orderId())
+//                .orElseThrow(() ->
+//                        new EntityNotFoundException(
+//                                "Order not found."
+//                        )
+//                );
+//
+//        if (shipmentRepository.existsByOrder_Id(order.getId())) {
+//            throw new IllegalStateException(
+//                    "A shipment already exists for this order."
+//            );
+//        }
+//
+//        Shipment shipment = Shipment.builder()
+//                .order(order)
+//                .status(ShipmentStatus.PENDING)
+//                .build();
+//
+//        shipment = shipmentRepository.save(shipment);
+//
+//        /*
+//         * Phase 1:
+//         * Persist the shipment locally.
+//         *
+//         * Phase 2:
+//         * This will call Shiprocket and populate:
+//         * carrier
+//         * trackingNumber
+//         * trackingUrl
+//         * expectedDelivery
+//         */
+//        shippingProviderClient.createShipment(
+//                order,
+//                shipment
+//        );
+//
+//        return toResponse(shipment);
+//    }
+@Override
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public ShipmentResponse createShipment(
+        CreateShipmentRequest request
+) {
 
-        Order order = orderRepository.findById(request.orderId())
-                .orElseThrow(() ->
-                        new EntityNotFoundException(
-                                "Order not found."
-                        )
-                );
-
-        if (shipmentRepository.existsByOrder_Id(order.getId())) {
-            throw new IllegalStateException(
-                    "A shipment already exists for this order."
+    Order order = orderRepository.findById(request.orderId())
+            .orElseThrow(() ->
+                    new EntityNotFoundException(
+                            "Order not found."
+                    )
             );
-        }
 
-        Shipment shipment = Shipment.builder()
-                .order(order)
-                .status(ShipmentStatus.PENDING)
-                .build();
+    if (shipmentRepository.existsByOrder_Id(order.getId())) {
+        throw new IllegalStateException(
+                "A shipment already exists for this order."
+        );
+    }
 
-        shipment = shipmentRepository.save(shipment);
+    // =========================================================
+    // 1. CREATE AND SAVE LOCAL SHIPMENT
+    // =========================================================
 
-        /*
-         * Phase 1:
-         * Persist the shipment locally.
-         *
-         * Phase 2:
-         * This will call Shiprocket and populate:
-         * carrier
-         * trackingNumber
-         * trackingUrl
-         * expectedDelivery
-         */
+    Shipment shipment = Shipment.builder()
+            .order(order)
+            .status(ShipmentStatus.PROCESSING)
+            .build();
+
+    shipment = shipmentRepository.saveAndFlush(shipment);
+
+    log.info(
+            "Local shipment created: shipmentId={}, orderId={}, status={}",
+            shipment.getId(),
+            order.getId(),
+            shipment.getStatus()
+    );
+
+    // =========================================================
+    // 2. CREATE SHIPMENT IN SHIPROCKET
+    // =========================================================
+
+    try {
+
         shippingProviderClient.createShipment(
                 order,
                 shipment
         );
 
-        return toResponse(shipment);
+    } catch (Exception ex) {
+
+        log.error(
+                "Shiprocket shipment creation failed for order {}. " +
+                        "Local shipment remains PROCESSING.",
+                order.getOrderNumber(),
+                ex
+        );
     }
 
+    return toResponse(shipment);
+}
     @Override
     @Transactional(readOnly = true)
     public ShipmentResponse getShipmentById(
