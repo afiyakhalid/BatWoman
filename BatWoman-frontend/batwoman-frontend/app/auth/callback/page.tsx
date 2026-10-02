@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useAuthStore } from "@/store/auth.store";
 
-export default function OAuthCallbackPage() {
+function OAuthCallbackContent() {
 
     const router = useRouter();
 
@@ -92,5 +92,31 @@ export default function OAuthCallbackPage() {
         </main>
 
     );
+}
 
+export default function OAuthCallbackPage() {
+
+    return (
+
+        <Suspense
+            fallback={
+                <main className="flex min-h-screen items-center justify-center bg-white">
+                    <div className="text-center">
+                        <div className="mx-auto mb-6 h-10 w-10 animate-spin rounded-full border-2 border-neutral-300 border-t-black" />
+
+                        <h2 className="text-xl font-medium">
+                            Signing you in...
+                        </h2>
+
+                        <p className="mt-2 text-sm text-neutral-500">
+                            Completing your Google sign in...
+                        </p>
+                    </div>
+                </main>
+            }
+        >
+            <OAuthCallbackContent />
+        </Suspense>
+
+    );
 }
