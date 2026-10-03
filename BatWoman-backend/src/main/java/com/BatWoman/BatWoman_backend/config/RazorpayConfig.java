@@ -15,12 +15,8 @@ public class RazorpayConfig {
     public RazorpayClient razorpayClient() throws Exception {
 
         return new RazorpayClient(
-
                 razorpayProperties.getKeyId(),
-
                 razorpayProperties.getKeySecret()
-
         );
     }
-
 }

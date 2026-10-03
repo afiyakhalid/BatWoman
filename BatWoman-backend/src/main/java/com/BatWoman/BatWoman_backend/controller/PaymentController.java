@@ -105,13 +105,13 @@ public class PaymentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/webhook")
-    public ResponseEntity<Void> webhook(
-            @RequestBody String payload,
-            @RequestHeader("X-Razorpay-Signature") String signature) {
-
-        paymentService.handleWebhook(payload, signature);
-
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/webhook")
+//    public ResponseEntity<Void> webhook(
+//            @RequestBody String payload,
+//            @RequestHeader("X-Razorpay-Signature") String signature) {
+//
+//        paymentService.handleWebhook(payload, signature);
+//
+//        return ResponseEntity.ok().build();
+//    }
 }

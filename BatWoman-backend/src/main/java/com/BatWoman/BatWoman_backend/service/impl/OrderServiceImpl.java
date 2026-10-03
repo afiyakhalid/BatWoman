@@ -263,9 +263,12 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder =
                 orderRepository.save(order);
 
-        // 6. Clear Active Cart
-
-        cartService.clearCart();
+        /*
+         * Note: Cart is intentionally NOT cleared here.
+         * It will be cleared once payment is successfully verified
+         * (or via Razorpay webhook), so user items are not lost if
+         * checkout modal is cancelled or payment fails.
+         */
 
         log.info(
                 "Order {} created with PENDING status for user {}",

@@ -21,4 +21,14 @@ public class RazorpayProperties {
      */
     private String keySecret;
 
+    /**
+     * Razorpay Webhook Secret
+     */
+    private String webhookSecret;
+
+    public String getEffectiveWebhookSecret() {
+        return (webhookSecret != null && !webhookSecret.isBlank())
+                ? webhookSecret
+                : keySecret;
+    }
 }
