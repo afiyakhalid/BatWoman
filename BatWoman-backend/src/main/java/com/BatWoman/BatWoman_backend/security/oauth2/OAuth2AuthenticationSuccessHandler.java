@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -29,6 +30,9 @@ public class OAuth2AuthenticationSuccessHandler
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
+
+    @Value("${oauth2.frontend-url}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(
@@ -102,7 +106,8 @@ public class OAuth2AuthenticationSuccessHandler
                 );
 
         String redirectUrl =
-                "http://localhost:3001/auth/callback"
+                frontendUrl
+                        + "/auth/callback"
                         + "?accessToken=" + loginResponse.accessToken()
                         + "&refreshToken=" + loginResponse.refreshToken()
                         + "&expiresIn=" + loginResponse.expiresIn()

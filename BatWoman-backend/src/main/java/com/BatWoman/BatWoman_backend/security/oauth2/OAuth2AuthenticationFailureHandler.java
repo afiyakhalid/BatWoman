@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,9 @@ import java.io.IOException;
 public class OAuth2AuthenticationFailureHandler
         implements AuthenticationFailureHandler {
 
+    @Value("${oauth2.frontend-url}")
+    private String frontendUrl;
+
     @Override
     public void onAuthenticationFailure(
             HttpServletRequest request,
@@ -25,7 +29,7 @@ public class OAuth2AuthenticationFailureHandler
         log.error("Google OAuth2 authentication failed.", exception);
 
         response.sendRedirect(
-                "http://localhost:3001/customer/login?error=oauth2_failed"
+                frontendUrl + "/customer/login?error=oauth2_failed"
         );
     }
 }

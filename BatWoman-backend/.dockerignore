@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+target
+*.log
+src/main/resources/application-dev.yml
+
+src/main/resources/application-local.yml
+
+docker-compose.yml
+docker-dev.env
