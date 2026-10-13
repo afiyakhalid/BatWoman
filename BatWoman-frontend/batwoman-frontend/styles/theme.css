@@ -1,16 +1,22 @@
 :root {
-  /* Backgrounds */
-  --background: #fafaf8;
+  /* Khaite.com Quiet Luxury Color Palette */
+  --color-paper: #f7f5f0;
+  --color-warm: #faf8f5;
+  --color-ink: #000000;
+  --color-charcoal: #1a1a1a;
+  --color-taupe: #d3cbc0;
+  --color-ink-soft: #6b6660;
+  --color-ink-muted: #8f8a80;
+  --color-line: #d3cbc0;
+  --color-gold: #d4af37;
+  --color-gold-light: #fdf8e8;
+
+  /* Standard Application Fallbacks */
+  --background: #f7f5f0;
   --surface: #ffffff;
-
-  /* Text */
   --foreground: #111111;
-  --muted-foreground: #6b7280;
-
-  /* Borders */
-  --border: #ececec;
-
-  /* Accent */
+  --muted-foreground: #6b6660;
+  --border: #d3cbc0;
   --accent: #d4af37;
 
   /* Status */
@@ -27,8 +33,6 @@
   --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.05);
 
   /* Layout */
-  --container-width: 1280px;
-
-  /* Navbar */
+  --container-width: 1440px;
   --navbar-height: 80px;
 }
