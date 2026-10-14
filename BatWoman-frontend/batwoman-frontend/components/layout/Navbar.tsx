@@ -19,7 +19,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { AnimatePresence, motion, useAnimation, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuthStore } from "@/store/auth.store";
@@ -59,13 +59,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const headerControls = useAnimation();
-  const reduceMotion = useReducedMotion();
-
   const { data: cart } = useCart();
   const { data: wishlist = [] } = useWishlist();
 
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
   const logoutStore = useAuthStore((state) => state.logout);
   const refreshToken = useAuthStore((state) => state.refreshToken);
 
@@ -120,45 +117,20 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // slide down on first load
-  useEffect(() => {
-    if (reduceMotion) {
-      headerControls.set({ y: 0 });
-      return;
-    }
-    headerControls.start({
-      y: 0,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-    });
-  }, [headerControls, reduceMotion]);
-
-  // slide down again each time the user scrolls past the threshold
-  useEffect(() => {
-    if (scrolled && !reduceMotion) {
-      headerControls.start({
-        y: [-24, 0],
-        transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-      });
-    }
-  }, [scrolled, headerControls, reduceMotion]);
-
   const activeFeatured = navItems.find((item) => item.title === activeDropdown)?.featured;
 
   return (
     <>
-      <motion.header
-        initial={{ y: -100 }}
-        animate={headerControls}
+      <header
         onMouseLeave={() => setActiveDropdown(null)}
         /*
           EXACT COLOR MATCH:
-          bg-[#F8F7F2] is the exact background colour of the logo image,
-          so the logo blends into the bar with no visible box.
+          bg-[#F3ECE2] with backdrop-blur matches the warm silk tone of your logo perfectly!
         */
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
           scrolled || activeDropdown
-            ? "border-b border-[#D8CEBF]/60 bg-[#F8F7F2]/95 backdrop-blur-2xl shadow-[0_4px_30px_rgba(45,31,26,0.04)]"
-            : "border-b border-transparent bg-[#F8F7F2]/90 backdrop-blur-md"
+            ? "border-b border-[#D8CEBF]/60 bg-[#F3ECE2]/95 backdrop-blur-2xl shadow-[0_4px_30px_rgba(45,31,26,0.04)]"
+            : "border-b border-transparent bg-[#F3ECE2]/90 backdrop-blur-md"
         }`}
       >
         <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 sm:h-28">
@@ -237,7 +209,7 @@ export default function Navbar() {
                   className="text-[#2C2420] transition-colors duration-300 hover:text-[#8C6D4F]"
                 />
                 {wishlistItemCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#2D1F1A] text-[9px] font-medium text-white shadow-sm ring-2 ring-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#2D1F1A] text-[9px] font-medium text-white shadow-sm ring-2 ring-[#F3ECE2]">
                     {wishlistItemCount}
                   </span>
                 )}
@@ -280,7 +252,7 @@ export default function Navbar() {
                       <Link
                         href="/admin"
                         onClick={() => setUserMenuOpen(false)}
-                        className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-white"
+                        className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-[#F3ECE2]"
                       >
                         Admin Portal
                       </Link>
@@ -288,14 +260,14 @@ export default function Navbar() {
                     <Link
                       href="/customer/profile"
                       onClick={() => setUserMenuOpen(false)}
-                      className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-white"
+                      className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-[#F3ECE2]"
                     >
                       My Profile
                     </Link>
                     <Link
                       href="/customer/orders"
                       onClick={() => setUserMenuOpen(false)}
-                      className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-white"
+                      className="block rounded-lg px-4 py-2.5 text-xs uppercase tracking-widest text-[#2C2420] hover:bg-[#F3ECE2]"
                     >
                       Orders
                     </Link>
@@ -320,7 +292,7 @@ export default function Navbar() {
                   className="text-[#2C2420] transition-colors duration-300 hover:text-[#8C6D4F]"
                 />
                 {cartItemCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#2D1F1A] text-[9px] font-medium text-white shadow-sm ring-2 ring-white">
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#2D1F1A] text-[9px] font-medium text-white shadow-sm ring-2 ring-[#F3ECE2]">
                     {cartItemCount}
                   </span>
                 )}
@@ -337,7 +309,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="border-t border-[#D8CEBF] bg-[#F8F7F2] shadow-2xl backdrop-blur-2xl"
+              className="border-t border-[#D8CEBF] bg-[#F3ECE2] shadow-2xl backdrop-blur-2xl"
             >
               <div className="mx-auto grid max-w-7xl grid-cols-2 gap-16 px-12 py-12">
                 <div>
@@ -379,7 +351,7 @@ export default function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </header>
 
       {/* ================= MOBILE DRAWER ================= */}
       <AnimatePresence>
@@ -398,16 +370,10 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed left-0 top-0 z-50 h-screen w-80 bg-[#F8F7F2] p-8 shadow-2xl"
+              className="fixed left-0 top-0 z-50 h-screen w-80 bg-[#F3ECE2] p-8 shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-[#D8CEBF] pb-6">
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="transition-opacity duration-300 hover:opacity-85"
-                >
-                  <Logo />
-                </Link>
+                <Logo />
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
