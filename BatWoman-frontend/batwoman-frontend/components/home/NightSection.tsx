@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useScrub, mix } from "@/hooks/useScrub";
@@ -59,31 +60,32 @@ export default function NightSection() {
     >
       {/* Scroll-scrubbed Portal Entrance */}
       <div ref={ref} className="relative h-[200vh]">
-        <div className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center">
+        <motion.div className="sticky top-0 flex h-screen flex-col items-center justify-center px-6 text-center" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.35 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}>
 
           {/* 1. Large Traditional Arabic Calligraphy */}
-          <p
+          <motion.p
             lang="ar"
             dir="rtl"
             className="text-3xl font-normal tracking-wide sm:text-4xl md:text-5xl"
+            variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } } }}
             style={{
               fontFamily: "'Amiri', 'Noto Naskh Arabic', 'Scheherazade New', serif",
               color: mix([140, 109, 79], [212, 175, 55], p),
             }}
           >
             الحَيَاءُ زِينَةُ المَرْأَةِ
-          </p>
+          </motion.p>
 
           {/* 2. Gold Overline Tag */}
-          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.4em] text-[#C5A059]">
+          <motion.p variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } } }} className="mt-4 text-[11px] font-medium uppercase tracking-[0.4em] text-[#C5A059]">
             ✦ The Nobility of Haya ✦
-          </p>
+          </motion.p>
 
           {/* 3. Main Headline */}
-          <h2 className="mt-6 font-[var(--font-playfair)] text-[clamp(2.75rem,8.5vw,7rem)] font-semibold leading-[1.08] tracking-tight">
+          <motion.h2 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] } } }} className="mt-6 font-[var(--font-playfair)] text-[clamp(2.75rem,8.5vw,7rem)] font-semibold leading-[1.08] tracking-tight">
             Draped in Modesty, <br />
             <em className="font-normal italic">Crowned in Dignity.</em>
-          </h2>
+          </motion.h2>
 
           {/* 4. Expanding Gold Accent Line */}
           <span
@@ -92,10 +94,10 @@ export default function NightSection() {
           />
 
           {/* 5. Islamic Modesty Quote */}
-          <p className="mt-6 max-w-xl text-[16px] font-normal leading-[1.9] opacity-85 font-[var(--font-playfair)] italic">
+          <motion.p variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } } }} className="mt-6 max-w-xl text-[16px] font-normal leading-[1.9] opacity-85 font-[var(--font-playfair)] italic">
             &ldquo;Modesty is not about hiding who you are; it is about crowning your presence with quiet faith, dignity, and timeless grace.&rdquo;
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Pinned Asymmetric Split Showcase */}
@@ -146,7 +148,7 @@ export default function NightSection() {
                   className="object-cover"
                 />
               </div>
-              <div>
+              <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.45 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
                 <p className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#d4af37]">
                   {c.cat}
                 </p>
@@ -162,7 +164,7 @@ export default function NightSection() {
                 >
                   Find Your Abaya →
                 </Link>
-              </div>
+              </motion.div>
             </div>
           ))}
         </div>

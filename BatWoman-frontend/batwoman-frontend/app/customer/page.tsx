@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import EditorialHero from "@/components/home/EditorialHero";
+
 import EditorialTicker from "@/components/home/EditorialTicker";
 import EditorialRunway from "@/components/home/EditorialRunway";
 import NightSection from "@/components/home/NightSection";
@@ -34,11 +35,12 @@ export default function Home() {
         {/* 1. Pinned Zoom Hero */}
         <EditorialHero />
 
+
+
         {/* 2. Quiet Luxury Continuous Ticker */}
         <EditorialTicker />
+        <EditorialRunway/>
 
-        {/* 3. Pinned 3D Horizontal Runway ("Six looks, one season") */}
-        <EditorialRunway />
 
         {/* 4. The Occasion Edit (Color Inversion Portal & Pinned Split Showcase) */}
         <NightSection />

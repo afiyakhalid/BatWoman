@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useScrub } from "@/hooks/useScrub";
@@ -33,28 +34,30 @@ export default function EditorialParallax() {
           />
         </div>
         <div className="absolute inset-0 bg-black/40" />
-        <div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white">
-          <p className="text-[12px] font-medium uppercase tracking-[0.3em] text-white/85">
+        <motion.div className="relative flex h-full flex-col items-center justify-center px-6 text-center text-white" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.45 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}>
+          <motion.p variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } } }} className="text-[12px] font-medium uppercase tracking-[0.3em] text-white/85">
             COLLECTION 03 · EVERYDAY, ELEVATED
-          </p>
-          <h2 className="mt-6 max-w-4xl font-[var(--font-playfair)] text-[clamp(2.5rem,6vw,5.25rem)] font-normal leading-[1.08] tracking-tight">
+          </motion.p>
+          <motion.h2 variants={{ hidden: { opacity: 0, y: 26 }, visible: { opacity: 1, y: 0, transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] } } }} className="mt-6 max-w-4xl font-[var(--font-playfair)] text-[clamp(2.5rem,6vw,5.25rem)] font-normal leading-[1.08] tracking-tight">
             Effortless pieces for the rhythm of everyday life.
-          </h2>
+          </motion.h2>
+          <motion.div className="mt-10" variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } }}>
           <Link
             href="/customer/products"
-            className="mt-10 rounded-full border border-white/70 px-9 py-3.5 text-sm font-medium tracking-[0.05em] transition-all hover:bg-white hover:text-black"
+            className="rounded-full border border-white/70 px-9 py-3.5 text-sm font-medium tracking-[0.05em] transition-all hover:bg-white hover:text-black"
           >
             View the Collection
           </Link>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Brand Story */}
       <section className="bg-[#f7f5f0] px-6 py-28 text-center lg:py-40">
-        <p className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#8f8a80]">Our Story</p>
-        <h2 className="mx-auto mt-8 max-w-4xl font-[var(--font-playfair)] text-[clamp(2.25rem,5vw,4.25rem)] font-medium leading-[1.2] tracking-[-0.01em] text-[#1a1a1a]">
+        <motion.p initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }} className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#8f8a80]">Our Story</motion.p>
+        <motion.h2 initial={{ opacity: 0, y: 26 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }} className="mx-auto mt-8 max-w-4xl font-[var(--font-playfair)] text-[clamp(2.25rem,5vw,4.25rem)] font-medium leading-[1.2] tracking-[-0.01em] text-[#1a1a1a]">
           Zubayda <em className="font-normal italic">By A3</em> — A reflection of who you are.
-        </h2>
+        </motion.h2>
         <div className="mx-auto mt-16 grid max-w-4xl gap-px border-y border-[#d3cbc0] bg-[#d3cbc0] sm:grid-cols-3">
           {[
             "Rooted in modesty. Defined by individuality.",

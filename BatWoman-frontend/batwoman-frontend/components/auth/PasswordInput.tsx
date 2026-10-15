@@ -1,51 +1,56 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 
 interface Props {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  autoComplete?: string;
+  required?: boolean;
 }
 
 export default function PasswordInput({
-                                          label,
-                                          value,
-                                          onChange,
-                                      }: Props) {
-    const [show, setShow] = useState(false);
+  label,
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+  required = true,
+}: Props) {
+  const [showPassword, setShowPassword] = useState(false);
+  const id = `auth-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
-    return (
-        <div className="mb-6">
+  return (
+    <div className="w-full">
+      <label
+        htmlFor={id}
+        className="mb-2 block text-sm font-medium text-[#555]"
+      >
+        {label}
+      </label>
 
-            <label className="mb-2 block text-sm font-medium">
-                {label}
-            </label>
+      <div className="relative">
+        <input
+          id={id}
+          type={showPassword ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          required={required}
+          className="h-12 w-full rounded-lg border border-[#d8d8d8] bg-white pl-4 pr-12 text-base text-[#292929] outline-none transition-colors placeholder:text-sm placeholder:text-[#aaa] focus:border-[#777]"
+        />
 
-            <div className="relative">
-
-                <input
-                    type={show ? "text" : "password"}
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full border border-gray-300 px-4 py-4 pr-14 outline-none focus:border-black"
-                />
-
-                <button
-                    type="button"
-                    onClick={() => setShow(!show)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2"
-                >
-                    {show ? (
-                        <EyeOff size={20} />
-                    ) : (
-                        <Eye size={20} />
-                    )}
-                </button>
-
-            </div>
-
-        </div>
-    );
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#666] hover:text-[#222]"
+        >
+          {showPassword ? "Hide" : "Show"}
+        </button>
+      </div>
+    </div>
+  );
 }
