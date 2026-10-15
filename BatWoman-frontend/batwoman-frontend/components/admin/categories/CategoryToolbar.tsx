@@ -1,79 +1,85 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X, Layers3 } from "lucide-react";
 
 interface CategoryToolbarProps {
-
     search: string;
-
     onSearchChange: (value: string) => void;
-
     onAddCategory: () => void;
-
 }
 
 export default function CategoryToolbar({
-
-    search,
-
-    onSearchChange,
-
-    onAddCategory,
-
-}: CategoryToolbarProps) {
-
+                                            search,
+                                            onSearchChange,
+                                            onAddCategory,
+                                        }: CategoryToolbarProps) {
     return (
-    <>
+        <section className="mb-6 min-w-0 space-y-5 sm:mb-8 sm:space-y-6">
+            {/* Page heading and action */}
+            <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div className="min-w-0">
+                    <div className="mb-3 flex items-center gap-2">
+                        <Layers3 size={15} className="text-[#A18A6E]" />
 
-        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#A18A6E]">
+              Store management
+            </span>
+                    </div>
 
-            {/* Left */}
+                    <h1 className="font-[var(--font-playfair)] text-3xl font-medium tracking-tight text-[#30271F] sm:text-4xl lg:text-5xl">
+                        Categories
+                    </h1>
 
-            <div>
+                    <p className="mt-2 max-w-lg text-xs leading-relaxed text-[#8B8174] sm:mt-3 sm:text-sm">
+                        Organize your collections and manage the categories
+                        displayed across your store.
+                    </p>
+                </div>
 
-                <h1 className="font-[var(--font-playfair)] text-5xl">
-                    Categories
-                </h1>
-
-                <p className="mt-3 text-neutral-500">
-                    Manage product categories for your store.
-                </p>
-
+                <button
+                    type="button"
+                    onClick={onAddCategory}
+                    className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#493A2B] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#35291F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A18A6E] focus-visible:ring-offset-2 sm:w-auto sm:px-6"
+                >
+                    <Plus size={17} strokeWidth={2} />
+                    Add Category
+                </button>
             </div>
 
-            {/* Right */}
+            {/* Search */}
+            <div className="rounded-2xl border border-[#E7DDD0] bg-[#FFFDFA] p-3 sm:p-4">
+                <div className="relative">
+                    <Search
+                        size={17}
+                        strokeWidth={1.8}
+                        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A18A6E]"
+                    />
 
-            <button
-                type="button"
-                onClick={onAddCategory}
-                className="flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-white transition hover:bg-neutral-800"
-            >
-                <Plus size={18} />
-                Add Category
-            </button>
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(event) => onSearchChange(event.target.value)}
+                        placeholder="Search categories..."
+                        aria-label="Search categories"
+                        className="h-11 w-full rounded-xl border border-[#E5D8C6] bg-white pl-10 pr-10 text-sm text-[#30271F] outline-none transition-colors placeholder:text-[#B1A596] focus:border-[#A18A6E] focus:ring-2 focus:ring-[#A18A6E]/15"
+                    />
 
-        </div>
+                    {search.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => onSearchChange("")}
+                            aria-label="Clear category search"
+                            className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#8B8174] transition-colors hover:bg-[#F5EDE2] hover:text-[#493A2B]"
+                        >
+                            <X size={15} />
+                        </button>
+                    )}
+                </div>
 
-        <div className="relative">
-
-            <Search
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
-            />
-
-            <input
-                type="text"
-                value={search}
-                onChange={(e) =>
-                    onSearchChange(e.target.value)
-                }
-                placeholder="Search categories..."
-                className="w-full rounded-xl border border-neutral-200 bg-white py-3 pl-12 pr-4 outline-none transition focus:border-black"
-            />
-
-        </div>
-
-    </>
-);
-
+                <p className="mt-2 px-1 text-[10px] text-[#A09484] sm:text-xs">
+                    Find a category by entering its name or search term.
+                </p>
+            </div>
+        </section>
+    );
 }

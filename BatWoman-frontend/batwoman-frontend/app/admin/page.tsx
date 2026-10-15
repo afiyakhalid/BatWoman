@@ -1,168 +1,213 @@
-    "use client";
+"use client";
 
-    import {
-      DollarSign,
-      ShoppingBag,
-      Users,
-      Package,
-      Sparkles,
-      AlertCircle,
-      TrendingUp,
-      BarChart3,
-      Boxes,
-      Award,
-      type LucideIcon,
-    } from "lucide-react";
+import {
+    DollarSign,
+    ShoppingBag,
+    Users,
+    Package,
+    Sparkles,
+    AlertCircle,
+    TrendingUp,
+    BarChart3,
+    Boxes,
+    Award,
+    type LucideIcon,
+} from "lucide-react";
 
-    import { useDashboard } from "@/hooks/useDashboard";
+import { useDashboard } from "@/hooks/useDashboard";
 
-    import DashboardStatCard from "@/components/admin/dashboard/DashboardStatCard";
-    import RevenueChart from "@/components/admin/dashboard/RevenueChart";
-    import RecentOrdersCard from "@/components/admin/dashboard/RecentOrdersCard";
-    import RecentPaymentsCard from "@/components/admin/dashboard/RecentPaymentsCard";
-    import InventoryOverview from "@/components/admin/dashboard/InventoryOverview";
-    import TopProductsCard from "@/components/admin/dashboard/TopProductsCard";
+import DashboardStatCard from "@/components/admin/dashboard/DashboardStatCard";
+import RevenueChart from "@/components/admin/dashboard/RevenueChart";
+import RecentOrdersCard from "@/components/admin/dashboard/RecentOrdersCard";
+import RecentPaymentsCard from "@/components/admin/dashboard/RecentPaymentsCard";
+import InventoryOverview from "@/components/admin/dashboard/InventoryOverview";
+import TopProductsCard from "@/components/admin/dashboard/TopProductsCard";
 
-    // Small reusable label used above each dashboard section — keeps the
-    // section rhythm consistent without needing a separate component file.
-    function SectionEyebrow({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
-      return (
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-5 w-5 items-center justify-center rounded-md bg-neutral-900">
-            <Icon className="text-white" size={11} strokeWidth={2.5} />
-          </span>
-          <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-neutral-500">
-            {label}
-          </h2>
-          <span className="h-px flex-1 bg-gradient-to-r from-neutral-200 to-transparent" />
-        </div>
-      );
-    }
+function SectionEyebrow({
+                            icon: Icon,
+                            label,
+                        }: {
+    icon: LucideIcon;
+    label: string;
+}) {
+    return (
+        <div className="flex min-w-0 items-center gap-2.5">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#E6D8C5] bg-[#F1E7D9]">
+        <Icon className="text-[#8D6B43]" size={12} strokeWidth={2} />
+      </span>
 
-    export default function AdminDashboard() {
-      const { data, isLoading, isError } = useDashboard();
-
-      // Premium Loading State
-      if (isLoading) {
-        return (
-          <div className="flex h-[75vh] flex-col items-center justify-center gap-4">
-            <div className="relative flex h-14 w-14 items-center justify-center">
-              <div className="absolute h-full w-full animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
-              <Sparkles className="h-4 w-4 text-neutral-400" />
-            </div>
-            <div className="text-center">
-              <p className="text-xs font-semibold tracking-[0.2em] text-neutral-400 uppercase">
-                Loading Analytics
-              </p>
-              <p className="mt-1 text-[11px] text-neutral-300">
-                Gathering the latest store activity
-              </p>
-            </div>
-          </div>
-        );
-      }
-
-      // Premium Error State
-      if (isError || !data) {
-        return (
-          <div className="flex h-[75vh] flex-col items-center justify-center gap-3 text-center">
-            <div className="rounded-2xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-4 shadow-sm">
-              <AlertCircle size={26} className="text-red-500" />
-            </div>
-            <h2 className="font-[var(--font-playfair)] text-lg font-semibold text-neutral-900">
-              Failed to load dashboard
+            <h2 className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.13em] text-[#8B8174] sm:text-xs sm:tracking-[0.15em]">
+                {label}
             </h2>
-            <p className="text-sm text-neutral-500 max-w-sm">
-              We couldn't retrieve the latest analytics data. Please check your network connection or try again.
-            </p>
-          </div>
-        );
-      }
 
-      return (
-        <div className="space-y-10 pb-12">
-          {/* Executive Header */}
-          <div className="relative overflow-hidden rounded-3xl border border-neutral-200/70 bg-gradient-to-br from-white via-white to-neutral-50 px-6 py-7 shadow-sm sm:px-8">
-            {/* ambient glow accent, purely decorative */}
-            <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-gradient-to-br from-amber-100/50 to-transparent blur-3xl" />
-            <div className="pointer-events-none absolute -left-16 bottom-0 h-40 w-40 rounded-full bg-gradient-to-tr from-neutral-100/70 to-transparent blur-2xl" />
-
-            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-400">
-                  <span className="h-1 w-1 rounded-full bg-neutral-400" />
-                  Dashboard
-                </span>
-                <h1 className="mt-2 bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text font-[var(--font-playfair)] text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-                  Executive Overview
-                </h1>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
-                  Real-time store performance, revenue insights, and activity logs.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm shadow-emerald-500/10">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                  </span>
-                  Live Analytics
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* KPI Cards */}
-          <section className="space-y-4">
-            <SectionEyebrow icon={TrendingUp} label="Key Performance Indicators" />
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              <DashboardStatCard
-                title="Revenue"
-                value={`₹${Number(data.stats.totalRevenue).toLocaleString()}`}
-                icon={<DollarSign className="text-white" size={22} />}
-              />
-              <DashboardStatCard
-                title="Orders"
-                value={data.stats.totalOrders}
-                icon={<ShoppingBag className="text-white" size={22} />}
-              />
-              <DashboardStatCard
-                title="Customers"
-                value={data.stats.totalCustomers}
-                icon={<Users className="text-white" size={22} />}
-              />
-              <DashboardStatCard
-                title="Products"
-                value={data.stats.totalProducts}
-                icon={<Package className="text-white" size={22} />}
-              />
-            </div>
-          </section>
-
-          {/* Revenue + Orders */}
-          <section className="space-y-4">
-            <SectionEyebrow icon={BarChart3} label="Revenue & Orders" />
-            <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-              <RevenueChart data={data.monthlyRevenue} />
-              <RecentOrdersCard orders={data.recentOrders} />
-            </div>
-          </section>
-
-          {/* Inventory + Payments */}
-          <section className="space-y-4">
-            <SectionEyebrow icon={Boxes} label="Inventory & Payments" />
-            <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-              <InventoryOverview inventory={data.inventory} />
-              <RecentPaymentsCard payments={data.recentPayments} />
-            </div>
-          </section>
-
-          {/* Top Products */}
-          <section className="space-y-4">
-            <SectionEyebrow icon={Award} label="Top Products" />
-            <TopProductsCard products={data.topProducts} />
-          </section>
+            <span className="h-px min-w-0 flex-1 bg-gradient-to-r from-[#E5D8C6] to-transparent" />
         </div>
-      );
+    );
+}
+
+export default function AdminDashboard() {
+    const { data, isLoading, isError } = useDashboard();
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
+                <div className="relative flex h-14 w-14 items-center justify-center">
+                    <div className="absolute h-full w-full animate-spin rounded-full border-2 border-[#E8DDD0] border-t-[#98764D]" />
+
+                    <Sparkles className="h-5 w-5 text-[#A18A6E]" />
+                </div>
+
+                <div className="text-center">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8B8174] sm:text-xs">
+                        Loading analytics
+                    </p>
+
+                    <p className="mt-2 text-xs text-[#A09484] sm:text-sm">
+                        Gathering the latest store activity
+                    </p>
+                </div>
+            </div>
+        );
     }
+
+    if (isError || !data) {
+        return (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 px-4 text-center">
+                <div className="rounded-2xl border border-[#EAD1CC] bg-[#F8EBE8] p-4">
+                    <AlertCircle size={26} className="text-[#A34E3E]" />
+                </div>
+
+                <h2 className="font-[var(--font-playfair)] text-xl font-semibold text-[#30271F] sm:text-2xl">
+                    Failed to load dashboard
+                </h2>
+
+                <p className="max-w-sm text-sm leading-relaxed text-[#8B8174]">
+                    We couldn't retrieve the latest analytics data. Check your
+                    network connection and try again.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-w-0 space-y-8 pb-8 sm:space-y-10 sm:pb-12">
+            {/* Executive Header */}
+            <section className="relative isolate overflow-hidden rounded-2xl border border-[#E7DDD0] bg-gradient-to-br from-[#FFFDFA] via-[#FFFDFA] to-[#F4EBDD] px-4 py-6 shadow-[0_2px_10px_rgba(70,50,30,0.04)] sm:rounded-3xl sm:px-8 sm:py-8 lg:px-10">
+                <div className="pointer-events-none absolute -right-16 -top-20 -z-10 h-48 w-48 rounded-full bg-[#E8D6BA]/40 blur-3xl sm:h-64 sm:w-64" />
+
+                <div className="pointer-events-none absolute -bottom-12 -left-10 -z-10 h-40 w-40 rounded-full bg-[#EDE4D8]/70 blur-3xl" />
+
+                <div className="relative flex min-w-0 flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="min-w-0">
+            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9B866B] sm:text-[11px]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#A18A6E]" />
+              Store management
+            </span>
+
+                        <h1 className="mt-3 break-words font-[var(--font-playfair)] text-3xl font-medium leading-tight tracking-tight text-[#30271F] sm:text-4xl lg:text-5xl">
+                            Executive Overview
+                        </h1>
+
+                        <p className="mt-3 max-w-lg text-xs leading-relaxed text-[#817568] sm:text-sm">
+                            Your store performance, revenue insights, and latest
+                            customer activity in one place.
+                        </p>
+                    </div>
+
+                    <div className="flex shrink-0">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#D7E5D2] bg-[#EDF4E9] px-3 py-2 text-[10px] font-semibold text-[#56734D] sm:px-3.5 sm:text-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#83A779] opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#718F65]" />
+              </span>
+
+                            Live Analytics
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Key Performance Indicators */}
+            <section className="min-w-0 space-y-4 sm:space-y-5">
+                <SectionEyebrow
+                    icon={TrendingUp}
+                    label="Key Performance Indicators"
+                />
+
+                <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4 xl:gap-5">
+                    <DashboardStatCard
+                        title="Revenue"
+                        value={`₹${Number(data.stats.totalRevenue).toLocaleString("en-IN")}`}
+                        icon={<DollarSign size={21} />}
+                    />
+
+                    <DashboardStatCard
+                        title="Orders"
+                        value={data.stats.totalOrders}
+                        icon={<ShoppingBag size={21} />}
+                    />
+
+                    <DashboardStatCard
+                        title="Customers"
+                        value={data.stats.totalCustomers}
+                        icon={<Users size={21} />}
+                    />
+
+                    <DashboardStatCard
+                        title="Products"
+                        value={data.stats.totalProducts}
+                        icon={<Package size={21} />}
+                    />
+                </div>
+            </section>
+
+            {/* Revenue and Orders */}
+            <section className="min-w-0 space-y-4 sm:space-y-5">
+                <SectionEyebrow
+                    icon={BarChart3}
+                    label="Revenue & Orders"
+                />
+
+                <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] xl:gap-6">
+                    <div className="min-w-0">
+                        <RevenueChart data={data.monthlyRevenue} />
+                    </div>
+
+                    <div className="min-w-0">
+                        <RecentOrdersCard orders={data.recentOrders} />
+                    </div>
+                </div>
+            </section>
+
+            {/* Inventory and Payments */}
+            <section className="min-w-0 space-y-4 sm:space-y-5">
+                <SectionEyebrow
+                    icon={Boxes}
+                    label="Inventory & Payments"
+                />
+
+                <div className="grid min-w-0 grid-cols-1 items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] xl:gap-6">
+                    <div className="min-w-0">
+                        <InventoryOverview inventory={data.inventory} />
+                    </div>
+
+                    <div className="min-w-0">
+                        <RecentPaymentsCard payments={data.recentPayments} />
+                    </div>
+                </div>
+            </section>
+
+            {/* Top Products */}
+            <section className="min-w-0 space-y-4 sm:space-y-5">
+                <SectionEyebrow
+                    icon={Award}
+                    label="Top Products"
+                />
+
+                <div className="min-w-0">
+                    <TopProductsCard products={data.topProducts} />
+                </div>
+            </section>
+        </div>
+    );
+}

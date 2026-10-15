@@ -817,16 +817,31 @@ export default function ProductForm({
             >
                 <DialogContent
                     className="
-                        max-h-[95vh]
+                        w-[calc(100%-1rem)]
+                        max-h-[92dvh]
+                        overflow-x-hidden
                         overflow-y-auto
+                        rounded-2xl
+                        border-[#E7DED2]
+                        bg-[#FBF8F3]
+                        p-4
+                        text-[#35291F]
+                        shadow-2xl
+                        sm:w-full
                         sm:max-w-5xl
+                        sm:rounded-3xl
+                        sm:p-7
                     "
                 >
                     <DialogHeader>
                         <DialogTitle
                             className="
                                 font-[var(--font-playfair)]
-                                text-3xl
+                                text-2xl
+                                font-medium
+                                tracking-tight
+                                text-[#35291F]
+                                sm:text-3xl
                             "
                         >
                             {product
@@ -835,7 +850,7 @@ export default function ProductForm({
                         </DialogTitle>
                     </DialogHeader>
 
-                    <div className="space-y-6 py-4">
+                    <div className="space-y-5 py-4 sm:space-y-7">
 
                         {/* =================================================
                             CATEGORY + NAME
@@ -845,14 +860,23 @@ export default function ProductForm({
                             className="
                                 grid
                                 grid-cols-1
-                                gap-6
-                                md:grid-cols-2
+                                gap-4
+                                sm:grid-cols-2
+                                md:grid-cols-3
+                                lg:grid-cols-3
                             "
                         >
                             <div className="space-y-2">
                                 <label
                                     htmlFor="product-category"
-                                    className="text-sm font-medium"
+                                    className="
+                                        block
+                                        text-xs
+                                        font-semibold
+                                        uppercase
+                                        tracking-[0.12em]
+                                        text-[#766656]
+                                    "
                                 >
                                     Category
                                 </label>
@@ -873,14 +897,23 @@ export default function ProductForm({
                                         isDiscontinuing
                                     }
                                     className="
+                                        h-11
                                         w-full
-                                        rounded-md
+                                        min-w-0
+                                        rounded-xl
                                         border
-                                        border-input
-                                        bg-background
+                                        border-[#E4D9CA]
+                                        bg-white
                                         px-3
-                                        py-2
                                         text-sm
+                                        text-[#35291F]
+                                        outline-none
+                                        transition-colors
+                                        focus:border-[#A68A64]
+                                        focus:ring-2
+                                        focus:ring-[#A68A64]/15
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-60
                                     "
                                 >
                                     <option value="">
@@ -1004,8 +1037,10 @@ export default function ProductForm({
                             className="
                                 grid
                                 grid-cols-1
-                                gap-6
-                                md:grid-cols-2
+                                gap-4
+                                sm:grid-cols-2
+                                md:grid-cols-3
+                                lg:grid-cols-3
                             "
                         >
                             <div className="space-y-2">
@@ -1073,10 +1108,12 @@ export default function ProductForm({
 
                         <div
                             className="
-                                rounded-lg
+                                rounded-2xl
                                 border
-                                border-border
-                                p-5
+                                border-[#E7DED2]
+                                bg-[#F5F0E8]
+                                p-3
+                                sm:p-5
                             "
                         >
                             <div
@@ -1091,8 +1128,11 @@ export default function ProductForm({
                                 <div>
                                     <h3
                                         className="
+                                            font-[var(--font-playfair)]
                                             text-lg
-                                            font-semibold
+                                            font-medium
+                                            text-[#35291F]
+                                            sm:text-xl
                                         "
                                     >
                                         Product Variants
@@ -1199,7 +1239,8 @@ export default function ProductForm({
                                                         grid
                                                         grid-cols-1
                                                         gap-4
-                                                        md:grid-cols-2
+                                                        sm:grid-cols-2
+                                                        lg:grid-cols-3
                                                     "
                                                 >
 
@@ -1522,10 +1563,13 @@ export default function ProductForm({
 
                         <div
                             className="
-                                grid
-                                grid-cols-1
-                                gap-4
-                                md:grid-cols-3
+                                min-w-0
+                                rounded-xl
+                                border
+                                border-[#E7DED2]
+                                bg-white
+                                p-3
+                                sm:p-4
                             "
                         >
                             <label
