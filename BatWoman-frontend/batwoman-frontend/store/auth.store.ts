@@ -1,3 +1,4 @@
+
 "use client";
 
 import { create } from "zustand";
@@ -5,6 +6,7 @@ import { create } from "zustand";
 export interface AuthState {
     accessToken: string | null;
     refreshToken: string | null;
+    isHydrated: boolean;
 
     hydrate: () => void;
 
@@ -21,6 +23,7 @@ export interface AuthState {
 export const useAuthStore = create<AuthState>()((set, get) => ({
     accessToken: null,
     refreshToken: null,
+    isHydrated: false,
 
     hydrate: () => {
         if (typeof window === "undefined") {
@@ -33,30 +36,37 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         set({
             accessToken,
             refreshToken,
+            isHydrated: true,
         });
     },
 
     setTokens: (accessToken, refreshToken) => {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
+        if (typeof window !== "undefined") {
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
+        }
 
         set({
             accessToken,
             refreshToken,
+            isHydrated: true,
         });
     },
 
     logout: () => {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+        }
 
         set({
             accessToken: null,
             refreshToken: null,
+            isHydrated: true,
         });
     },
 
     isAuthenticated: () => {
-        return get().accessToken != null;
+        return get().accessToken !== null;
     },
 }));

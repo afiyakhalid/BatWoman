@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
@@ -5,8 +6,9 @@ import "./globals.css";
 
 import QueryProvider from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
-import Navbar from "@/components/layout/Navbar"; 
-import { AuthModal } from "@/components/auth";  // ← ADD THIS
+import AuthInitializer from "@/providers/AuthInitializer";
+import Navbar from "@/components/layout/Navbar";
+import { AuthModal } from "@/components/auth";
 
 import { Toaster } from "sonner";
 
@@ -21,38 +23,38 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "BatWoman",
-  description: "Luxury Abaya Store",
+  title: "ZubaidabyA3",
+  description: "Luxury abayas, curated for elegance.",
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
+                                     children,
+                                   }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} ${playfair.variable}`}
-    >
+      <html
+          lang="en"
+          suppressHydrationWarning
+          className={`${inter.variable} ${playfair.variable}`}
+      >
       <body>
-        <ThemeProvider>
-          <QueryProvider>
+      <ThemeProvider>
+        <QueryProvider>
+          <AuthInitializer />
 
-            <Navbar />
+          <Navbar />
 
-            <main className="pt-20">
-              {children}
-            </main>
-            <AuthModal />
+          <main className="pt-20">
+            {children}
+          </main>
 
-            <Toaster richColors />
-           
+          <AuthModal />
 
-          </QueryProvider>
-        </ThemeProvider>
+          <Toaster richColors />
+        </QueryProvider>
+      </ThemeProvider>
       </body>
-    </html>
+      </html>
   );
 }

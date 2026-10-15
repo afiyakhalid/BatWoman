@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from "react";
@@ -9,84 +10,68 @@ import { useAuthStore } from "@/store/auth.store";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Layout({
-
                                    children,
-
                                }: {
-
     children: React.ReactNode;
-
 }) {
-
     const router = useRouter();
 
-    const accessToken =
-        useAuthStore(
-            (state) => state.accessToken
-        );
+    const accessToken = useAuthStore(
+        (state) => state.accessToken
+    );
+
+    const isHydrated = useAuthStore(
+        (state) => state.isHydrated
+    );
 
     const {
-
         data: user,
-
         isLoading,
-
     } = useCurrentUser();
 
-    /*
-     * Authentication guard.
-     *
-     * This is intentionally based on the auth store,
-     * not only on the cached /me response.
-     *
-     * Therefore, if the user logs out and then presses
-     * the browser Back button, the admin page cannot
-     * remain accessible.
-     */
+    // Wait for persisted authentication before redirecting.
     useEffect(() => {
-
-        if (!accessToken) {
-
+        if (isHydrated && !accessToken) {
             router.replace("/");
-
         }
+    }, [isHydrated, accessToken, router]);
 
-    }, [accessToken, router]);
+    // Redirect authenticated users who are not administrators.
+    useEffect(() => {
+        if (
+            isHydrated &&
+            accessToken &&
+            !isLoading &&
+            user &&
+            user.role !== "ADMIN"
+        ) {
+            router.replace("/");
+        }
+    }, [
+        isHydrated,
+        accessToken,
+        isLoading,
+        user,
+        router,
+    ]);
 
-    /*
-     * Wait for the authenticated user's role only when
-     * an access token actually exists.
-     */
-    if (!accessToken) {
-
+    // Do not render protected content until authentication
+    // and the current user's role have been checked.
+    if (!isHydrated || !accessToken || isLoading) {
         return null;
-
     }
 
-    if (isLoading) {
-
+    if (!user) {
         return null;
-
     }
 
-    /*
-     * Authentication exists, but this user is not an
-     * administrator.
-     */
-    if (user?.role !== "ADMIN") {
-
+    if (user.role !== "ADMIN") {
         return null;
-
     }
 
     return (
-
         <AdminLayout>
-
             {children}
-
         </AdminLayout>
-
     );
-
 }
