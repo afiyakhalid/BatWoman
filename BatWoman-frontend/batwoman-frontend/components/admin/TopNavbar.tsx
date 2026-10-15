@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 interface TopNavbarProps {
@@ -55,37 +55,10 @@ export default function TopNavbar({
                 </div>
             </div>
 
-            {/* Right section */}
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-                {/* Search */}
-                <div className="relative hidden lg:block">
-                    <Search
-                        size={17}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A09484]"
-                    />
-
-                    <input
-                        type="search"
-                        placeholder="Search..."
-                        aria-label="Search admin"
-                        className="h-10 w-48 rounded-full border border-[#E1D4C3] bg-[#FBF8F3] pl-10 pr-4 text-sm text-[#34291E] outline-none transition placeholder:text-[#A09484] focus:border-[#A88A65] focus:ring-2 focus:ring-[#A88A65]/10 xl:w-56"
-                    />
-                </div>
-
-                {/* Notifications */}
-                <button
-                    type="button"
-                    aria-label="Notifications"
-                    className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E5D9C9] bg-[#FBF8F3] text-[#6D6256] transition hover:bg-[#EDE3D6]"
-                >
-                    <Bell size={18} strokeWidth={1.7} />
-
-                    <span className="absolute right-2.5 top-2 h-2 w-2 rounded-full border border-[#FBF8F3] bg-[#A65D50]" />
-                </button>
-
-                {/* Administrator profile */}
-                <div className="hidden items-center gap-3 border-l border-[#E5D9C9] pl-3 sm:flex sm:pl-4">
-                    <div className="hidden text-right md:block">
+            {/* Right section: Administrator profile */}
+            <div className="flex shrink-0 items-center">
+                <div className="flex items-center gap-2 border-l border-[#E5D9C9] pl-3 sm:gap-3 sm:pl-4">
+                    <div className="hidden text-right sm:block">
                         <p className="text-sm font-semibold text-[#34291E]">
                             Store Admin
                         </p>

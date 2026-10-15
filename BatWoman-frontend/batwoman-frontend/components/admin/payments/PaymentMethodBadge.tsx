@@ -7,43 +7,34 @@ interface PaymentMethodBadgeProps {
 }
 
 export default function PaymentMethodBadge({
-    method,
-}: PaymentMethodBadgeProps) {
+                                               method,
+                                           }: PaymentMethodBadgeProps) {
+    const normalizedMethod = method.toUpperCase();
 
     const styles: Record<string, string> = {
-
         RAZORPAY:
-            "bg-sky-100 text-sky-800 border-sky-200",
-
+            "bg-[#F5EFE5] text-[#80643D] border-[#E8D9BF]",
         CARD:
-            "bg-indigo-100 text-indigo-800 border-indigo-200",
-
+            "bg-[#F0EBE4] text-[#59483A] border-[#E2D6C6]",
         UPI:
-            "bg-emerald-100 text-emerald-800 border-emerald-200",
-
+            "bg-[#EAF1E8] text-[#4E6B4B] border-[#D5E3D1]",
         NET_BANKING:
-            "bg-orange-100 text-orange-800 border-orange-200",
-
+            "bg-[#F7EEE3] text-[#956A3D] border-[#EAD8C1]",
         WALLET:
-            "bg-pink-100 text-pink-800 border-pink-200",
-
+            "bg-[#F3EAF0] text-[#80566F] border-[#E6D5E0]",
         CASH_ON_DELIVERY:
-            "bg-neutral-100 text-neutral-800 border-neutral-300",
-
+            "bg-[#F4F1EC] text-[#6F6256] border-[#E5DDD2]",
     };
 
     return (
-
         <span
             className={cn(
-                "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide",
-                styles[method] ??
-                    "bg-neutral-100 text-neutral-700 border-neutral-200"
+                "inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap",
+                styles[normalizedMethod] ??
+                "bg-[#F4F1EC] text-[#6F6256] border-[#E5DDD2]"
             )}
         >
             {method.replaceAll("_", " ")}
         </span>
-
     );
-
 }

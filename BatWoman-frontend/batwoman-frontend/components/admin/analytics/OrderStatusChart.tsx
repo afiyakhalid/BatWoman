@@ -9,119 +9,150 @@ import {
     Legend,
 } from "recharts";
 
-import { OrderStatusAnalytics } from "@/services/adminAnalytics.service";
+import {
+    OrderStatusAnalytics,
+} from "@/services/adminAnalytics.service";
 
 interface OrderStatusChartProps {
-
     data: OrderStatusAnalytics;
-
 }
 
 const COLORS = [
-    "#f59e0b",
-    "#3b82f6",
-    "#8b5cf6",
-    "#22c55e",
-    "#ef4444",
+    "#C2A16A",
+    "#94764C",
+    "#806A9C",
+    "#7D9274",
+    "#A95148",
 ];
 
 export default function OrderStatusChart({
-
-    data,
-
-}: OrderStatusChartProps) {
-
+                                             data,
+                                         }: OrderStatusChartProps) {
     const chartData = [
-
         {
             name: "Pending",
-            value: data.pending,
+            value: data?.pending ?? 0,
         },
-
         {
             name: "Paid",
-            value: data.paid,
+            value: data?.paid ?? 0,
         },
-
         {
             name: "Shipped",
-            value: data.shipped,
+            value: data?.shipped ?? 0,
         },
-
         {
             name: "Delivered",
-            value: data.delivered,
+            value: data?.delivered ?? 0,
         },
-
         {
             name: "Cancelled",
-            value: data.cancelled,
+            value: data?.cancelled ?? 0,
         },
-
     ];
 
-    return (
-
-        <div className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
-
-            <h2 className="text-2xl font-semibold">
-
-                Order Status
-
-            </h2>
-
-            <p className="mt-2 text-neutral-500">
-
-                Distribution of all customer orders.
-
-            </p>
-
-            <div className="mt-8 h-[350px]">
-
-                <ResponsiveContainer>
-
-                    <PieChart>
-
-                        <Pie
-
-                            data={chartData}
-
-                            innerRadius={85}
-
-                            outerRadius={120}
-
-                            paddingAngle={4}
-
-                            dataKey="value"
-
-                        >
-
-                            {chartData.map((_, index) => (
-
-                                <Cell
-
-                                    key={index}
-
-                                    fill={COLORS[index]}
-
-                                />
-
-                            ))}
-
-                        </Pie>
-
-                        <Tooltip />
-
-                        <Legend />
-
-                    </PieChart>
-
-                </ResponsiveContainer>
-
-            </div>
-
-        </div>
-
+    const totalOrders = chartData.reduce(
+        (sum, item) => sum + item.value,
+        0
     );
 
+    return (
+        <section className="rounded-2xl border border-[#EAE3D8] bg-[#FFFDF9] p-5 shadow-[0_2px_10px_rgba(61,48,40,0.03)] sm:p-7">
+            <div>
+                <h2 className="font-[var(--font-playfair)] text-2xl text-[#3D3028] sm:text-3xl">
+                    Order Status
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-[#8A7A6C]">
+                    Distribution of all customer orders.
+                </p>
+            </div>
+
+            <div className="relative mt-5 h-[300px] min-w-0 sm:mt-7 sm:h-[340px]">
+                {totalOrders === 0 ? (
+                    <div className="flex h-full flex-col items-center justify-center rounded-xl border border-dashed border-[#E5DCCE] bg-[#FAF7F2] text-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#E8DCC7] bg-[#F5EFE5] text-[#94764C]">
+                            <PieChart width={23} height={23} />
+                        </div>
+
+                        <p className="mt-3 text-sm font-medium text-[#59483A]">
+                            No order data available
+                        </p>
+
+                        <p className="mt-1 text-xs text-[#9A8B7B]">
+                            Order distribution will appear here.
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-4">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8A7A6C]">
+                                Total Orders
+                            </span>
+                            <span className="mt-1 text-2xl font-semibold tabular-nums text-[#3D3028] sm:text-3xl">
+                                {totalOrders.toLocaleString("en-IN")}
+                            </span>
+                        </div>
+
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    innerRadius="58%"
+                                    outerRadius="78%"
+                                    paddingAngle={3}
+                                    cornerRadius={4}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    stroke="#FFFDF9"
+                                    strokeWidth={3}
+                                >
+                                    {chartData.map((item, index) => (
+                                        <Cell
+                                            key={item.name}
+                                            fill={COLORS[index]}
+                                        />
+                                    ))}
+                                </Pie>
+
+                                <Tooltip
+                                    formatter={(value) => [
+                                        Number(value ?? 0).toLocaleString(
+                                            "en-IN"
+                                        ),
+                                        "Orders",
+                                    ]}
+                                    contentStyle={{
+                                        borderRadius: "12px",
+                                        border: "1px solid #EAE3D8",
+                                        backgroundColor: "#FFFDF9",
+                                        color: "#3D3028",
+                                        boxShadow:
+                                            "0 4px 16px rgba(61,48,40,0.08)",
+                                    }}
+                                />
+
+                                <Legend
+                                    verticalAlign="bottom"
+                                    iconType="circle"
+                                    iconSize={8}
+                                    formatter={(value) => (
+                                        <span
+                                            style={{
+                                                color: "#75675C",
+                                                fontSize: "12px",
+                                                marginLeft: "3px",
+                                            }}
+                                        >
+                                            {value}
+                                        </span>
+                                    )}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </>
+                )}
+            </div>
+        </section>
+    );
 }

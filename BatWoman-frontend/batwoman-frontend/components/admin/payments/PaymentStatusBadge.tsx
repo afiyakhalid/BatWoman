@@ -7,32 +7,30 @@ interface PaymentStatusBadgeProps {
 }
 
 export default function PaymentStatusBadge({
-    status,
-}: PaymentStatusBadgeProps) {
+                                               status,
+                                           }: PaymentStatusBadgeProps) {
+    const normalizedStatus = status.toUpperCase();
 
     const styles: Record<string, string> = {
         SUCCESS:
-            "bg-green-100 text-green-800 border-green-200",
-
+            "bg-[#EAF1E8] text-[#4E6B4B] border-[#D5E3D1]",
         PENDING:
-            "bg-yellow-100 text-yellow-800 border-yellow-200",
-
+            "bg-[#F8F0DF] text-[#8C6B35] border-[#EADCB9]",
         FAILED:
-            "bg-red-100 text-red-800 border-red-200",
-
+            "bg-[#F7EAE6] text-[#A45143] border-[#EBD3CC]",
         REFUNDED:
-            "bg-purple-100 text-purple-800 border-purple-200",
+            "bg-[#F0EBE4] text-[#6D5B79] border-[#DFD5E8]",
     };
 
     return (
         <span
             className={cn(
-                "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide",
-                styles[status] ??
-                    "bg-neutral-100 text-neutral-700 border-neutral-200"
+                "inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] whitespace-nowrap",
+                styles[normalizedStatus] ??
+                "bg-[#F4F1EC] text-[#6F6256] border-[#E5DDD2]"
             )}
         >
-            {status}
+            {status.replaceAll("_", " ")}
         </span>
     );
 }
