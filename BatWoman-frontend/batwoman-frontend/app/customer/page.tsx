@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import EditorialHero from "@/components/home/EditorialHero";
+import Footer from "@/components/layout/Footer/Footer";
 
-import EditorialTicker from "@/components/home/EditorialTicker";
+
 import EditorialRunway from "@/components/home/EditorialRunway";
 import NightSection from "@/components/home/NightSection";
 import EditorialParallax from "@/components/home/EditorialParallax";
@@ -37,20 +38,19 @@ export default function Home() {
 
 
 
-        {/* 2. Quiet Luxury Continuous Ticker */}
-        <EditorialTicker />
+
         <EditorialRunway/>
 
 
         {/* 4. The Occasion Edit (Color Inversion Portal & Pinned Split Showcase) */}
         <NightSection />
 
-        {/* 5. Full-Bleed Everyday Parallax */}
-        <EditorialParallax />
+
       </div>
 
       {/* 6. Curtain-Revealed Dark Footer */}
-      <CurtainFooter ref={footerRef} />
+
+      <Footer />
     </div>
   );
 }

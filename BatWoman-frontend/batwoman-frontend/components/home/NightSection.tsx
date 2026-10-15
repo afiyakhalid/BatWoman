@@ -19,18 +19,18 @@ const couture = [
     note: "Heavy Japanese crepe with fluid drapes. Abayas designed for women whose dignity and faith are their greatest adornment.",
     url: "https://res.cloudinary.com/m0okzag4/image/upload/f_auto,q_auto/img5",
   },
-  {
-    cat: "الأَصَالَةُ وَالتُّرَاث",
-    name: "Rooted in Faith & Memory.",
-    note: "Pure Korean Nida silk with meticulous embroidery. Honoring the legacy of Hazrat Zubayda bint Ja'far (RA) in every stitch.",
-    url: "https://res.cloudinary.com/m0okzag4/image/upload/f_auto,q_auto/img6",
-  },
-  {
-    cat: "البَسَاطَةُ وَالنَّقَاء",
-    name: "The Beauty of Simplicity.",
-    note: "Timeless black abayas designed to transcend trends. Pure modesty, crafted for the rhythm of daily prayer and purpose.",
-    url: "https://res.cloudinary.com/m0okzag4/image/upload/f_auto,q_auto/img7",
-  },
+//   {
+//     cat: "الأَصَالَةُ وَالتُّرَاث",
+//     name: "Rooted in Faith & Memory.",
+//     note: "Pure Korean Nida silk with meticulous embroidery. Honoring the legacy of Hazrat Zubayda bint Ja'far (RA) in every stitch.",
+//     url: "https://res.cloudinary.com/m0okzag4/image/upload/f_auto,q_auto/img6",
+//   },
+//   {
+//     cat: "البَسَاطَةُ وَالنَّقَاء",
+//     name: "The Beauty of Simplicity.",
+//     note: "Timeless black abayas designed to transcend trends. Pure modesty, crafted for the rhythm of daily prayer and purpose.",
+//     url: "https://res.cloudinary.com/m0okzag4/image/upload/f_auto,q_auto/img7",
+//   },
 ];
 
 export default function NightSection() {

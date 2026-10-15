@@ -86,15 +86,11 @@ export default function Footer() {
           {/* Brand */}
           <div>
 
-            <h2
-              className="
-                font-[var(--font-playfair)]
-                text-5xl
-                tracking-[0.2em]
-              "
-            >
-              BATWOMAN
+
+            <h2 className="font-[var(--font-playfair)] text-4xl tracking-tight sm:text-5xl">
+              Zubayda <em className="font-normal">By A3</em>
             </h2>
+
 
             <p className="mt-8 max-w-md leading-8 text-neutral-600">
               Premium abayas designed for women who embrace
