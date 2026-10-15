@@ -9,3 +9,7 @@ src/main/resources/application-local.yml
 
 docker-compose.yml
 docker-dev.env
+
+.env
+.env.*
+!.env.example

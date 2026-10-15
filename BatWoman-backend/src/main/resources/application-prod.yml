@@ -39,7 +39,7 @@ razorpay:
   webhook-secret: ${RAZORPAY_WEBHOOK_SECRET}
 
 aws:
-  region: ${AWS_REGION}
+  region: ap-south-1
   s3:
     bucket: ${AWS_S3_BUCKET}
 
