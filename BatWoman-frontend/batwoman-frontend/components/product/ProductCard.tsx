@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useState } from "react";
@@ -71,33 +70,31 @@ export default function ProductCard({
         {primaryImage ? (
           <>
             {/* Primary image */}
-            <Image
-              src={primaryImage.mediaUrl}
-              alt={primaryImage.altText || product.name}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className={`
-                object-cover object-top
-                transition-opacity duration-700 ease-out
-                ${isHovered && hoverImage?.mediaUrl !== primaryImage.mediaUrl ? "opacity-0" : "opacity-100"}
-              `}
-              priority={false}
+            <img
+                src={primaryImage.mediaUrl}
+                alt={primaryImage.altText || product.name}
+                className={`
+                   absolute inset-0 h-full w-full
+                   object-cover object-top
+                   transition-opacity duration-700 ease-out
+                   ${isHovered && hoverImage?.mediaUrl !== primaryImage.mediaUrl 
+                    ? "opacity-0"
+                    : "opacity-100"}
+                `}
             />
 
             {/* Hover image (Back / Angle shot) */}
             {hoverImage && hoverImage.mediaUrl !== primaryImage.mediaUrl && (
-              <Image
-                src={hoverImage.mediaUrl}
-                alt={hoverImage.altText || product.name}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className={`
-                  object-cover object-top
-                  transition-opacity duration-700 ease-out
-                  ${isHovered ? "opacity-100" : "opacity-0"}
-                `}
-                priority={false}
-              />
+                <img
+                    src={hoverImage.mediaUrl}
+                    alt={hoverImage.altText || product.name}
+                    className={`
+                      absolute inset-0 h-full w-full
+                      object-cover object-top
+                      transition-opacity duration-700 ease-out
+                      ${isHovered ? "opacity-100" : "opacity-0"}
+                    `}
+                />
             )}
           </>
         ) : (

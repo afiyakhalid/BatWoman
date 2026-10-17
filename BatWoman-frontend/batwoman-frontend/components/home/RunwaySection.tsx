@@ -1,233 +1,183 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, Heart } from "lucide-react";
+import { useScrub } from "@/hooks/useScrub";
+import Card3D from "@/components/ui/Card3D";
+import { useNewArrivals } from "@/hooks/useNewArrivals";
 
-export interface RunwayLook {
+interface RunwayLook {
   id: string;
-  lookNumber: string;
-  title: string;
-  price?: string;
-  image: string;
+  name: string;
+  line: string;
+  url: string;
   slug: string;
-  tagline?: string;
 }
 
-const defaultRunwayLooks: RunwayLook[] = [
-  {
-    id: "look-01",
-    lookNumber: "LOOK 01",
-    title: "Noor Organza Kimono",
-    price: "₹3,499",
-    image: "/images/hero/hero-1.jpg",
-    slug: "noor-organza-kimono",
-    tagline: "Modesty, Refined",
-  },
-  {
-    id: "look-02",
-    lookNumber: "LOOK 02",
-    title: "Zahra Minimalist Crepe",
-    price: "₹4,199",
-    image: "/images/hero/hero-2.jpg",
-    slug: "zahra-minimalist-crepe",
-    tagline: "A Quiet Kind of Luxury",
-  },
-  {
-    id: "look-03",
-    lookNumber: "LOOK 03",
-    title: "Sahar Crepe Kaftan",
-    price: "₹2,999",
-    image: "/images/categories/luxury.jpg",
-    slug: "sahar-crepe-kaftan",
-    tagline: "Elegance In Every Layer",
-  },
-  {
-    id: "look-04",
-    lookNumber: "LOOK 04",
-    title: "Layla Embroidered Cuff",
-    price: "₹6,299",
-    image: "/images/categories/party.jpg",
-    slug: "layla-embroidered-cuff",
-    tagline: "Architectural Drape",
-  },
-  {
-    id: "look-05",
-    lookNumber: "LOOK 05",
-    title: "Ayra Satin Overcoat",
-    price: "₹4,799",
-    image: "/images/navbar/editorial.jpg",
-    slug: "ayra-satin-overcoat",
-    tagline: "Pure Fluidity",
-  },
-  {
-    id: "look-06",
-    lookNumber: "LOOK 06",
-    title: "Maryam Velvet Open Abaya",
-    price: "₹5,899",
-    image: "/images/hero/hero-3.jpg",
-    slug: "maryam-velvet-open-abaya",
-    tagline: "Midnight Heritage",
-  },
-];
+export default function EditorialRunway() {
+  const [ref, p] = useScrub("sticky");
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [shift, setShift] = useState(0);
 
-interface RunwaySectionProps {
-  looks?: RunwayLook[];
-  showPrice?: boolean;
-}
+  const {
+    data: newArrivals = [],
+    isLoading,
+    isError,
+  } = useNewArrivals();
 
-export default function RunwaySection({
-  looks = defaultRunwayLooks,
-  showPrice = false, // Set to false per design request: "remove the cost add to bag section just add phrases and include good abaya pictures"
-}: RunwaySectionProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const total = looks.length;
+  const displayLooks: RunwayLook[] = newArrivals.flatMap((prod) => {
+    const imageUrl =
+        prod.media?.find((media) => media.primaryMedia)?.mediaUrl ||
+        prod.media?.[0]?.mediaUrl;
 
-  const updateIndexFromScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    const scrollFraction = scrollLeft / (scrollWidth - clientWidth || 1);
-    const index = Math.min(
-      total - 1,
-      Math.max(0, Math.round(scrollFraction * (total - 1)))
-    );
-    setCurrentIndex(index);
-  };
+    if (!imageUrl || !prod.slug) {
+      return [];
+    }
+
+    return [
+      {
+        id: prod.id,
+        name: prod.name,
+        line: prod.category?.name
+            ? `${prod.category.name} Collection`
+            : "New Arrival",
+        url: imageUrl,
+        slug: prod.slug,
+      },
+    ];
+
+  });
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateIndexFromScroll, { passive: true });
-    return () => el.removeEventListener("scroll", updateIndexFromScroll);
-  }, [total]);
+    const measure = () => {
+      const track = trackRef.current;
 
-  const scrollToLook = (index: number) => {
-    if (!scrollRef.current) return;
-    const targetIdx = Math.max(0, Math.min(total - 1, index));
-    const cardWidth = 420 + 32; // card width + gap
-    scrollRef.current.scrollTo({
-      left: targetIdx * cardWidth,
-      behavior: "smooth",
-    });
-    setCurrentIndex(targetIdx);
-  };
+      if (track) {
+        setShift(
+            Math.max(0, track.scrollWidth - window.innerWidth),
+        );
+      }
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+
+    return () => {
+      window.removeEventListener("resize", measure);
+    };
+
+  }, [displayLooks.length]);
+
+  const totalCount = displayLooks.length;
+
+  const currentCount = String(
+      Math.min(totalCount, Math.floor(p * totalCount) + 1),
+  ).padStart(2, "0");
+
+  const totalCountFormatted = String(totalCount).padStart(2, "0");
+
+  if (isLoading) {
+    return (
+        <section
+            id="collections"
+            className="flex min-h-[50vh] items-center justify-center bg-[#f7f5f0]"
+        >
+          <p className="text-xs uppercase tracking-[0.25em] text-[#8f8a80]">
+            Loading the runway
+          </p>
+        </section>
+    );
+  }
+
+  if (isError || displayLooks.length === 0) {
+    return null;
+  }
 
   return (
-    <section id="runway" className="relative w-full bg-[#FAF8F5] py-24 sm:py-32">
-      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 lg:px-14">
-        {/* Header Bar */}
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#6B6659]">
-              THE RUNWAY
-            </p>
-            <h2 className="mt-3 font-[var(--font-playfair)] text-4xl font-normal tracking-tight text-[#1A1A1A] sm:text-5xl lg:text-6xl">
-              Six looks, one season
-            </h2>
-          </div>
+      <div
+          ref={ref}
+          id="collections"
+          className="relative h-[300vh] bg-[#f7f5f0]"
+      >
+        <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden pt-[72px]">
+          <div className="mb-8 flex items-end justify-between gap-6 px-5 md:px-12">
+            <div>
+              <p className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#8f8a80]">
+                THE RUNWAY
+              </p>
 
-          {/* Progress Indicator + Nav Arrows */}
-          <div className="flex items-center gap-6 self-start md:self-end">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-sm tracking-wider text-[#1A1A1A]">
-                {String(currentIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-              </span>
-              <div className="h-[2px] w-28 overflow-hidden rounded-full bg-[#E5E0D8]">
-                <div
-                  className="h-full bg-[#1A1A1A] transition-all duration-300"
-                  style={{
-                    width: `${((currentIndex + 1) / total) * 100}%`,
-                  }}
-                />
-              </div>
+              <h2 className="mt-4 font-[var(--font-playfair)] text-4xl font-semibold text-[#1a1a1a] md:text-5xl">
+                New arrivals, new season
+              </h2>
+
+              <p className="mt-3 text-[15px] text-[#6b6660]">
+                Distinctive silhouettes, timeless appeal.
+              </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => scrollToLook(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                aria-label="Previous look"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D3CBC0] text-[#1A1A1A] transition-all duration-300 hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <ArrowLeft size={16} />
-              </button>
-              <button
-                onClick={() => scrollToLook(currentIndex + 1)}
-                disabled={currentIndex === total - 1}
-                aria-label="Next look"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D3CBC0] text-[#1A1A1A] transition-all duration-300 hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-              >
-                <ArrowRight size={16} />
-              </button>
+            <div className="hidden w-48 shrink-0 items-center gap-4 md:flex">
+        <span className="text-[12px] tracking-[0.2em] text-[#8f8a80]">
+          {currentCount}/{totalCountFormatted}
+        </span>
+
+              <span className="h-px flex-1 bg-[#d3cbc0]">
+          <span
+              className="block h-px origin-left bg-black"
+              style={{ transform: `scaleX(${p})` }}
+          />
+        </span>
             </div>
           </div>
-        </div>
 
-        {/* Horizontal Runway Track */}
-        <div
-          ref={scrollRef}
-          className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-8 overflow-x-auto pb-6 scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {looks.map((look) => (
-            <article
-              key={look.id}
-              className="group relative flex-none w-[320px] sm:w-[380px] lg:w-[420px] snap-start"
-            >
-              <Link href={`/customer/products/${look.slug}`} className="block">
-                {/* 3:4 Luxury Editorial Card */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#ECE8E1]">
-                  <Image
-                    src={look.image}
-                    alt={look.title}
-                    fill
-                    sizes="(max-width: 768px) 320px, (max-width: 1200px) 380px, 420px"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
+          <div
+              ref={trackRef}
+              className="flex w-max gap-8 px-5 will-change-transform md:gap-12 md:px-12"
+              style={{ transform: `translateX(${-p * shift}px)` }}
+          >
+            {displayLooks.map((look, index) => (
+                <article
+                    key={look.id}
+                    className="relative shrink-0"
+                    style={{
+                      height: "min(62vh, 680px)",
+                      aspectRatio: "3/4",
+                    }}
+                >
+                  <Link
+                      href={`/customer/products/${look.slug}`}
+                      className="block h-full w-full cursor-pointer"
+                  >
+                    <Card3D intensity={12} className="h-full w-full">
+                      <div className="relative h-full w-full overflow-hidden rounded-sm bg-[#faf8f5] shadow-lg">
+                        <img
+                            src={look.url}
+                            alt={look.name}
+                            loading={index < 2 ? "eager" : "lazy"}
+                            fetchPriority={index < 2 ? "high" : "auto"}
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+                        />
 
-                  {/* Gradient shadow overlay for text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent transition-opacity duration-300 group-hover:from-black/90" />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-6 text-white">
+                          <p className="text-[12px] font-medium uppercase tracking-[0.25em] text-white/70">
+                            Look {String(index + 1).padStart(2, "0")}
+                          </p>
 
-                  {/* Top tag / Wishlist */}
-                  <div className="absolute left-6 right-6 top-6 flex items-center justify-between text-white/90">
-                    <span className="font-mono text-xs uppercase tracking-[0.3em]">
-                      {look.lookNumber}
-                    </span>
-                    <span className="rounded-full bg-white/10 p-2 backdrop-blur-md transition group-hover:bg-white/20">
-                      <Heart size={14} className="text-white" />
-                    </span>
-                  </div>
+                          <h3 className="mt-2 font-[var(--font-playfair)] text-2xl">
+                            {look.name}
+                          </h3>
 
-                  {/* Bottom Editorial Captions */}
-                  <div className="absolute bottom-6 left-6 right-6 text-white">
-                    {look.tagline && (
-                      <p className="text-xs uppercase tracking-[0.25em] text-[#D4AF37]">
-                        {look.tagline}
-                      </p>
-                    )}
-                    <h3 className="mt-1 font-[var(--font-playfair)] text-2xl font-normal leading-tight text-white sm:text-3xl">
-                      {look.title}
-                    </h3>
-
-                    {showPrice && look.price && (
-                      <p className="mt-2 text-sm font-medium tracking-wider text-neutral-300">
-                        {look.price}
-                      </p>
-                    )}
-
-                    <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-neutral-200 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <span>Explore Look</span>
-                      <span>→</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </article>
-          ))}
+                          <p className="mt-1 text-sm text-white/85">
+                            {look.line}
+                          </p>
+                        </div>
+                      </div>
+                    </Card3D>
+                  </Link>
+                </article>
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+
   );
 }
