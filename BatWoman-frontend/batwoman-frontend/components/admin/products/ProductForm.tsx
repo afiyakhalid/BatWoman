@@ -125,7 +125,7 @@ function productToForm(
         newArrival: product.newArrival,
         active: product.active ?? true,
 
-        variants: product.variants.map(
+        variants: (product.variants ?? []).map(
             (variant) => ({
                 id: variant.id,
                 sizeId: variant.sizeId,

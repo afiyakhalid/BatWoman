@@ -1,8 +1,14 @@
+
 spring:
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
     password: ${DATABASE_PASSWORD}
+
+  servlet:
+    multipart:
+      max-file-size: 15MB
+      max-request-size: 30MB
 
   jpa:
     show-sql: false

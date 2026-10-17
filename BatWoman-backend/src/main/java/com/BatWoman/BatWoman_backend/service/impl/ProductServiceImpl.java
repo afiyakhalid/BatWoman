@@ -734,6 +734,35 @@ public class ProductServiceImpl implements ProductService {
             );
         }
 
+        /*
+         * Variants omitted from the submitted list have been removed
+         * through the admin edit form.
+         *
+         * Deactivate them instead of physically deleting them so
+         * historical order referencesremain intact.
+         */
+        Set<UUID> retainedVariantIds =
+                requests.stream()
+                        .map(UpdateProductVariantRequest::id)
+                        .filter(id -> id != null)
+                        .collect(Collectors.toSet());
+
+        OffsetDateTime now = OffsetDateTime.now();
+
+        for (ProductVariant existingVariant : existingVariants) {
+            if (
+                    Boolean.TRUE.equals(existingVariant.getActive())
+                            && !retainedVariantIds.contains(
+                            existingVariant.getId()
+                    )
+            ) {
+                existingVariant.setActive(false);
+                existingVariant.setUpdatedAt(now);
+
+                productVariantRepository.save(existingVariant);
+            }
+        }
+
         productVariantRepository.flush();
     }
 
