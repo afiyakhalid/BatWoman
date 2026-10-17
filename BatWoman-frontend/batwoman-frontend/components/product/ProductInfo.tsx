@@ -1,16 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { MapPin, Plus, Minus } from "lucide-react";
 
 import { ProductDetail } from "@/types/product-detail";
-
-import {
-    Star,
-    Minus,
-    Plus,
-} from "lucide-react";
-
 import { useReviews } from "@/hooks/useReviews";
 import ReviewForm from "./ReviewForm";
 import { useCreateReview } from "@/hooks/useCreateReview";
@@ -18,1312 +12,460 @@ import { useAddToCart } from "@/hooks/useAddToCart";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 interface ProductInfoProps {
-    product: ProductDetail;
+  product: ProductDetail;
 }
 
-export default function ProductInfo({
-                                        product,
-                                    }: ProductInfoProps) {
-
-    const router = useRouter();
-    const requireAuth = useRequireAuth();
-
-    const [quantity, setQuantity] =
-        useState(1);
-
-    /*
-     * ============================================================
-     * VARIANT SELECTION
-     * ============================================================
-     *
-     * Product-level color/size no longer exists.
-     *
-     * The customer first selects a color, then a size.
-     * That combination resolves to one exact ProductVariant.
-     */
-
-    const firstActiveVariant =
-        product.variants.find(
-            (variant) => variant.active
-        ) ??
-        product.variants[0] ??
-        null;
-
-    const [selectedColorId, setSelectedColorId] =
-        useState<string | null>(
-            firstActiveVariant?.colorId ??
-            null
-        );
-
-    const [selectedSizeId, setSelectedSizeId] =
-        useState<string | null>(
-            firstActiveVariant?.sizeId ??
-            null
-        );
-
-    /*
-     * ============================================================
-     * ACCORDIONS
-     * ============================================================
-     */
-
-    const [isInfoOpen, setIsInfoOpen] =
-        useState(true);
-
-    const [isShippingOpen, setIsShippingOpen] =
-        useState(false);
-
-    const [isReturnOpen, setIsReturnOpen] =
-        useState(false);
-
-    const [isReviewsOpen, setIsReviewsOpen] =
-        useState(false);
-
-    const [showReviewForm, setShowReviewForm] =
-        useState(false);
-
-    /*
-     * ============================================================
-     * REVIEWS
-     * ============================================================
-     */
-
-    const {
-        data: reviews,
-        isLoading: reviewsLoading,
-    } = useReviews(product.id);
-
-    const createReviewMutation =
-        useCreateReview(product.id);
-
-    const addToCartMutation =
-        useAddToCart();
-
-    /*
-     * ============================================================
-     * ACTIVE VARIANTS
-     * ============================================================
-     */
-
-    const activeVariants =
-        product.variants.filter(
-            (variant) => variant.active
-        );
-
-    /*
-     * ============================================================
-     * AVAILABLE COLORS
-     * ============================================================
-     */
-
-    const availableColors =
-        Array.from(
-            new Map(
-                activeVariants.map(
-                    (variant) => [
-                        variant.colorId,
-                        variant,
-                    ]
-                )
-            ).values()
-        );
-
-    /*
-     * ============================================================
-     * VARIANTS FOR SELECTED COLOR
-     * ============================================================
-     */
-
-    const variantsForSelectedColor =
-        activeVariants.filter(
-            (variant) =>
-                variant.colorId ===
-                selectedColorId
-        );
-
-    /*
-     * ============================================================
-     * SELECTED VARIANT
-     * ============================================================
-     */
-
-    const selectedVariant =
-        variantsForSelectedColor.find(
-            (variant) =>
-                variant.sizeId ===
-                selectedSizeId
-        ) ??
-        variantsForSelectedColor[0] ??
-        null;
-
-    /*
-     * ============================================================
-     * INVENTORY
-     * ============================================================
-     */
-
-    const availableQuantity =
-        selectedVariant?.availableQuantity ??
-        0;
-
-    const isOutOfStock =
-        selectedVariant === null ||
-        availableQuantity <= 0;
-
-    const maxQuantity =
-        selectedVariant
-            ? Math.max(
-                0,
-                availableQuantity
-            )
-            : 0;
-
-    /*
-     * ============================================================
-     * COLOR SELECTION
-     * ============================================================
-     */
-
-    const handleColorChange = (
-        colorId: string
-    ) => {
-
-        setSelectedColorId(
-            colorId
-        );
-
-        const firstVariant =
-            activeVariants.find(
-                (variant) =>
-                    variant.colorId ===
-                    colorId
-            );
-
-        setSelectedSizeId(
-            firstVariant?.sizeId ??
-            null
-        );
-
-        setQuantity(1);
-    };
-
-    /*
-     * ============================================================
-     * SIZE SELECTION
-     * ============================================================
-     */
-
-    const handleSizeChange = (
-        sizeId: string
-    ) => {
-
-        setSelectedSizeId(
-            sizeId
-        );
-
-        setQuantity(1);
-    };
-
-    /*
-     * ============================================================
-     * QUANTITY
-     * ============================================================
-     */
-
-    const increaseQuantity = () => {
-
-        if (maxQuantity <= 0) {
-            return;
-        }
-
-        setQuantity(
-            (current) =>
-                Math.min(
-                    current + 1,
-                    maxQuantity
-                )
-        );
-    };
-
-    const decreaseQuantity = () => {
-
-        setQuantity(
-            (current) =>
-                Math.max(
-                    1,
-                    current - 1
-                )
-        );
-    };
-
-    /*
-     * ============================================================
-     * BUY NOW
-     * ============================================================
-     */
-
-    const handleBuyNow = async () => {
-
-        if (
-            !selectedVariant ||
-            isOutOfStock
-        ) {
-            return;
-        }
-
-        requireAuth(
-            async () => {
-
-                try {
-
-                    await addToCartMutation.mutateAsync({
-                        variantId:
-                        selectedVariant.id,
-
-                        quantity,
-                    });
-
-                    router.push(
-                        "/customer/address"
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "Buy now failed:",
-                        error
-                    );
-
-                }
-
-            }
-        );
-    };
-
-    /*
-     * ============================================================
-     * ADD TO CART
-     * ============================================================
-     */
-
-    const handleAddToCart = () => {
-
-        if (
-            !selectedVariant ||
-            isOutOfStock
-        ) {
-            return;
-        }
-
-        requireAuth(
-            () => {
-
-                addToCartMutation.mutate({
-                    variantId:
-                    selectedVariant.id,
-
-                    quantity,
-                });
-
-            }
-        );
-    };
-
-    /*
-     * ============================================================
-     * RATING
-     * ============================================================
-     */
-
-    const averageRating =
-        reviews &&
-        reviews.length > 0
-            ? (
-                reviews.reduce(
-                    (
-                        sum,
-                        review
-                    ) =>
-                        sum +
-                        review.rating,
-                    0
-                ) /
-                reviews.length
-            ).toFixed(1)
-            : "0.0";
-
-    return (
-
-        <div className="w-full text-neutral-900">
-
-            {/* =====================================================
-                TITLE
-            ====================================================== */}
-
-            <h1 className="font-[var(--font-playfair)] text-5xl leading-tight tracking-wide">
-                {product.name}
-            </h1>
-
-            {/* =====================================================
-                RATINGS
-            ====================================================== */}
-
-            <div className="mt-5 flex items-center gap-3">
-
-                <div className="flex text-yellow-500">
-
-                    {Array.from({
-                        length: 5,
-                    }).map(
-                        (_, index) => (
-
-                            <Star
-                                key={index}
-                                size={16}
-                                fill={
-                                    index <
-                                    Math.round(
-                                        Number(
-                                            averageRating
-                                        )
-                                    )
-                                        ? "currentColor"
-                                        : "none"
-                                }
-                            />
-
-                        )
-                    )}
-
-                </div>
-
-                <span className="text-sm text-neutral-500">
-                    {averageRating} (
-                    {reviews?.length ?? 0}
-                    {" "}Reviews)
-                </span>
-
-            </div>
-
-            {/* =====================================================
-                PRICE
-            ====================================================== */}
-
-            <div className="mt-8 flex items-center gap-5">
-
-                <span className="text-5xl font-light">
-                    ₹
-                    {
-                        product.discountPrice ??
-                        product.price
-                    }
-                </span>
-
-                {product.discountPrice !== null && (
-
-                    <span className="text-2xl font-light text-neutral-400 line-through">
-                        ₹
-                        {product.price}
-                    </span>
-
-                )}
-
-            </div>
-
-            <div className="my-8 border-t border-neutral-200" />
-
-            {/* =====================================================
-                DESCRIPTION
-            ====================================================== */}
-
-            <p className="mt-8 max-w-xl text-[16px] leading-8 text-neutral-600">
-                {
-                    product.description ||
-                    "No description available."
-                }
+export default function ProductInfo({ product }: ProductInfoProps) {
+  const router = useRouter();
+  const requireAuth = useRequireAuth();
+
+  const [quantity, setQuantity] = useState(1);
+
+  // Active variants
+  const activeVariants = product.variants.filter((v) => v.active);
+
+  // Variant resolution: prefer first active variant with stock > 0
+  const bestDefaultVariant =
+    activeVariants.find((v) => v.availableQuantity > 0) ??
+    activeVariants[0] ??
+    product.variants[0] ??
+    null;
+
+  const [selectedColorId, setSelectedColorId] = useState<string | null>(
+    bestDefaultVariant?.colorId ?? null
+  );
+
+  const [selectedSizeId, setSelectedSizeId] = useState<string | null>(
+    bestDefaultVariant?.sizeId ?? null
+  );
+
+  // Sync selection when product variants change (e.g. admin stock updates or removed variants)
+  useEffect(() => {
+    const active = product.variants.filter((v) => v.active);
+    if (active.length === 0) return;
+
+    const currentValid = active.some(
+      (v) => v.colorId === selectedColorId && v.sizeId === selectedSizeId
+    );
+
+    if (!currentValid) {
+      const best =
+        active.find((v) => v.availableQuantity > 0) ??
+        active[0];
+      if (best) {
+        setSelectedColorId(best.colorId);
+        setSelectedSizeId(best.sizeId);
+      }
+    }
+  }, [product.variants, selectedColorId, selectedSizeId]);
+
+  // Accordions
+  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
+    sizeAndFit: false,
+    materialAndCare: false,
+    shippingAndReturns: false,
+    reviews: false,
+  });
+
+  const toggleAccordion = (section: string) => {
+    setOpenAccordions((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
+  // Reviews
+  const { data: reviews = [] } = useReviews(product.id);
+  const createReviewMutation = useCreateReview(product.id);
+  const addToCartMutation = useAddToCart();
+
+  // Unique colors
+  const availableColors = activeVariants.reduce(
+    (acc, variant) => {
+      if (!acc.some((item) => item.colorId === variant.colorId)) {
+        acc.push(variant);
+      }
+      return acc;
+    },
+    [] as typeof product.variants
+  );
+
+  // Variants for selected color
+  const variantsForSelectedColor = activeVariants.filter(
+    (variant) => variant.colorId === selectedColorId
+  );
+
+  // Resolved selected variant
+  const selectedVariant =
+    variantsForSelectedColor.find(
+      (variant) => variant.sizeId === selectedSizeId
+    ) ?? null;
+
+  const availableQuantity = selectedVariant?.availableQuantity ?? 0;
+  const isOutOfStock = availableQuantity <= 0;
+  const maxQuantity = Math.max(0, availableQuantity);
+
+  const handleColorChange = (colorId: string) => {
+    setSelectedColorId(colorId);
+    const variantsForColor = activeVariants.filter((v) => v.colorId === colorId);
+    const inStockVariant =
+      variantsForColor.find((v) => v.availableQuantity > 0) ??
+      variantsForColor[0];
+    setSelectedSizeId(inStockVariant?.sizeId ?? null);
+    setQuantity(1);
+  };
+
+  const handleSizeChange = (sizeId: string) => {
+    setSelectedSizeId(sizeId);
+    setQuantity(1);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedVariant || isOutOfStock) return;
+    requireAuth(() => {
+      addToCartMutation.mutate({
+        variantId: selectedVariant.id,
+        quantity,
+      });
+    });
+  };
+
+  return (
+    <div className="w-full text-neutral-900 lg:sticky lg:top-28">
+      {/* =====================================================
+          TOP ROW: PRODUCT TITLE (BIGGER & CLASSY) & PRICE
+      ====================================================== */}
+      <div className="flex items-start justify-between gap-6 pb-6 border-b border-neutral-100">
+        <div>
+          {product.category?.name && (
+            <p className="text-[10px] uppercase tracking-[0.24em] text-neutral-400 font-normal mb-1.5">
+              {product.category.name}
             </p>
-
-            <div className="my-8 border-t border-neutral-200" />
-
-            {/* =====================================================
-                VARIANT SELECTION
-            ====================================================== */}
-
-            {activeVariants.length > 0 && (
-
-                <div className="mt-10 space-y-8">
-
-                    {/* =================================================
-                        COLOR
-                    ================================================== */}
-
-                    <div>
-
-                        <div className="mb-4 flex items-center justify-between">
-
-                            <label className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-800">
-                                Color
-                            </label>
-
-                            {selectedVariant && (
-
-                                <span className="text-sm text-neutral-500">
-                                    {
-                                        selectedVariant.color
-                                    }
-                                </span>
-
-                            )}
-
-                        </div>
-
-                        <div className="flex flex-wrap gap-3">
-
-                            {availableColors.map(
-                                (variant) => {
-
-                                    const isSelected =
-                                        variant.colorId ===
-                                        selectedColorId;
-
-                                    return (
-
-                                        <button
-                                            key={
-                                                variant.colorId
-                                            }
-                                            type="button"
-                                            onClick={() =>
-                                                handleColorChange(
-                                                    variant.colorId
-                                                )
-                                            }
-                                            aria-label={
-                                                `Select ${variant.color}`
-                                            }
-                                            aria-pressed={
-                                                isSelected
-                                            }
-                                            className={`
-                                                flex
-                                                items-center
-                                                gap-2
-                                                rounded-full
-                                                border
-                                                px-4
-                                                py-2
-                                                text-sm
-                                                transition
-                                                ${
-                                                isSelected
-                                                    ? "border-black bg-black text-white"
-                                                    : "border-neutral-300 bg-white text-neutral-800 hover:border-black"
-                                            }
-                                            `}
-                                        >
-
-                                            <span
-                                                className="h-4 w-4 rounded-full border border-neutral-300"
-                                                style={{
-                                                    backgroundColor:
-                                                        variant.colorHexCode ??
-                                                        "#ffffff",
-                                                }}
-                                            />
-
-                                            {
-                                                variant.color
-                                            }
-
-                                        </button>
-
-                                    );
-                                }
-                            )}
-
-                        </div>
-
-                    </div>
-
-                    {/* =================================================
-                        SIZE
-                    ================================================== */}
-
-                    <div>
-
-                        <div className="mb-4 flex items-center justify-between">
-
-                            <label className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-800">
-                                Size
-                            </label>
-
-                            {selectedVariant && (
-
-                                <span className="text-sm text-neutral-500">
-                                    {
-                                        selectedVariant.size
-                                    }
-                                </span>
-
-                            )}
-
-                        </div>
-
-                        <div className="flex flex-wrap gap-3">
-
-                            {variantsForSelectedColor.map(
-                                (variant) => {
-
-                                    const isSelected =
-                                        variant.sizeId ===
-                                        selectedSizeId;
-
-                                    const isUnavailable =
-                                        variant.availableQuantity <= 0;
-
-                                    return (
-
-                                        <button
-                                            key={
-                                                variant.id
-                                            }
-                                            type="button"
-                                            onClick={() =>
-                                                handleSizeChange(
-                                                    variant.sizeId
-                                                )
-                                            }
-                                            disabled={
-                                                isUnavailable
-                                            }
-                                            aria-label={
-                                                `Select size ${variant.size}`
-                                            }
-                                            aria-pressed={
-                                                isSelected
-                                            }
-                                            className={`
-                                                min-w-14
-                                                border
-                                                px-4
-                                                py-3
-                                                text-sm
-                                                transition
-                                                ${
-                                                isSelected
-                                                    ? "border-black bg-black text-white"
-                                                    : "border-neutral-300 bg-white text-neutral-800 hover:border-black"
-                                            }
-                                                ${
-                                                isUnavailable
-                                                    ? "cursor-not-allowed opacity-40 line-through"
-                                                    : ""
-                                            }
-                                            `}
-                                        >
-                                            {
-                                                variant.size
-                                            }
-                                        </button>
-
-                                    );
-                                }
-                            )}
-
-                        </div>
-
-                    </div>
-
-                    {/* =================================================
-                        VARIANT STOCK
-                    ================================================== */}
-
-                    {selectedVariant && (
-
-                        <p
-                            className={
-                                isOutOfStock
-                                    ? "text-sm text-red-600"
-                                    : "text-sm text-neutral-500"
-                            }
-                        >
-                            {isOutOfStock
-                                ? "Out of Stock"
-                                : `${availableQuantity} available`}
-                        </p>
-
-                    )}
-
-                </div>
-
-            )}
-
-            {!activeVariants.length && (
-
-                <div className="mt-10">
-
-                    <p className="text-sm text-red-600">
-                        This product currently has no
-                        available variants.
-                    </p>
-
-                </div>
-
-            )}
-
-            <div className="mt-8 border-t border-neutral-200" />
-
-            {/* =====================================================
-                QUANTITY
-            ====================================================== */}
-
-            <div className="mt-10">
-
-                <label className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-neutral-800">
-                    Quantity
-                </label>
-
-                <div className="flex w-28 items-center justify-between border border-neutral-300 bg-white px-3 py-2">
-
-                    <button
-                        type="button"
-                        onClick={
-                            decreaseQuantity
-                        }
-                        disabled={
-                            quantity <= 1 ||
-                            isOutOfStock
-                        }
-                        className="
-                            p-1
-                            text-neutral-400
-                            transition
-                            hover:text-black
-                            disabled:cursor-not-allowed
-                            disabled:opacity-40
-                        "
-                        aria-label="Decrease quantity"
-                    >
-                        <Minus size={14} />
-                    </button>
-
-                    <span className="text-sm font-normal text-neutral-800">
-                        {quantity}
-                    </span>
-
-                    <button
-                        type="button"
-                        onClick={
-                            increaseQuantity
-                        }
-                        disabled={
-                            isOutOfStock ||
-                            quantity >= maxQuantity
-                        }
-                        className="
-                            p-1
-                            text-neutral-400
-                            transition
-                            hover:text-black
-                            disabled:cursor-not-allowed
-                            disabled:opacity-40
-                        "
-                        aria-label="Increase quantity"
-                    >
-                        <Plus size={14} />
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div className="my-8 border-t border-neutral-200" />
-
-            {/* =====================================================
-                CART / BUY NOW
-            ====================================================== */}
-
-            <div className="flex w-full flex-col gap-3 sm:flex-row">
-
-                <button
-                    type="button"
-                    onClick={
-                        handleAddToCart
-                    }
-                    disabled={
-                        !selectedVariant ||
-                        isOutOfStock ||
-                        addToCartMutation.isPending
-                    }
-                    className="
-                        flex-1
-                        bg-black
-                        py-5
-                        text-lg
-                        font-light
-                        tracking-wide
-                        text-white
-                        transition
-                        hover:bg-neutral-800
-                        disabled:cursor-not-allowed
-                        disabled:opacity-60
-                    "
-                >
-                    {!selectedVariant
-                        ? "Select Variant"
-                        : isOutOfStock
-                            ? "Out of Stock"
-                            : addToCartMutation.isPending
-                                ? "Adding..."
-                                : "Add to Cart"}
-                </button>
-
-                <button
-                    type="button"
-                    onClick={
-                        handleBuyNow
-                    }
-                    disabled={
-                        !selectedVariant ||
-                        isOutOfStock ||
-                        addToCartMutation.isPending
-                    }
-                    className="
-                        flex-1
-                        border
-                        border-black
-                        bg-white
-                        py-5
-                        text-lg
-                        font-light
-                        tracking-wide
-                        text-black
-                        transition
-                        hover:bg-neutral-50
-                        disabled:cursor-not-allowed
-                        disabled:opacity-50
-                    "
-                >
-                    {addToCartMutation.isPending
-                        ? "Preparing..."
-                        : "Buy Now"}
-                </button>
-
-            </div>
-
-            {/* =====================================================
-                ADD TO CART STATUS
-            ====================================================== */}
-
-            {addToCartMutation.isError && (
-
-                <p className="mt-4 text-sm text-red-600">
-                    {
-                        (
-                            addToCartMutation.error as any
-                        )?.response?.data?.message ||
-                        "Unable to add this product to your cart. Please try again."
-                    }
-                </p>
-
-            )}
-
-            {addToCartMutation.isSuccess && (
-
-                <p className="mt-4 text-sm font-medium text-green-600">
-                    Product added to cart successfully.
-                </p>
-
-            )}
-
-            <div className="my-8 border-t border-neutral-200" />
-
-            {/* =====================================================
-                ACCORDION PANELS
-            ====================================================== */}
-
-            <div className="space-y-1">
-
-                {/* =================================================
-                    PRODUCT INFORMATION
-                ================================================== */}
-
-                <div className="border-b border-neutral-200 pb-3">
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setIsInfoOpen(
-                                !isInfoOpen
-                            )
-                        }
-                        className="
-                            group
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            py-4
-                            text-left
-                        "
-                    >
-
-                        <div>
-
-                            <h3 className="text-lg font-medium text-neutral-900 transition group-hover:text-neutral-600">
-                                Product Information
-                            </h3>
-
-                            <p className="mt-1 text-sm text-neutral-500">
-                                Premium Fabric • Sizes • Care Instructions
-                            </p>
-
-                        </div>
-
-                        <span className="text-2xl font-light text-neutral-400">
-                            {isInfoOpen
-                                ? "—"
-                                : "+"}
-                        </span>
-
-                    </button>
-
-                    {isInfoOpen && (
-
-                        <div className="mt-2 max-w-xl space-y-4 pb-4 text-sm leading-7 text-neutral-600">
-
-                            <p>
-                                Crafted with premium-quality
-                                fabric for elegance, comfort,
-                                and durability. Designed for
-                                modern modest fashion with
-                                timeless styling suitable for
-                                both everyday wear and special
-                                occasions.
-                            </p>
-
-                            <div className="space-y-1.5 border-t border-neutral-100 pt-3 font-medium text-neutral-800">
-
-                                {product.fabric && (
-
-                                    <p>
-                                        Fabric:{" "}
-                                        <span className="font-normal text-neutral-600">
-                                            {
-                                                product.fabric
-                                            }
-                                        </span>
-                                    </p>
-
-                                )}
-
-                                {selectedVariant && (
-
-                                    <>
-
-                                        <p>
-                                            Color:{" "}
-                                            <span className="font-normal text-neutral-600">
-                                                {
-                                                    selectedVariant.color
-                                                }
-                                            </span>
-                                        </p>
-
-                                        <p>
-                                            Size:{" "}
-                                            <span className="font-normal text-neutral-600">
-                                                {
-                                                    selectedVariant.size
-                                                }
-                                            </span>
-                                        </p>
-
-                                        <p>
-                                            SKU:{" "}
-                                            <span className="font-normal text-neutral-600">
-                                                {
-                                                    selectedVariant.sku
-                                                }
-                                            </span>
-                                        </p>
-
-                                    </>
-
-                                )}
-
-                                <p>
-                                    Availability:{" "}
-                                    <span className="font-normal text-neutral-600">
-                                        {selectedVariant
-                                            ? isOutOfStock
-                                                ? "Out of Stock"
-                                                : `${availableQuantity} available`
-                                            : "Select a color and size"}
-                                    </span>
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    )}
-
-                </div>
-
-                {/* =================================================
-                    SHIPPING
-                ================================================== */}
-
-                <div className="border-b border-neutral-200 pb-3">
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setIsShippingOpen(
-                                !isShippingOpen
-                            )
-                        }
-                        className="
-                            group
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            py-4
-                            text-left
-                        "
-                    >
-
-                        <div>
-
-                            <h3 className="text-lg font-medium text-neutral-900 transition group-hover:text-neutral-600">
-                                Shipping Information
-                            </h3>
-
-                            <p className="mt-1 text-sm text-neutral-500">
-                                Delivery & Tracking
-                            </p>
-
-                        </div>
-
-                        <span className="text-2xl font-light text-neutral-400">
-                            {isShippingOpen
-                                ? "—"
-                                : "+"}
-                        </span>
-
-                    </button>
-
-                    {isShippingOpen && (
-
-                        <div className="mt-2 max-w-xl pb-4 text-sm leading-7 text-neutral-600">
-
-                            <p>
-                                Orders are processed within
-                                1–2 business days. Delivery
-                                times vary by location. Once
-                                dispatched, you will receive
-                                a tracking number to monitor
-                                your shipment.
-                            </p>
-
-                        </div>
-
-                    )}
-
-                </div>
-
-                {/* =================================================
-                    RETURNS
-                ================================================== */}
-
-                <div className="border-b border-neutral-200 pb-3">
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setIsReturnOpen(
-                                !isReturnOpen
-                            )
-                        }
-                        className="
-                            group
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            py-4
-                            text-left
-                        "
-                    >
-
-                        <div>
-
-                            <h3 className="text-lg font-medium text-neutral-900 transition group-hover:text-neutral-600">
-                                Returns
-                            </h3>
-
-                            <p className="mt-1 text-sm text-neutral-500">
-                                Returns within 7 days
-                            </p>
-
-                        </div>
-
-                        <span className="text-2xl font-light text-neutral-400">
-                            {isReturnOpen
-                                ? "—"
-                                : "+"}
-                        </span>
-
-                    </button>
-
-                    {isReturnOpen && (
-
-                        <div className="mt-2 max-w-xl pb-4 text-sm leading-7 text-neutral-600">
-
-                            <p>
-                                Returns are accepted within
-                                7 days of delivery for unused
-                                products in their original
-                                condition. Refunds are processed
-                                after quality inspection.
-                            </p>
-
-                        </div>
-
-                    )}
-
-                </div>
-
-                {/* =================================================
-                    REVIEWS
-                ================================================== */}
-
-                <div className="border-b border-neutral-200">
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setIsReviewsOpen(
-                                !isReviewsOpen
-                            )
-                        }
-                        className="
-                            group
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            py-5
-                            text-left
-                        "
-                    >
-
-                        <div>
-
-                            <h3 className="text-lg font-medium text-neutral-900 transition group-hover:text-neutral-600">
-                                Reviews
-                            </h3>
-
-                            <p className="mt-1 text-sm text-neutral-500">
-                                {
-                                    reviews?.length ??
-                                    0
-                                } Customer Reviews
-                            </p>
-
-                        </div>
-
-                        <span className="text-2xl font-light text-neutral-400">
-                            {isReviewsOpen
-                                ? "—"
-                                : "+"}
-                        </span>
-
-                    </button>
-
-                    {isReviewsOpen && (
-
-                        <div className="space-y-6 pb-6 text-sm">
-
-                            {/* Loading */}
-
-                            {reviewsLoading && (
-
-                                <p className="text-neutral-500">
-                                    Loading reviews...
-                                </p>
-
-                            )}
-
-                            {/* No reviews */}
-
-                            {!reviewsLoading &&
-                                reviews?.length === 0 && (
-
-                                    <p className="text-neutral-500">
-                                        No reviews yet.
-                                    </p>
-
-                                )}
-
-                            {/* Reviews */}
-
-                            {reviews?.map(
-                                (review) => (
-
-                                    <div
-                                        key={
-                                            review.id
-                                        }
-                                        className="border-b border-neutral-100 pb-6"
-                                    >
-
-                                        <div className="flex items-center justify-between">
-
-                                            <h4 className="font-medium text-neutral-900">
-                                                {
-                                                    review.title
-                                                }
-                                            </h4>
-
-                                            <div className="flex">
-
-                                                {Array.from({
-                                                    length:
-                                                    review.rating,
-                                                }).map(
-                                                    (
-                                                        _,
-                                                        index
-                                                    ) => (
-
-                                                        <Star
-                                                            key={
-                                                                index
-                                                            }
-                                                            size={
-                                                                16
-                                                            }
-                                                            fill="currentColor"
-                                                            className="text-yellow-500"
-                                                        />
-
-                                                    )
-                                                )}
-
-                                            </div>
-
-                                        </div>
-
-                                        <p className="mt-1 text-sm text-neutral-500">
-                                            {
-                                                review.userName
-                                            }
-                                        </p>
-
-                                        <p className="mt-1 text-xs text-neutral-400">
-                                            {new Date(
-                                                review.createdAt
-                                            ).toLocaleDateString()}
-                                        </p>
-
-                                        <p className="mt-4 leading-7 text-neutral-700">
-                                            {
-                                                review.comment
-                                            }
-                                        </p>
-
-                                    </div>
-
-                                )
-                            )}
-
-                            {/* Write Review */}
-
-                            <div className="pt-6">
-
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setShowReviewForm(
-                                            !showReviewForm
-                                        )
-                                    }
-                                    className="
-                                        border
-                                        border-black
-                                        px-8
-                                        py-3
-                                        transition
-                                        hover:bg-black
-                                        hover:text-white
-                                    "
-                                >
-                                    {showReviewForm
-                                        ? "Cancel"
-                                        : "Write a Review"}
-                                </button>
-
-                            </div>
-
-                            {/* Review Form */}
-
-                            {showReviewForm && (
-
-                                <ReviewForm
-                                    loading={
-                                        createReviewMutation.isPending
-                                    }
-                                    onSubmit={(
-                                        title,
-                                        rating,
-                                        comment
-                                    ) =>
-                                        createReviewMutation.mutate({
-                                            productId:
-                                            product.id,
-                                            rating,
-                                            title,
-                                            comment,
-                                        })
-                                    }
-                                />
-
-                            )}
-
-                            {/* Review Success */}
-
-                            {createReviewMutation.isSuccess && (
-
-                                <p className="mt-4 font-medium text-green-600">
-                                    Your review has been submitted
-                                    successfully.
-                                </p>
-
-                            )}
-
-                            {/* Review Error */}
-
-                            {createReviewMutation.isError && (
-
-                                <p className="mt-4 font-medium text-red-600">
-                                    Unable to submit your review.
-                                    Please try again.
-                                </p>
-
-                            )}
-
-                        </div>
-
-                    )}
-
-                </div>
-
-            </div>
-
+          )}
+          {/* BIGGER HIGH-FASHION SERIF TITLE */}
+          <h1 className="font-[var(--font-playfair)] text-3xl sm:text-4xl lg:text-[44px] font-normal leading-[1.12] text-neutral-900 tracking-normal">
+            {product.name}
+          </h1>
         </div>
 
-    );
+        {/* PRICE ALIGNED ON TOP RIGHT */}
+        <div className="text-right shrink-0 pt-1">
+          <div className="flex flex-col items-end">
+            <span className="text-base sm:text-lg lg:text-xl font-light tracking-wide text-black">
+              ₹{(product.discountPrice ?? product.price).toLocaleString()}
+            </span>
+            {product.discountPrice !== null && (
+              <span className="text-xs font-light text-neutral-400 line-through">
+                ₹{product.price.toLocaleString()}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* =====================================================
+          COLOR SELECTION
+      ====================================================== */}
+      {availableColors.length > 0 && (
+        <div className="pt-6 pb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs uppercase tracking-[0.16em] text-neutral-500 font-medium">
+              Color:
+            </span>
+            <span className="text-xs tracking-[0.1em] text-black uppercase font-medium">
+              {selectedVariant?.color || availableColors[0]?.color}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {availableColors.map((variant) => {
+              const isSelected = variant.colorId === selectedColorId;
+              return (
+                <button
+                  key={variant.colorId}
+                  type="button"
+                  onClick={() => handleColorChange(variant.colorId)}
+                  className={`
+                    relative h-6 w-6 border transition-all rounded-none p-0.5
+                    ${
+                      isSelected
+                        ? "border-black ring-1 ring-black"
+                        : "border-neutral-300 hover:border-neutral-600"
+                    }
+                  `}
+                  title={variant.color}
+                  aria-label={`Select color ${variant.color}`}
+                >
+                  <span
+                    className="block h-full w-full"
+                    style={{
+                      backgroundColor: variant.colorHexCode || "#111111",
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          SIZE SELECTION (KHAITE HORIZONTAL MINIMAL RAIL)
+      ====================================================== */}
+      {variantsForSelectedColor.length > 0 && (
+        <div className="pt-4 pb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-neutral-500 font-medium">
+                Size:
+              </span>
+              <span className="text-xs tracking-[0.1em] text-black uppercase font-medium">
+                {selectedVariant?.size || "Select Size"}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => toggleAccordion("sizeAndFit")}
+              className="text-[11px] uppercase tracking-[0.15em] text-neutral-500 hover:text-black underline underline-offset-4 transition"
+            >
+              Size Guide
+            </button>
+          </div>
+
+          {/* Minimalist size list */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            {variantsForSelectedColor.map((variant) => {
+              const isSelected = variant.sizeId === selectedSizeId;
+              const isUnavailable = variant.availableQuantity <= 0;
+
+              return (
+                <button
+                  key={variant.id}
+                  type="button"
+                  onClick={() => handleSizeChange(variant.sizeId)}
+                  disabled={isUnavailable}
+                  className={`
+                    min-w-[36px] py-1 text-xs uppercase tracking-[0.15em] transition border-b-2
+                    ${
+                      isSelected
+                        ? "border-black font-semibold text-black"
+                        : "border-transparent text-neutral-600 hover:text-black"
+                    }
+                    ${isUnavailable ? "line-through opacity-30 cursor-not-allowed" : ""}
+                  `}
+                >
+                  {variant.size}
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedVariant && isOutOfStock && (
+            <p className="mt-2 text-xs text-red-600 tracking-wide">
+              Selected size is currently out of stock
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* =====================================================
+          EDITORIAL DESCRIPTION & SKU
+      ====================================================== */}
+      <div className="pt-2 pb-6">
+        <p className="text-xs sm:text-[13px] leading-relaxed text-neutral-700 tracking-wide font-normal">
+          {product.description ||
+            "A masterfully tailored piece cut for fluid movement and understated luxury. Designed for effortless grace and timeless sophistication."}
+        </p>
+        <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-light">
+          SKU: {selectedVariant?.sku || product.slug}
+        </p>
+      </div>
+
+      {/* =====================================================
+          PRIMARY ACTION: ADD TO CART
+      ====================================================== */}
+      <div className="pt-2 pb-5 space-y-3">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={
+            !selectedVariant ||
+            isOutOfStock ||
+            addToCartMutation.isPending
+          }
+          className="
+            w-full bg-black py-4 text-xs uppercase tracking-[0.25em] font-medium text-white
+            transition-all duration-300 hover:bg-neutral-800 rounded-none active:scale-[0.99]
+            disabled:cursor-not-allowed disabled:opacity-50
+          "
+        >
+          {!selectedVariant
+            ? "Select Size"
+            : isOutOfStock
+            ? "Out of Stock"
+            : addToCartMutation.isPending
+            ? "Adding to Bag..."
+            : "Add To Cart"}
+        </button>
+
+        {addToCartMutation.isSuccess && (
+          <p className="text-center text-xs tracking-wider uppercase text-neutral-800">
+            Added to your shopping bag
+          </p>
+        )}
+      </div>
+
+      {/* =====================================================
+          BOUTIQUE SERVICE / FIND IN STORE
+      ====================================================== */}
+      <div className="flex items-center gap-2 pt-1 pb-6 text-xs tracking-wider uppercase text-neutral-600">
+        <MapPin size={13} strokeWidth={1.5} />
+        <span>Complimentary Express Shipping & Returns</span>
+      </div>
+
+      {/* =====================================================
+          MINIMALIST HAIRLINE ACCORDIONS (KHAITE STYLE)
+      ====================================================== */}
+      <div className="divide-y divide-neutral-200 border-t border-neutral-200">
+        {/* SIZE AND FIT */}
+        <div className="py-4">
+          <button
+            type="button"
+            onClick={() => toggleAccordion("sizeAndFit")}
+            className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
+          >
+            <span>Size and Fit</span>
+            <span className="text-neutral-400">
+              {openAccordions.sizeAndFit ? (
+                <Minus size={13} strokeWidth={1.5} />
+              ) : (
+                <Plus size={13} strokeWidth={1.5} />
+              )}
+            </span>
+          </button>
+          {openAccordions.sizeAndFit && (
+            <div className="mt-3 text-xs leading-relaxed text-neutral-600 space-y-2">
+              <p>Designed for a relaxed, elegant silhouette that drapes naturally.</p>
+              <p>Model is wearing size S. Length measures 56 inches.</p>
+            </div>
+          )}
+        </div>
+
+        {/* MATERIAL AND CARE */}
+        <div className="py-4">
+          <button
+            type="button"
+            onClick={() => toggleAccordion("materialAndCare")}
+            className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
+          >
+            <span>Material and Care</span>
+            <span className="text-neutral-400">
+              {openAccordions.materialAndCare ? (
+                <Minus size={13} strokeWidth={1.5} />
+              ) : (
+                <Plus size={13} strokeWidth={1.5} />
+              )}
+            </span>
+          </button>
+          {openAccordions.materialAndCare && (
+            <div className="mt-3 text-xs leading-relaxed text-neutral-600 space-y-2">
+              <p>
+                Fabric:{" "}
+                <span className="text-black font-medium">
+                  {product.fabric || "Premium Haute Fabric"}
+                </span>
+              </p>
+              <p>Dry clean only. Store in a cool, dry garment bag.</p>
+            </div>
+          )}
+        </div>
+
+        {/* SHIPPING AND RETURNS */}
+        <div className="py-4">
+          <button
+            type="button"
+            onClick={() => toggleAccordion("shippingAndReturns")}
+            className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
+          >
+            <span>Shipping and Returns</span>
+            <span className="text-neutral-400">
+              {openAccordions.shippingAndReturns ? (
+                <Minus size={13} strokeWidth={1.5} />
+              ) : (
+                <Plus size={13} strokeWidth={1.5} />
+              )}
+            </span>
+          </button>
+          {openAccordions.shippingAndReturns && (
+            <div className="mt-3 text-xs leading-relaxed text-neutral-600 space-y-2">
+              <p>Complimentary express worldwide delivery on all orders.</p>
+              <p>Enjoy 14-day hassle-free returns on unworn items with tags attached.</p>
+            </div>
+          )}
+        </div>
+
+        {/* CUSTOMER REVIEWS */}
+        <div className="py-4">
+          <button
+            type="button"
+            onClick={() => toggleAccordion("reviews")}
+            className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
+          >
+            <span>Customer Reviews ({reviews.length})</span>
+            <span className="text-neutral-400">
+              {openAccordions.reviews ? (
+                <Minus size={13} strokeWidth={1.5} />
+              ) : (
+                <Plus size={13} strokeWidth={1.5} />
+              )}
+            </span>
+          </button>
+          {openAccordions.reviews && (
+            <div className="mt-4 space-y-4">
+              {reviews.length === 0 ? (
+                <p className="text-xs text-neutral-500">No reviews yet for this garment.</p>
+              ) : (
+                <div className="space-y-3">
+                  {reviews.map((rev) => (
+                    <div key={rev.id} className="border-b border-neutral-100 pb-3 text-xs">
+                      <div className="flex items-center justify-between font-medium text-black">
+                        <span>{rev.userName || "Verified Client"}</span>
+                        <span>{rev.rating} / 5</span>
+                      </div>
+                      <p className="mt-1 text-neutral-600">{rev.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowReviewForm(!showReviewForm)}
+                className="mt-3 text-xs uppercase tracking-[0.15em] text-black underline underline-offset-4"
+              >
+                {showReviewForm ? "Close Review Form" : "Write a Review"}
+              </button>
+
+              {showReviewForm && (
+                <div className="mt-4 pt-3 border-t border-neutral-100">
+                  <ReviewForm
+                    onSubmit={(title, rating, comment) => {
+                      createReviewMutation.mutate(
+                        { productId: product.id, title, rating, comment },
+                        { onSuccess: () => setShowReviewForm(false) }
+                      );
+                    }}
+                    loading={createReviewMutation.isPending}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

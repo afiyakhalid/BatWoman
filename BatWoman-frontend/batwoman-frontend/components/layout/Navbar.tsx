@@ -440,7 +440,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Logo from "@/components/home/Logo";
 
@@ -485,6 +485,12 @@ const navItems = [
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isWhitePage =
+    pathname?.startsWith("/customer/products") ||
+    pathname?.startsWith("/customer/categories") ||
+    pathname?.startsWith("/customer/cart") ||
+    pathname?.startsWith("/customer/wishlist");
   const queryClient = useQueryClient();
   const requireAuth = useRequireAuth();
   const { openLogin } = useAuthModal();
@@ -561,9 +567,13 @@ export default function Navbar() {
       <header
         onMouseLeave={() => setActiveDropdown(null)}
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          scrolled || activeDropdown
-            ? "border-b border-[#D8CEBF]/60 bg-[#F3ECE2]/95 backdrop-blur-2xl shadow-[0_4px_30px_rgba(45,31,26,0.04)]"
-            : "border-b border-transparent bg-[#F3ECE2]/90 backdrop-blur-md"
+          isWhitePage
+            ? scrolled || activeDropdown
+              ? "border-b border-neutral-200/80 bg-white/95 backdrop-blur-2xl shadow-sm"
+              : "border-b border-neutral-100/60 bg-white/90 backdrop-blur-md"
+            : scrolled || activeDropdown
+              ? "border-b border-[#D8CEBF]/60 bg-[#F3ECE2]/95 backdrop-blur-2xl shadow-[0_4px_30px_rgba(45,31,26,0.04)]"
+              : "border-b border-transparent bg-[#F3ECE2]/90 backdrop-blur-md"
         }`}
       >
         <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 sm:h-28">

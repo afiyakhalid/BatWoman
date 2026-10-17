@@ -54,3 +54,8 @@ export async function getProductBySlug(
 
   return response.data;
 }
+
+export async function getNewArrivalProducts(): Promise<Product[]> {
+  const response = await api.get("/products/new-arrivals");
+  return response.data;
+}
