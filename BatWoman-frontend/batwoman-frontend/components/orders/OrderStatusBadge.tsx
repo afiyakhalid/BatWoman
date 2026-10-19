@@ -1,65 +1,32 @@
 interface Props {
-
-    status: string;
-
+  status: string;
 }
 
-export default function OrderStatusBadge({
+export default function OrderStatusBadge({ status }: Props) {
+  const styles: Record<string, string> = {
+    PENDING:
+      "bg-[#fcf8f2] text-[#8a6b29] border-[#e8ddc7]",
+    PAID:
+      "bg-[#f4f7f4] text-[#2d5a27] border-[#d2e3d0]",
+    SHIPPED:
+      "bg-[#f3f5f8] text-[#334e68] border-[#cfd7e2]",
+    DELIVERED:
+      "bg-black text-white border-black",
+    CANCELLED:
+      "bg-[#fdf3f2] text-[#9c382f] border-[#f0cfcc]",
+  };
 
-                                             status,
+  const currentStyle =
+    styles[status] || "bg-[#faf8f5] text-neutral-700 border-neutral-300";
 
-                                         }: Props) {
-
-    const styles = {
-
-        PENDING:
-
-            "bg-yellow-100 text-yellow-700",
-
-        PAID:
-
-            "bg-green-100 text-green-700",
-
-        SHIPPED:
-
-            "bg-blue-100 text-blue-700",
-
-        DELIVERED:
-
-            "bg-emerald-100 text-emerald-700",
-
-        CANCELLED:
-
-            "bg-red-100 text-red-700",
-
-    };
-
-    return (
-
-        <span
-
-            className={`
-
-                rounded-full
-
-                px-4
-
-                py-1
-
-                text-sm
-
-                font-medium
-
-                ${styles[status as keyof typeof styles]}
-
-            `}
-
-        >
-
-            {status}
-
-        </span>
-
-    );
-
+  return (
+    <span
+      className={`
+        inline-flex items-center px-3 py-1 text-[10px] uppercase tracking-[0.22em] font-medium border rounded-none select-none
+        ${currentStyle}
+      `}
+    >
+      {status}
+    </span>
+  );
 }

@@ -118,10 +118,11 @@ export default function CartDrawer() {
               <p className="mt-2 text-xs text-neutral-400 tracking-wider uppercase font-light max-w-xs">
                 Explore pieces cut for understated elegance and modest luxury
               </p>
+              {/* Empty Cart CTA: Clean Outline */}
               <Link
                 href="/customer/products"
                 onClick={closeCart}
-                className="mt-8 bg-black px-8 py-4 text-xs uppercase tracking-[0.25em] font-medium text-white transition hover:bg-neutral-800 rounded-none shadow-sm"
+                className="mt-8 inline-block border border-neutral-900 bg-transparent px-8 py-3.5 text-xs uppercase tracking-[0.25em] font-medium text-neutral-900 transition-colors duration-200 hover:bg-neutral-900 hover:text-white rounded-none"
               >
                 Explore Collection
               </Link>

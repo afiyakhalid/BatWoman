@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Truck, ExternalLink, Calendar, Hash } from "lucide-react";
 
 import {
     getOrderTracking,
@@ -31,7 +32,6 @@ function formatStatus(status: string) {
 export default function OrderTrackingCard({
     orderId,
 }: Props) {
-
     const {
         data: tracking,
         isLoading: trackingLoading,
@@ -52,35 +52,39 @@ export default function OrderTrackingCard({
         enabled: Boolean(orderId),
     });
 
-    const isLoading =
-        trackingLoading || eventsLoading;
-
-    const isError =
-        trackingError || eventsError;
+    const isLoading = trackingLoading || eventsLoading;
+    const isError = trackingError || eventsError;
 
     if (isLoading) {
         return (
-            <div className="rounded-xl border border-neutral-200 bg-white p-8">
-                <h2 className="font-[var(--font-playfair)] text-3xl">
+            <div className="bg-white border border-[#e7e1d8] p-6 sm:p-8 shadow-[0_4px_25px_rgba(45,31,26,0.03)] rounded-none">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#8C6D4F] font-medium mb-1">
+                    Logistics & Transit
+                </p>
+                <h2 className="font-[var(--font-playfair)] text-2xl sm:text-3xl text-neutral-900 font-normal">
                     Shipment Tracking
                 </h2>
-
-                <p className="mt-6 text-neutral-500">
-                    Loading tracking information...
-                </p>
+                <div className="mt-8 flex items-center gap-3 text-neutral-500">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-black" />
+                    <p className="text-xs uppercase tracking-[0.18em]">
+                        Retrieving courier telemetry...
+                    </p>
+                </div>
             </div>
         );
     }
 
     if (isError) {
         return (
-            <div className="rounded-xl border border-neutral-200 bg-white p-8">
-                <h2 className="font-[var(--font-playfair)] text-3xl">
+            <div className="bg-white border border-[#e7e1d8] p-6 sm:p-8 shadow-[0_4px_25px_rgba(45,31,26,0.03)] rounded-none">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#8C6D4F] font-medium mb-1">
+                    Logistics & Transit
+                </p>
+                <h2 className="font-[var(--font-playfair)] text-2xl sm:text-3xl text-neutral-900 font-normal">
                     Shipment Tracking
                 </h2>
-
-                <p className="mt-6 text-neutral-500">
-                    Tracking information is currently unavailable.
+                <p className="mt-6 text-xs uppercase tracking-[0.16em] text-neutral-500">
+                    Tracking dispatch data is currently being calibrated by the courier.
                 </p>
             </div>
         );
@@ -91,62 +95,50 @@ export default function OrderTrackingCard({
     }
 
     return (
-        <div className="rounded-xl border border-neutral-200 bg-white p-8">
-
+        <div className="bg-white border border-[#e7e1d8] p-6 sm:p-8 shadow-[0_4px_25px_rgba(45,31,26,0.03)] rounded-none">
             {/* HEADER */}
-
-            <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h2 className="font-[var(--font-playfair)] text-3xl">
+                    <h2 className="font-[var(--font-playfair)] text-2xl sm:text-3xl text-neutral-900 font-normal">
                         Shipment Tracking
                     </h2>
-
-                    <p className="mt-2 text-sm text-neutral-500">
+                    <p className="mt-1 text-xs text-neutral-500">
                         Track your order delivery status
                     </p>
                 </div>
 
-                <span className="w-fit rounded-full bg-neutral-100 px-4 py-2 text-sm font-medium">
+                <span className="w-fit border border-[#e8dfd3] bg-[#f4eee6] px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#8C6D4F]">
                     {formatStatus(tracking.status)}
                 </span>
-
             </div>
 
-            {/* SHIPPING INFORMATION */}
-
-            <div className="mt-8 grid gap-6 border-y border-neutral-200 py-6 md:grid-cols-3">
-
-                <div>
-                    <p className="text-sm text-neutral-500">
+            {/* SHIPPING INFORMATION GRID */}
+            <div className="mt-8 grid gap-4 border border-[#eee8e0] bg-[#faf8f5] p-5 sm:grid-cols-3">
+                <div className="space-y-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">
                         Courier
                     </p>
-
-                    <p className="mt-1 font-medium">
+                    <p className="font-[var(--font-playfair)] text-base text-neutral-900">
                         {tracking.carrier || "Not assigned"}
                     </p>
                 </div>
 
-                <div>
-                    <p className="text-sm text-neutral-500">
+                <div className="space-y-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">
                         Tracking Number
                     </p>
-
-                    <p className="mt-1 font-medium">
+                    <p className="font-mono text-xs font-medium text-neutral-900">
                         {tracking.trackingNumber || "Not assigned"}
                     </p>
                 </div>
 
-                <div>
-                    <p className="text-sm text-neutral-500">
+                <div className="space-y-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 font-medium">
                         Expected Delivery
                     </p>
-
-                    <p className="mt-1 font-medium">
+                    <p className="font-[var(--font-playfair)] text-base text-neutral-900">
                         {tracking.expectedDelivery
-                            ? new Date(
-                                  tracking.expectedDelivery
-                              ).toLocaleDateString("en-IN", {
+                            ? new Date(tracking.expectedDelivery).toLocaleDateString("en-IN", {
                                   day: "2-digit",
                                   month: "short",
                                   year: "numeric",
@@ -154,107 +146,79 @@ export default function OrderTrackingCard({
                             : "Not available"}
                     </p>
                 </div>
-
             </div>
 
             {/* TRACKING TIMELINE */}
-
-            <div className="mt-8">
-
-                <h3 className="text-lg font-semibold">
+            <div className="mt-8 pt-6 border-t border-[#f0eae1]">
+                <h3 className="text-xs uppercase tracking-[0.22em] text-neutral-900 font-semibold mb-6">
                     Tracking History
                 </h3>
 
                 {events.length === 0 ? (
-
-                    <p className="mt-6 text-sm text-neutral-500">
+                    <p className="text-xs text-neutral-500">
                         No tracking events are available yet.
                     </p>
-
                 ) : (
-
-                    <div className="mt-8">
-
+                    <div className="relative pl-2">
                         {events.map((event, index) => {
-
-                            const isLast =
-                                index === events.length - 1;
+                            const isLast = index === events.length - 1;
 
                             return (
                                 <div
                                     key={`${event.eventTime}-${event.status}-${index}`}
                                     className="relative flex gap-5"
                                 >
-
-                                    {/* TIMELINE */}
-
+                                    {/* TIMELINE INDICATOR */}
                                     <div className="flex flex-col items-center">
-
-                                        <div className="z-10 flex h-4 w-4 items-center justify-center rounded-full bg-black ring-4 ring-white" />
-
+                                        <div className="z-10 flex h-3 w-3 items-center justify-center rounded-full bg-black ring-4 ring-[#faf8f5]" />
                                         {!isLast && (
-                                            <div className="h-full w-px bg-neutral-300" />
+                                            <div className="h-full w-px bg-[#e7e1d8]" />
                                         )}
-
                                     </div>
 
-                                    {/* EVENT */}
-
-                                    <div className="pb-10">
-
-                                        <p className="font-semibold">
-                                            {formatStatus(
-                                                event.status
-                                            )}
+                                    {/* EVENT DETAILS */}
+                                    <div className="pb-8">
+                                        <p className="text-xs uppercase tracking-[0.16em] font-semibold text-neutral-900">
+                                            {formatStatus(event.status)}
                                         </p>
 
                                         {event.description && (
-                                            <p className="mt-1 text-sm text-neutral-600">
+                                            <p className="mt-1 text-xs text-neutral-600 leading-relaxed">
                                                 {event.description}
                                             </p>
                                         )}
 
                                         {event.location && (
-                                            <p className="mt-1 text-sm text-neutral-500">
+                                            <p className="mt-0.5 text-[11px] text-[#8C6D4F] tracking-wide">
                                                 {event.location}
                                             </p>
                                         )}
 
-                                        <p className="mt-2 text-xs text-neutral-400">
-                                            {formatDate(
-                                                event.eventTime
-                                            )}
+                                        <p className="mt-1.5 text-[10px] uppercase tracking-[0.15em] text-neutral-400">
+                                            {formatDate(event.eventTime)}
                                         </p>
-
                                     </div>
-
                                 </div>
                             );
                         })}
-
                     </div>
-
                 )}
-
             </div>
 
-            {/* TRACKING LINK */}
-
+            {/* EXTERNAL TRACKING LINK */}
             {tracking.trackingUrl && (
-                <div className="mt-6 border-t border-neutral-200 pt-6">
-
+                <div className="mt-4 pt-6 border-t border-[#f0eae1]">
                     <a
                         href={tracking.trackingUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+                        className="inline-flex items-center gap-2 bg-black px-7 py-3.5 text-xs uppercase tracking-[0.22em] font-medium text-white transition hover:bg-neutral-800 rounded-none shadow-sm"
                     >
-                        Track Shipment
+                        <span>Track Consignment</span>
+                        <ExternalLink size={13} />
                     </a>
-
                 </div>
             )}
-
         </div>
     );
 }

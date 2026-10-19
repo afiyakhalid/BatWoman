@@ -41,14 +41,6 @@ img {
   display: block;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  cursor: pointer;
-}
 
 /* Continuous Marquee Ticker Keyframes */
 @keyframes marquee {
@@ -118,4 +110,11 @@ button {
   * {
     @apply border-border outline-ring/50;
   }
+   a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button {
+      cursor: pointer;
+    }
 }

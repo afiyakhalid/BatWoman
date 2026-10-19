@@ -141,15 +141,21 @@ export default function AboutPage() {
                 </span>
               </div>
 
-              <div className="pt-6">
-                <Link
-                  href="/customer/products"
-                  className="inline-flex items-center gap-3 rounded-full bg-[#2D1F1A] px-10 py-4 text-xs font-semibold uppercase tracking-[0.25em] text-[#FAF7F2] transition-all duration-300 hover:bg-[#4E342E] hover:scale-105 shadow-md"
-                >
-                  <span>Explore the Collection</span>
-                  <span>→</span>
-                </Link>
-              </div>
+
+<div className="pt-6">
+  <Link
+    href="/customer/products"
+    className="inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-[#2D1F1A] px-10 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#FAF7F2] opacity-100 shadow-md transition-all duration-300 hover:scale-[1.02] hover:bg-[#4E342E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059] focus-visible:ring-offset-2"
+  >
+    <span className="!text-[#FAF7F2] !opacity-100">
+      Explore the Collection
+    </span>
+    <span aria-hidden="true" className="!text-[#FAF7F2] !opacity-100">
+      →
+    </span>
+  </Link>
+</div>
+
             </div>
 
           </div>
