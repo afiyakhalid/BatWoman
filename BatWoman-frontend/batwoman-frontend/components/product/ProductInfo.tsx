@@ -10,6 +10,7 @@ import ReviewForm from "./ReviewForm";
 import { useCreateReview } from "@/hooks/useCreateReview";
 import { useAddToCart } from "@/hooks/useAddToCart";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useCartDrawerStore } from "@/store/cart.store";
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -18,6 +19,7 @@ interface ProductInfoProps {
 export default function ProductInfo({ product }: ProductInfoProps) {
   const router = useRouter();
   const requireAuth = useRequireAuth();
+  const openCart = useCartDrawerStore((state) => state.openCart);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -125,10 +127,17 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   const handleAddToCart = () => {
     if (!selectedVariant || isOutOfStock) return;
     requireAuth(() => {
-      addToCartMutation.mutate({
-        variantId: selectedVariant.id,
-        quantity,
-      });
+      addToCartMutation.mutate(
+        {
+          variantId: selectedVariant.id,
+          quantity,
+        },
+        {
+          onSuccess: () => {
+            openCart();
+          },
+        }
+      );
     });
   };
 

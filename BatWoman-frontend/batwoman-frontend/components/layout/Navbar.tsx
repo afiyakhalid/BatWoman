@@ -440,6 +440,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useCartDrawerStore } from "@/store/cart.store";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Logo from "@/components/home/Logo";
@@ -503,6 +504,7 @@ export default function Navbar() {
 
   const { data: cart } = useCart();
   const { data: wishlist = [] } = useWishlist();
+  const openCart = useCartDrawerStore((state) => state.openCart);
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
   const logoutStore = useAuthStore((state) => state.logout);
@@ -740,7 +742,12 @@ export default function Navbar() {
             </div>
 
             {/* Cart Bag */}
-            <Link href="/customer/cart" aria-label="Shopping Cart">
+            <button
+              type="button"
+              onClick={openCart}
+              aria-label="Shopping Cart"
+              className="cursor-pointer"
+            >
               <div className="relative">
                 <ShoppingBag
                   size={19}
@@ -752,7 +759,7 @@ export default function Navbar() {
                   </span>
                 )}
               </div>
-            </Link>
+            </button>
           </div>
         </div>
 

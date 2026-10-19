@@ -3,44 +3,22 @@
 import Link from "next/link";
 
 export default function EmptyCart() {
+  return (
+    <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
+      <h2 className="font-[var(--font-playfair)] italic text-3xl sm:text-4xl text-neutral-900 font-normal">
+        Your Shopping Bag is Empty
+      </h2>
 
-    return (
+      <p className="mt-3 text-xs uppercase tracking-[0.2em] text-neutral-400 font-light max-w-md">
+        Explore modern modest silhouettes crafted with timeless elegance.
+      </p>
 
-        <div className="flex flex-col items-center py-32">
-
-            <h2 className="font-[var(--font-playfair)] text-4xl">
-
-                Your cart is empty
-
-            </h2>
-
-            <p className="mt-4 text-neutral-500">
-
-                Continue shopping to add your favorite abayas.
-
-            </p>
-
-            <Link
-
-                href="/customer/products"
-
-                className="
-                    mt-10
-                    px-8
-                    py-4
-                    text-black
-                    transition
-                    hover:bg-neutral-100 duration-200
-                "
-
-            >
-
-                Continue Shopping
-
-            </Link>
-
-        </div>
-
-    );
-
+      <Link
+        href="/customer/products"
+        className="mt-10 bg-black px-10 py-4 text-xs uppercase tracking-[0.25em] font-medium text-white transition hover:bg-neutral-800 rounded-none cursor-pointer"
+      >
+        Explore Collection
+      </Link>
+    </div>
+  );
 }

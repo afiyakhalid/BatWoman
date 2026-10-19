@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import AuthInitializer from "@/providers/AuthInitializer";
 import Navbar from "@/components/layout/Navbar";
 import { AuthModal } from "@/components/auth";
+import CartDrawer from "@/components/cart/CartDrawer";
 import { Toaster } from "sonner";
 
 export default function SiteShell({
@@ -29,7 +30,12 @@ export default function SiteShell({
                 {children}
             </div>
 
-            {!isAdminRoute && <AuthModal />}
+            {!isAdminRoute && (
+                <>
+                    <AuthModal />
+                    <CartDrawer />
+                </>
+            )}
 
             <Toaster richColors />
         </>
