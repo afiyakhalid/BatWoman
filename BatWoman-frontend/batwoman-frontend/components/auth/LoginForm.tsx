@@ -364,7 +364,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={login.isPending}
-        className="flex h-11 w-full items-center justify-center rounded-full bg-[#b8b8b8] px-4 text-sm font-semibold text-white transition hover:bg-[#222] disabled:cursor-not-allowed disabled:opacity-60 sm:text-[15px]"
+        className="flex h-11 w-full items-center justify-center rounded-full bg-black px-4 text-sm font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 sm:text-[15px]"
       >
         {login.isPending ? "Logging in..." : "Log in"}
       </button>

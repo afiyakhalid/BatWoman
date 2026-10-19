@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { useScrub } from "@/hooks/useScrub";
 import Card3D from "@/components/ui/Card3D";
@@ -9,15 +9,15 @@ import { useNewArrivals } from "@/hooks/useNewArrivals";
 interface RunwayLook {
   id: string;
   name: string;
+  description: string;
   line: string;
   url: string;
   slug: string;
 }
 
 export default function EditorialRunway() {
-  const [ref, p] = useScrub("sticky");
+  const [ref] = useScrub("sticky");
   const trackRef = useRef<HTMLDivElement>(null);
-  const [shift, setShift] = useState(0);
 
   const {
     data: newArrivals = [],
@@ -38,6 +38,9 @@ export default function EditorialRunway() {
       {
         id: prod.id,
         name: prod.name,
+        description: prod.category?.name
+            ? `${prod.category.name} Collection`
+            : "New Arrival",
         line: prod.category?.name
             ? `${prod.category.name} Collection`
             : "New Arrival",
@@ -48,33 +51,7 @@ export default function EditorialRunway() {
 
   });
 
-  useEffect(() => {
-    const measure = () => {
-      const track = trackRef.current;
-
-      if (track) {
-        setShift(
-            Math.max(0, track.scrollWidth - window.innerWidth),
-        );
-      }
-    };
-
-    measure();
-    window.addEventListener("resize", measure);
-
-    return () => {
-      window.removeEventListener("resize", measure);
-    };
-
-  }, [displayLooks.length]);
-
   const totalCount = displayLooks.length;
-
-  const currentCount = String(
-      Math.min(totalCount, Math.floor(p * totalCount) + 1),
-  ).padStart(2, "0");
-
-  const totalCountFormatted = String(totalCount).padStart(2, "0");
 
   if (isLoading) {
     return (
@@ -94,12 +71,8 @@ export default function EditorialRunway() {
   }
 
   return (
-      <div
-          ref={ref}
-          id="collections"
-          className="relative h-[300vh] bg-[#f7f5f0]"
-      >
-        <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden pt-[72px]">
+      <div ref={ref} id="collections" className="relative bg-[#f7f5f0]">
+        <div className="flex min-h-screen flex-col justify-center overflow-hidden pt-[72px]">
           <div className="mb-8 flex items-end justify-between gap-6 px-5 md:px-12">
             <div>
               <p className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#8f8a80]">
@@ -116,30 +89,24 @@ export default function EditorialRunway() {
             </div>
 
             <div className="hidden w-48 shrink-0 items-center gap-4 md:flex">
-        <span className="text-[12px] tracking-[0.2em] text-[#8f8a80]">
-          {currentCount}/{totalCountFormatted}
-        </span>
-
-              <span className="h-px flex-1 bg-[#d3cbc0]">
-          <span
-              className="block h-px origin-left bg-black"
-              style={{ transform: `scaleX(${p})` }}
-          />
-        </span>
+              <span className="text-[12px] tracking-[0.2em] text-[#8f8a80]">
+                {String(totalCount).padStart(2, "0")}
+              </span>
+              <span className="h-px flex-1 bg-[#d3cbc0]" />
             </div>
           </div>
 
-          <div
-              ref={trackRef}
-              className="flex w-max gap-8 px-5 will-change-transform md:gap-12 md:px-12"
-              style={{ transform: `translateX(${-p * shift}px)` }}
-          >
+          <div className="flex justify-center px-5 md:px-12">
+            <div
+                ref={trackRef}
+                className="flex w-full max-w-[min(1200px,100vw-2.5rem)] gap-5 overflow-x-auto overscroll-x-contain pb-2 md:gap-8 md:max-w-[min(1400px,100vw-6rem)] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#d3cbc0] [&::-webkit-scrollbar-track]:bg-transparent"
+            >
             {displayLooks.map((look, index) => (
                 <article
                     key={look.id}
                     className="relative shrink-0"
                     style={{
-                      height: "min(62vh, 680px)",
+                      height: "clamp(380px, 60vh, 640px)",
                       aspectRatio: "3/4",
                     }}
                 >
@@ -167,7 +134,7 @@ export default function EditorialRunway() {
                           </h3>
 
                           <p className="mt-1 text-sm text-white/85">
-                            {look.line}
+                            {look.description}
                           </p>
                         </div>
                       </div>
@@ -175,6 +142,7 @@ export default function EditorialRunway() {
                   </Link>
                 </article>
             ))}
+            </div>
           </div>
         </div>
       </div>
