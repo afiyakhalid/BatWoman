@@ -1,51 +1,101 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 
-export const clamp = (n: number) => Math.min(1, Math.max(0, n));
+export const clamp = (n: number) =>
+    Math.min(1, Math.max(0, n));
 
-export const mix = (a: number[], b: number[], p: number) =>
-  `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * p)).join(",")})`;
+export const mix = (
+    a: number[],
+    b: number[],
+    p: number
+) =>
+    `rgb(${a
+        .map((v, i) =>
+            Math.round(v + (b[i] - v) * p)
+        )
+        .join(",")})`;
 
-export function useScrub(mode: "sticky" | "pass"): [RefObject<HTMLDivElement | null>, number] {
+export function useScrub(
+    mode: "sticky" | "pass"
+): [RefObject<HTMLDivElement | null>, number] {
   const ref = useRef<HTMLDivElement>(null);
   const [p, setP] = useState(0);
 
   useEffect(() => {
-    let cur = 0;
-    let raf = 0;
+    let rafId = 0;
+    let previousProgress = -1;
 
-    const target = () => {
-      const el = ref.current;
-      if (!el) return 0;
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      return mode === "sticky"
-        ? clamp(-r.top / Math.max(1, r.height - vh))
-        : clamp((vh - r.top) / (vh + r.height));
+    const calculateProgress = () => {
+      const element = ref.current;
+
+      if (!element) {
+        return 0;
+      }
+
+      const rect = element.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      if (mode === "sticky") {
+        return clamp(
+            -rect.top /
+            Math.max(1, rect.height - viewportHeight)
+        );
+      }
+
+      return clamp(
+          (viewportHeight - rect.top) /
+          (viewportHeight + rect.height)
+      );
     };
 
-    const tick = () => {
-      const t = target();
-      cur += (t - cur) * 0.12;
-      if (Math.abs(t - cur) < 0.0004) cur = t;
-      setP(cur);
-      if (cur !== t) raf = requestAnimationFrame(tick);
-      else raf = 0;
+    const updateProgress = () => {
+      rafId = 0;
+
+      const nextProgress = calculateProgress();
+
+      // Avoid unnecessary React renders when progress
+      // has not meaningfully changed.
+      if (
+          Math.abs(nextProgress - previousProgress) >= 0.001 ||
+          nextProgress === 0 ||
+          nextProgress === 1
+      ) {
+        previousProgress = nextProgress;
+        setP(nextProgress);
+      }
     };
 
-    const kick = () => {
-      if (!raf) raf = requestAnimationFrame(tick);
+    const scheduleUpdate = () => {
+      if (rafId !== 0) {
+        return;
+      }
+
+      rafId = window.requestAnimationFrame(updateProgress);
     };
 
-    cur = target();
-    setP(cur);
+    // Set the initial position immediately.
+    previousProgress = calculateProgress();
+    setP(previousProgress);
 
-    window.addEventListener("scroll", kick, { passive: true });
-    window.addEventListener("resize", kick);
+    window.addEventListener("scroll", scheduleUpdate, {
+      passive: true,
+    });
+
+    window.addEventListener("resize", scheduleUpdate, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener("scroll", kick);
-      window.removeEventListener("resize", kick);
-      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+
+      if (rafId !== 0) {
+        window.cancelAnimationFrame(rafId);
+      }
     };
   }, [mode]);
 
