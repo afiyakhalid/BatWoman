@@ -32,7 +32,7 @@ export default function Footer() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-neutral-600">
-            Be the first to discover new collections,
+            Be the first  one to discover new collections,
             exclusive offers and timeless luxury.
           </p>
 
