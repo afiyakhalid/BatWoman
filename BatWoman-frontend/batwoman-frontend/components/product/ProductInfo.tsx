@@ -288,9 +288,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           {product.description ||
             "A masterfully tailored piece cut for fluid movement and understated luxury. Designed for effortless grace and timeless sophistication."}
         </p>
-        <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-light">
-          SKU: {selectedVariant?.sku || product.slug}
-        </p>
+
       </div>
 
       {/* =====================================================

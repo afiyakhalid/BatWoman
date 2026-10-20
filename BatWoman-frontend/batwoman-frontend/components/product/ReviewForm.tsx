@@ -1,7 +1,119 @@
+// "use client";
+//
+// import { useState } from "react";
+// import { Star } from "lucide-react";
+//
+// interface ReviewFormProps {
+//   onSubmit: (
+//     title: string,
+//     rating: number,
+//     comment: string
+//   ) => void;
+//
+//   loading: boolean;
+// }
+//
+// export default function ReviewForm({
+//   onSubmit,
+//   loading,
+// }: ReviewFormProps) {
+//   const [title, setTitle] = useState("");
+//   const [rating, setRating] = useState(5);
+//   const [comment, setComment] = useState("");
+//
+//   function handleSubmit(e: React.FormEvent) {
+//     e.preventDefault();
+//
+//     onSubmit(title, rating, comment);
+//
+//     setTitle("");
+//     setRating(5);
+//     setComment("");
+//   }
+//
+//   return (
+//     <form
+//       onSubmit={handleSubmit}
+//       className="mt-8 rounded-xl border border-neutral-200 p-6"
+//     >
+//       <h3 className="text-2xl font-[var(--font-playfair)]">
+//         Write a Review
+//       </h3>
+//
+//       {/* Rating */}
+//
+//       <div className="mt-6">
+//         <label className="mb-3 block text-sm font-medium">
+//           Rating
+//         </label>
+//
+//         <div className="flex gap-2">
+//           {[1, 2, 3, 4, 5].map((value) => (
+//             <button
+//               key={value}
+//               type="button"
+//               onClick={() => setRating(value)}
+//             >
+//               <Star
+//                 size={26}
+//                 fill={value <= rating ? "currentColor" : "none"}
+//                 className="text-yellow-500"
+//               />
+//             </button>
+//           ))}
+//         </div>
+//       </div>
+//
+//       {/* Title */}
+//
+//       <div className="mt-6">
+//         <label className="mb-2 block text-sm font-medium">
+//           Review Title
+//         </label>
+//
+//         <input
+//           value={title}
+//           onChange={(e) => setTitle(e.target.value)}
+//           required
+//           className="w-full border border-neutral-300 p-3 outline-none focus:border-black"
+//         />
+//       </div>
+//
+//       {/* Comment */}
+//
+//       <div className="mt-6">
+//         <label className="mb-2 block text-sm font-medium">
+//           Comment
+//         </label>
+//
+//         <textarea
+//           rows={5}
+//           value={comment}
+//           onChange={(e) => setComment(e.target.value)}
+//           required
+//           className="w-full resize-none border border-neutral-300 p-3 outline-none focus:border-black"
+//         />
+//       </div>
+//
+//       <button
+//         type="submit"
+//         disabled={loading}
+//         className="mt-8 w-full bg-black py-4 text-white transition hover:bg-neutral-800"
+//       >
+//         {loading ? "Submitting..." : "Submit Review"}
+//       </button>
+//     </form>
+//   );
+// }
+
+
 "use client";
 
 import { useState } from "react";
 import { Star } from "lucide-react";
+
+import { useAuthStore } from "@/store/auth.store";
+import { useAuthModal } from "@/hooks/useAuthModal";
 
 interface ReviewFormProps {
   onSubmit: (
@@ -9,7 +121,6 @@ interface ReviewFormProps {
     rating: number,
     comment: string
   ) => void;
-
   loading: boolean;
 }
 
@@ -21,8 +132,19 @@ export default function ReviewForm({
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  const isAuthenticated = useAuthStore(
+    (state) => state.isAuthenticated()
+  );
+
+  const { openLogin } = useAuthModal();
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (!isAuthenticated) {
+      openLogin();
+      return;
+    }
 
     onSubmit(title, rating, comment);
 
@@ -41,7 +163,6 @@ export default function ReviewForm({
       </h3>
 
       {/* Rating */}
-
       <div className="mt-6">
         <label className="mb-3 block text-sm font-medium">
           Rating
@@ -53,6 +174,8 @@ export default function ReviewForm({
               key={value}
               type="button"
               onClick={() => setRating(value)}
+              aria-label={`${value} star${value > 1 ? "s" : ""}`}
+              aria-pressed={rating === value}
             >
               <Star
                 size={26}
@@ -65,7 +188,6 @@ export default function ReviewForm({
       </div>
 
       {/* Title */}
-
       <div className="mt-6">
         <label className="mb-2 block text-sm font-medium">
           Review Title
@@ -75,12 +197,12 @@ export default function ReviewForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
+          maxLength={150}
           className="w-full border border-neutral-300 p-3 outline-none focus:border-black"
         />
       </div>
 
       {/* Comment */}
-
       <div className="mt-6">
         <label className="mb-2 block text-sm font-medium">
           Comment
@@ -91,6 +213,7 @@ export default function ReviewForm({
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           required
+          maxLength={5000}
           className="w-full resize-none border border-neutral-300 p-3 outline-none focus:border-black"
         />
       </div>
@@ -98,7 +221,7 @@ export default function ReviewForm({
       <button
         type="submit"
         disabled={loading}
-        className="mt-8 w-full bg-black py-4 text-white transition hover:bg-neutral-800"
+        className="mt-8 w-full bg-black py-4 text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>
