@@ -1,3 +1,4 @@
+//
 // "use client";
 //
 // import Link from "next/link";
@@ -262,7 +263,7 @@
 //                 className="hidden md:block"
 //                 onClick={() => {
 //                   if (!isAuthenticated) {
-//                     router.push("/customer/login");
+//                     openLogin();
 //                     return;
 //                   }
 //
@@ -283,6 +284,7 @@
 //                   )}
 //                 </div>
 //               </button>
+//
 //               {/* Admin Dashboard */}
 //               {isAuthenticated && isAdmin && (
 //                   <Link
@@ -518,21 +520,39 @@
 //                         </Link>
 //                     )}
 //
-//                     <Link
-//                         href="/customer/wishlist"
-//                         onClick={() => setMobileMenuOpen(false)}
-//                         className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
-//                     >
-//                       Wishlist ({wishlistItemCount})
-//                     </Link>
+//                     <button
+//                       type="button"
+//                       onClick={() => {
+//                         if (!isAuthenticated) {
+//                           setMobileMenuOpen(false);
+//                           openLogin();
+//                           return;
+//                         }
 //
-//                     <Link
-//                         href="/customer/profile"
-//                         onClick={() => setMobileMenuOpen(false)}
-//                         className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
+//                         setMobileMenuOpen(false);
+//                         router.push("/customer/wishlist");
+//                       }}
+//                       className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
+//                     >
+//                       Wishlist ({isAuthenticated ? wishlistItemCount : 0})
+//                     </button>
+//
+//                     <button
+//                       type="button"
+//                       onClick={() => {
+//                         if (!isAuthenticated) {
+//                           setMobileMenuOpen(false);
+//                           openLogin();
+//                           return;
+//                         }
+//
+//                         setMobileMenuOpen(false);
+//                         router.push("/customer/profile");
+//                       }}
+//                       className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
 //                     >
 //                       My Profile
-//                     </Link>
+//                     </button>
 //                   </div>
 //                 </motion.div>
 //               </>
@@ -1062,16 +1082,17 @@ export default function Navbar() {
                         </Link>
                     )}
 
+                    {/* ✅ FIX: auth check BEFORE closing menu so openLogin() isn't blocked by the drawer exit animation */}
                     <button
                       type="button"
                       onClick={() => {
-                        setMobileMenuOpen(false);
-
                         if (!isAuthenticated) {
+                          setMobileMenuOpen(false);
                           openLogin();
                           return;
                         }
 
+                        setMobileMenuOpen(false);
                         router.push("/customer/wishlist");
                       }}
                       className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
@@ -1082,13 +1103,13 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={() => {
-                        setMobileMenuOpen(false);
-
                         if (!isAuthenticated) {
+                          setMobileMenuOpen(false);
                           openLogin();
                           return;
                         }
 
+                        setMobileMenuOpen(false);
                         router.push("/customer/profile");
                       }}
                       className="block text-xs uppercase tracking-widest text-[#6D5548] hover:text-black"
