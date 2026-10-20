@@ -108,10 +108,10 @@ export default function Footer() {
                 <Mail size={18} />
 
                 <a
-                  href="mailto:support@batwoman.com"
+                  href="mailto:zubaydabya3@gmail.com"
                   className="transition hover:text-black"
                 >
-                  support@batwoman.com
+                  zubaydabya3@gmail.com
                 </a>
               </div>
 
@@ -218,7 +218,7 @@ export default function Footer() {
                 </p>
 
                 <a
-                  href="mailto:support@batwoman.com"
+                  href="mailto:zubaydabya3@gmail.com"
                   className="
                     mt-4
                     inline-block
@@ -230,7 +230,7 @@ export default function Footer() {
                     hover:text-neutral-500
                   "
                 >
-                  support@batwoman.com
+                  zubaydabya3@gmail.com
                 </a>
 
               </div>
@@ -256,34 +256,20 @@ export default function Footer() {
         >
 
           <p className="text-neutral-500">
-            © {new Date().getFullYear()} BATWOMAN. All Rights Reserved.
+            © {new Date().getFullYear()} ZUBAYDA BY A3. All Rights Reserved.
           </p>
 
           <div className="flex items-center gap-6">
 
             <a
-              href="#"
+              href="https://www.instagram.com/zubayda.a3/"
               aria-label="Instagram"
               className="transition hover:scale-110"
             >
               <FaInstagram size={20} />
             </a>
 
-            <a
-              href="#"
-              aria-label="Facebook"
-              className="transition hover:scale-110"
-            >
-              <FaFacebookF size={20} />
-            </a>
 
-            <a
-              href="#"
-              aria-label="Pinterest"
-              className="transition hover:scale-110"
-            >
-              <FaPinterestP size={20} />
-            </a>
 
           </div>
 
