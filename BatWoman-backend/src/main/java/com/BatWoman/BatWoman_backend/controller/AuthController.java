@@ -7,6 +7,7 @@ import com.BatWoman.BatWoman_backend.dto.auth.RegisterRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.UserProfileResponse;
 import com.BatWoman.BatWoman_backend.entity.User;
+import com.BatWoman.BatWoman_backend.dto.auth.UpdateProfileRequest;
 import com.BatWoman.BatWoman_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -83,6 +84,26 @@ public class AuthController {
 
 
     }
+
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserProfileResponse> updateCurrentUserProfile(
+            @Valid @RequestBody UpdateProfileRequest request) {
+
+        User user = authService.updateCurrentUserProfile(request);
+
+        UserProfileResponse response = new UserProfileResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole().name()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<java.util.Map<String, String>> forgotPassword(
             @Valid @RequestBody com.BatWoman.BatWoman_backend.dto.auth.ForgotPasswordRequest request) {

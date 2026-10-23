@@ -85,3 +85,20 @@ export async function resetPassword(request: {
     );
     return data;
 }
+
+export interface UpdateProfileRequest {
+    firstName: string;
+    lastName: string | null;
+    phone: string | null;
+}
+
+export async function updateCurrentUserProfile(
+    request: UpdateProfileRequest
+): Promise<CurrentUser> {
+    const { data } = await api.patch<CurrentUser>(
+        "/auth/me",
+        request
+    );
+
+    return data;
+}

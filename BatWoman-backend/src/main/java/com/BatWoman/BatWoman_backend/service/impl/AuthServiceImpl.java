@@ -12,6 +12,7 @@ import com.BatWoman.BatWoman_backend.entity.RefreshToken;
 import com.BatWoman.BatWoman_backend.entity.User;
 import com.BatWoman.BatWoman_backend.enums.AuthProvider;
 import com.BatWoman.BatWoman_backend.enums.Role;
+import com.BatWoman.BatWoman_backend.dto.auth.UpdateProfileRequest;
 import com.BatWoman.BatWoman_backend.exception.ResourceNotFoundException;
 import com.BatWoman.BatWoman_backend.exception.ValidationException;
 import com.BatWoman.BatWoman_backend.repository.PasswordResetTokenRepository;
@@ -222,6 +223,47 @@ public class AuthServiceImpl implements AuthService {
         token.setUsed(true);
         passwordResetTokenRepository.save(token);
     }
+
+
+    @Override
+    public User updateCurrentUserProfile(UpdateProfileRequest request) {
+
+        User user = getCurrentUser();
+
+        String firstName = request.firstName().trim();
+
+        String lastName = request.lastName() == null
+                ? null
+                : request.lastName().trim();
+
+        if (lastName != null && lastName.isEmpty()) {
+            lastName = null;
+        }
+
+        String phone = request.phone() == null
+                ? null
+                : request.phone().trim();
+
+        if (phone != null && phone.isEmpty()) {
+            phone = null;
+        }
+
+        if (phone != null
+                && !phone.equals(user.getPhone())
+                && userRepository.existsByPhone(phone)) {
+            throw new ValidationException(
+                    "Phone number already registered."
+            );
+        }
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPhone(phone);
+        user.setUpdatedAt(OffsetDateTime.now());
+
+        return userRepository.save(user);
+    }
+
 
     @Override
     public User getCurrentUser() {

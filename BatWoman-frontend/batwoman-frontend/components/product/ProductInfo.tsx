@@ -390,27 +390,31 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           )}
         </div>
 
+
         {/* SHIPPING AND RETURNS */}
         <div className="py-4">
           <button
-            type="button"
-            onClick={() => toggleAccordion("shippingAndReturns")}
-            className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
+              type="button"
+              onClick={() => toggleAccordion("shippingAndReturns")}
+              className="flex w-full items-center justify-between text-left text-xs uppercase tracking-[0.18em] font-medium text-neutral-900"
           >
             <span>Shipping and Returns</span>
             <span className="text-neutral-400">
-              {openAccordions.shippingAndReturns ? (
-                <Minus size={13} strokeWidth={1.5} />
-              ) : (
-                <Plus size={13} strokeWidth={1.5} />
-              )}
-            </span>
+      {openAccordions.shippingAndReturns ? (
+          <Minus size={13} strokeWidth={1.5} />
+      ) : (
+          <Plus size={13} strokeWidth={1.5} />
+      )}
+    </span>
           </button>
+
           {openAccordions.shippingAndReturns && (
-            <div className="mt-3 text-xs leading-relaxed text-neutral-600 space-y-2">
-              <p>Complimentary express worldwide delivery on all orders.</p>
-              <p>Enjoy 14-day hassle-free returns on unworn items with tags attached.</p>
-            </div>
+              <div className="mt-3 space-y-2 text-xs leading-relaxed text-neutral-600">
+                <p>Delivery charges apply unless a promotion states otherwise. Delivery times may vary.</p>
+                <p>Size exchanges must be requested within 1 hour of delivery, subject to approval and availability.</p>
+                <p>No refunds for change of mind or incorrect size selection, subject to applicable consumer laws.</p>
+                <p>Customers cover exchange shipping costs unless required otherwise by law. Damaged or incorrect items must be reported promptly.</p>
+              </div>
           )}
         </div>
 
@@ -439,7 +443,11 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                   {reviews.map((rev) => (
                     <div key={rev.id} className="border-b border-neutral-100 pb-3 text-xs">
                       <div className="flex items-center justify-between font-medium text-black">
-                        <span>{rev.userName || "Verified Client"}</span>
+                        <span>
+                          {rev.userName
+                              ?.replace(/\s+null$/i, "")
+                              .trim() || "Verified Client"}
+                        </span>
                         <span>{rev.rating} / 5</span>
                       </div>
                       <p className="mt-1 text-neutral-600">{rev.comment}</p>

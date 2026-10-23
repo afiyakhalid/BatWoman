@@ -2,6 +2,7 @@ package com.BatWoman.BatWoman_backend.service;
 
 import com.BatWoman.BatWoman_backend.dto.auth.LoginRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RefreshTokenRequest;
+import com.BatWoman.BatWoman_backend.dto.auth.UpdateProfileRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterRequest;
 import com.BatWoman.BatWoman_backend.dto.auth.LoginResponse;
 import com.BatWoman.BatWoman_backend.dto.auth.RegisterResponse;
@@ -33,6 +34,12 @@ public interface AuthService {
      * Returns currently authenticated user.
      */
     User getCurrentUser();
+
+    /**
+     * Update the profile of the currently authenticated user.
+     */
+    User updateCurrentUserProfile(UpdateProfileRequest request);
+
     void forgotPassword(com.BatWoman.BatWoman_backend.dto.auth.ForgotPasswordRequest request);
 
     void resetPassword(com.BatWoman.BatWoman_backend.dto.auth.ResetPasswordRequest request);
