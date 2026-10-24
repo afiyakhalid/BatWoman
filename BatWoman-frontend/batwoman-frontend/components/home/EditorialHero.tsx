@@ -46,12 +46,12 @@ export default function EditorialHero() {
   return (
       <section
           ref={ref}
-          className="relative h-[160vh] md:h-[200vh]"
+          className="relative h-[100svh] md:h-[200vh]"
       >
-        <div className="sticky top-0 h-[100svh] min-h-[500px] overflow-hidden bg-black md:h-screen md:min-h-[560px]">
+          <div className="relative top-0 h-[100svh] min-h-[500px] overflow-hidden bg-black md:sticky md:h-screen md:min-h-[560px]">
           {/* Background image */}
           <div
-              className="absolute inset-0"
+              className="absolute inset-0 md:will-change-transform"
               style={{
                 transform:
                     typeof window !== "undefined" &&

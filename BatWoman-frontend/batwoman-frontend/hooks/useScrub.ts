@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useRef,
@@ -26,15 +27,18 @@ export function useScrub(
   const [p, setP] = useState(0);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia(
+        "(max-width: 767px)"
+    );
+
     let rafId = 0;
     let previousProgress = -1;
+    let active = false;
 
     const calculateProgress = () => {
       const element = ref.current;
 
-      if (!element) {
-        return 0;
-      }
+      if (!element) return 0;
 
       const rect = element.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
@@ -55,10 +59,10 @@ export function useScrub(
     const updateProgress = () => {
       rafId = 0;
 
+      if (!active) return;
+
       const nextProgress = calculateProgress();
 
-      // Avoid unnecessary React renders when progress
-      // has not meaningfully changed.
       if (
           Math.abs(nextProgress - previousProgress) >= 0.001 ||
           nextProgress === 0 ||
@@ -70,32 +74,68 @@ export function useScrub(
     };
 
     const scheduleUpdate = () => {
-      if (rafId !== 0) {
-        return;
-      }
+      if (!active || rafId !== 0) return;
 
       rafId = window.requestAnimationFrame(updateProgress);
     };
 
-    // Set the initial position immediately.
-    previousProgress = calculateProgress();
-    setP(previousProgress);
+    const disableScrubbing = () => {
+      active = false;
 
-    window.addEventListener("scroll", scheduleUpdate, {
-      passive: true,
-    });
-
-    window.addEventListener("resize", scheduleUpdate, {
-      passive: true,
-    });
-
-    return () => {
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
 
       if (rafId !== 0) {
         window.cancelAnimationFrame(rafId);
+        rafId = 0;
       }
+
+      previousProgress = -1;
+      setP(0);
+    };
+
+    const enableScrubbing = () => {
+      if (active || mediaQuery.matches) return;
+
+      active = true;
+      previousProgress = calculateProgress();
+      setP(previousProgress);
+
+      window.addEventListener("scroll", scheduleUpdate, {
+        passive: true,
+      });
+
+      window.addEventListener("resize", scheduleUpdate, {
+        passive: true,
+      });
+    };
+
+    const handleBreakpointChange = () => {
+      if (mediaQuery.matches) {
+        disableScrubbing();
+      } else {
+        enableScrubbing();
+      }
+    };
+
+    if (mediaQuery.matches) {
+      setP(0);
+    } else {
+      enableScrubbing();
+    }
+
+    mediaQuery.addEventListener(
+        "change",
+        handleBreakpointChange
+    );
+
+    return () => {
+      disableScrubbing();
+
+      mediaQuery.removeEventListener(
+          "change",
+          handleBreakpointChange
+      );
     };
   }, [mode]);
 
