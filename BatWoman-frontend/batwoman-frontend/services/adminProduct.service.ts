@@ -85,12 +85,11 @@ export async function getProducts(): Promise<AdminProduct[]> {
 }
 
 export async function getProductById(
-    id: string
-): Promise<ProductDetailResponse> {
-    const { data } =
-        await api.get<ProductDetailResponse>(
-            `/products/${id}`
-        );
+    productId: string
+): Promise<AdminProduct> {
+    const { data } = await api.get<AdminProduct>(
+        `/products/admin/${productId}`
+    );
 
     return data;
 }

@@ -29,6 +29,8 @@ public interface ProductService {
 
     ProductDetailResponse getProductById(UUID productId);
 
+    ProductDetailResponse getProductByIdForAdmin(UUID productId);
+
     ProductDetailResponse getProductBySlug(String slug);
 
     List<ProductCardResponse> getAllProducts();

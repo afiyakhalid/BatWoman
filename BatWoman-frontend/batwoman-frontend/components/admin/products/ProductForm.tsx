@@ -1201,14 +1201,46 @@ export default function ProductForm({
                                                         justify-between
                                                     "
                                                 >
-                                                    <h4
-                                                        className="
-                                                            font-medium
-                                                        "
-                                                    >
-                                                        Variant{" "}
-                                                        {index + 1}
-                                                    </h4>
+
+                                                    <div className="mb-4 flex items-center justify-between gap-3">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h4 className="font-medium">
+                                                                Variant {index + 1}
+                                                            </h4>
+
+                                                            <span
+                                                                className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                                                                    variant.active === false
+                                                                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                                                                        : "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                                                }`}
+                                                            >
+                                                                {variant.active === false ? "Inactive" : "Active"}
+                                                            </span>
+
+                                                            {variant.id && (
+                                                                <Button
+                                                                    type="button"
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    disabled={isSaving || isDiscontinuing}
+                                                                    onClick={() =>
+                                                                        updateVariant(
+                                                                            index,
+                                                                            "active",
+                                                                            variant.active === false
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {variant.active === false
+                                                                        ? "Activate"
+                                                                        : "Deactivate"}
+                                                                </Button>
+                                                            )}
+                                                        </div>
+
+                                                    </div>
+
 
                                                     {form.variants
                                                             .length >

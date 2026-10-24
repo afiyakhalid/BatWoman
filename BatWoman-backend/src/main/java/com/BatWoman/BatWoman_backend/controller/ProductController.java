@@ -188,4 +188,12 @@ public class ProductController {
                 mediaId
         );
     }
+    @GetMapping("/admin/{productId}")
+    public ResponseEntity<ProductDetailResponse> getProductByIdForAdmin(
+            @PathVariable UUID productId
+    ) {
+        return ResponseEntity.ok(
+                productService.getProductByIdForAdmin(productId)
+        );
+    }
 }

@@ -1050,6 +1050,16 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
+    @Override
+    public ProductDetailResponse getProductByIdForAdmin(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Product not found.")
+                );
+
+        return toProductDetailResponse(product, true);
+    }
+
 
     @Override
     public ProductDetailResponse getProductBySlug(
@@ -1232,50 +1242,41 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    private ProductDetailResponse toProductDetailResponse(
-            Product product) {
+    private ProductDetailResponse toProductDetailResponse(Product product) {
+        return toProductDetailResponse(product, false);
+    }
 
+    private ProductDetailResponse toProductDetailResponse(
+            Product product,
+            boolean includeInactiveVariants
+    ) {
         ProductDetailResponse baseResponse =
-                productMapper.toDetailResponse(
-                        product
-                );
+                productMapper.toDetailResponse(product);
 
         List<ProductVariant> variants =
-                productVariantRepository
-                        .findByProduct_IdAndActiveTrue(
-                                product.getId()
-                        );
+                includeInactiveVariants
+                        ? productVariantRepository.findByProduct_Id(product.getId())
+                        : productVariantRepository.findByProduct_IdAndActiveTrue(
+                        product.getId()
+                );
 
         List<ProductVariantResponse> variantResponses =
                 variants.stream()
-                        .map(
-                                this::toProductVariantResponse
-                        )
+                        .map(this::toProductVariantResponse)
                         .toList();
 
-        int availableQuantity =
-                variants.stream()
-                        .map(ProductVariant::getInventory)
-                        .filter(
-                                inventory ->
-                                        inventory != null
-                        )
-                        .mapToInt(
-                                inventory ->
-                                        inventory
-                                                .getAvailableQuantity()
-                        )
-                        .sum();
+        int availableQuantity = variants.stream()
+                .filter(variant -> Boolean.TRUE.equals(variant.getActive()))
+                .map(ProductVariant::getInventory)
+                .filter(inventory -> inventory != null)
+                .mapToInt(inventory -> inventory.getAvailableQuantity())
+                .sum();
 
         List<ProductMediaResponse> media =
                 productMediaRepository
-                        .findByProductOrderByDisplayOrderAsc(
-                                product
-                        )
+                        .findByProductOrderByDisplayOrderAsc(product)
                         .stream()
-                        .map(
-                                this::toProductMediaResponse
-                        )
+                        .map(this::toProductMediaResponse)
                         .toList();
 
         return new ProductDetailResponse(
@@ -1500,7 +1501,6 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception ignored) {
         }
     }
-
 
     @Override
     public void reorderProductMedia(
