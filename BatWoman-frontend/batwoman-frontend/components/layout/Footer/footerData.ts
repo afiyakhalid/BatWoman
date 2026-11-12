@@ -1,3 +1,4 @@
+
 export const shopLinks = [
   {
     title: "Products",
@@ -18,6 +19,21 @@ export const companyLinks = [
     title: "About Us",
     href: "/customer/about",
   },
+];
+
+export const supportLinks = [
+  {
+    title: "Contact",
+    href: "/customer/contact",
+  },
+  {
+    title: "Shipping Information",
+    href: "/customer/terms",
+  },
+  {
+    title: "No Returns Policy",
+    href: "/customer/terms",
+  },
   {
     title: "Privacy Policy",
     href: "/customer/privacy",
@@ -25,12 +41,5 @@ export const companyLinks = [
   {
     title: "Terms & Conditions",
     href: "/customer/terms",
-  },
-];
-
-export const supportLinks = [
-  {
-    title: "Contact",
-    href: "/customer/contact",
   },
 ];

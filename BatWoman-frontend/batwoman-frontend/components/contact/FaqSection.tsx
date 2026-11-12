@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -18,7 +19,7 @@ const faqs = [
     {
         question: "Can I return or exchange my order?",
         answer:
-            "Eligible products can be returned or exchanged according to our return policy. Please contact our support team if you need assistance.",
+            "We do not accept returns or exchanges. Please review the product description, sizing information and order details carefully before placing your order. If your order arrives damaged or incorrect, please contact our support team so the issue can be reviewed in accordance with applicable consumer laws.",
     },
     {
         question: "How can I track my order?",
@@ -28,14 +29,11 @@ const faqs = [
 ];
 
 export default function FaqSection() {
-
     const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
     return (
         <section className="bg-[#F8F6F2] py-28">
-
             <div className="mx-auto max-w-5xl px-6">
-
                 <p className="text-center text-sm uppercase tracking-[0.4em] text-neutral-400">
                     Frequently Asked Questions
                 </p>
@@ -50,29 +48,24 @@ export default function FaqSection() {
                 </p>
 
                 <div className="mt-16 space-y-5">
-
                     {faqs.map((faq, index) => {
-
                         const open = activeIndex === index;
 
                         return (
-
                             <div
                                 key={faq.question}
                                 className="rounded-2xl border border-neutral-200 bg-white"
                             >
-
                                 <button
+                                    type="button"
                                     onClick={() =>
                                         setActiveIndex(open ? null : index)
                                     }
+                                    aria-expanded={open}
                                     className="flex w-full items-center justify-between p-7 text-left"
                                 >
-
                                     <span className="text-lg font-medium">
-
                                         {faq.question}
-
                                     </span>
 
                                     <ChevronDown
@@ -81,13 +74,10 @@ export default function FaqSection() {
                                             open ? "rotate-180" : ""
                                         }`}
                                     />
-
                                 </button>
 
                                 <AnimatePresence>
-
                                     {open && (
-
                                         <motion.div
                                             initial={{
                                                 height: 0,
@@ -106,29 +96,17 @@ export default function FaqSection() {
                                             }}
                                             className="overflow-hidden"
                                         >
-
                                             <p className="px-7 pb-7 leading-8 text-neutral-600">
-
                                                 {faq.answer}
-
                                             </p>
-
                                         </motion.div>
-
                                     )}
-
                                 </AnimatePresence>
-
                             </div>
-
                         );
-
                     })}
-
                 </div>
-
             </div>
-
         </section>
     );
 }

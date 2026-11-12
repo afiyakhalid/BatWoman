@@ -130,7 +130,7 @@ export default function PrivacyPolicyPage() {
               <ul className="mt-4 list-disc space-y-2 pl-6">
                 <li>Creating, maintaining, and securing customer accounts.</li>
                 <li>Processing orders and confirming payments.</li>
-                <li>Arranging shipping, delivery, returns, and exchanges.</li>
+                <li>Arranging shipping, delivery, and resolving delivery-related issues.</li>
                 <li>Sending order confirmations and important service notifications.</li>
                 <li>Responding to customer enquiries and complaints.</li>
                 <li>Preventing fraud, misuse, and unauthorised transactions.</li>

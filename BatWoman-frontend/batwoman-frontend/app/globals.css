@@ -1,3 +1,4 @@
+
 @import "../styles/theme.css";
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -41,12 +42,12 @@ img {
   display: block;
 }
 
-
-/* Continuous Marquee Ticker Keyframes */
+/* Continuous Marquee Ticker */
 @keyframes marquee {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
@@ -60,20 +61,29 @@ img {
   .marquee-track {
     animation: none;
   }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @theme inline {
   --font-serif: var(--font-playfair), Georgia, serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
-  /* Authentic Khaite.com Quiet Luxury Palette */
+  /* Quiet Luxury Palette */
   --color-paper: #f7f5f0;
   --color-warm: #faf8f5;
   --color-ink: #000000;
   --color-charcoal: #1a1a1a;
   --color-taupe: #d3cbc0;
-  --color-ink-soft: #6b6660;
-  --color-ink-muted: #8f8a80;
+  --color-ink-soft: #59544e;
+  --color-ink-muted: #625d56;
   --color-line: #d3cbc0;
   --color-gold: #d4af37;
   --color-gold-light: #fdf8e8;
@@ -110,11 +120,13 @@ img {
   * {
     @apply border-border outline-ring/50;
   }
-   a {
-      color: inherit;
-      text-decoration: none;
-    }
-    button {
-      cursor: pointer;
-    }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
 }
