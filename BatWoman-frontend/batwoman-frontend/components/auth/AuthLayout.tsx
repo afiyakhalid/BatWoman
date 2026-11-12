@@ -28,7 +28,7 @@ export default function AuthLayout({
                     href="/"
                     className="mb-12 block text-center text-4xl tracking-[0.45em] font-light"
                 >
-                    BATWOMAN
+                    ZUBAYDA BY A3
                 </Link>
 
                 <h1 className="text-center text-4xl font-[var(--font-playfair)]">

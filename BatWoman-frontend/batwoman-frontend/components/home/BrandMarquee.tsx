@@ -12,7 +12,7 @@ const defaultPhrases = [
   "ELEGANCE IN EVERY LAYER",
   "HANDCRAFTED SILHOUETTES",
   "TIMELESS DRAPES",
-  "BATWOMAN ATELIER",
+  "ZUBAYDABYA3 ATELIER",
 ];
 
 export default function BrandMarquee({ phrases = defaultPhrases }: BrandMarqueeProps) {

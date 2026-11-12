@@ -11,7 +11,7 @@ export default function RegisterPage() {
 
             title="Create Account"
 
-            subtitle="Join BatWoman to start shopping."
+            subtitle="Join Zubayda By A3 to start shopping."
 
             footerText="Already have an account?"
 

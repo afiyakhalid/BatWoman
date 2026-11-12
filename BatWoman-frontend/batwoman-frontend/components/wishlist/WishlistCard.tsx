@@ -59,7 +59,7 @@ export default function WishlistCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center font-[var(--font-playfair)] italic text-neutral-400 text-sm">
-              BatWoman Studio
+              Zubayda By A3 Studio
             </div>
           )}
 
