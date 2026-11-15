@@ -14,6 +14,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import com.BatWoman.BatWoman_backend.config.ShiprocketConfig;
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateRequest;
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateResponse;
+import com.BatWoman.BatWoman_backend.entity.Address;
+import com.BatWoman.BatWoman_backend.entity.Cart;
+import com.BatWoman.BatWoman_backend.entity.CartItem;
+import com.BatWoman.BatWoman_backend.entity.Product;
+import com.BatWoman.BatWoman_backend.entity.ProductVariant;
+import com.BatWoman.BatWoman_backend.entity.User;
+import com.BatWoman.BatWoman_backend.repository.AddressRepository;
+import com.BatWoman.BatWoman_backend.service.AuthService;
+import com.BatWoman.BatWoman_backend.service.CartService;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 import java.util.UUID;
 @Slf4j
@@ -27,6 +42,13 @@ public class ShippingServiceImpl implements ShippingService {
     private final OrderRepository orderRepository;
 
     private final ShippingProviderClient shippingProviderClient;
+    private final AddressRepository addressRepository;
+    private final AuthService authService;
+    private final CartService cartService;
+    private final ShiprocketConfig shiprocketConfig;
+
+    private static final BigDecimal DEFAULT_PACKAGE_WEIGHT =
+            new BigDecimal("0.5");
 
 //    @Override
 //    public ShipmentResponse createShipment(
@@ -71,6 +93,119 @@ public class ShippingServiceImpl implements ShippingService {
 //
 //        return toResponse(shipment);
 //    }
+@Override
+@Transactional(readOnly = true)
+public ShippingRateResponse getShippingRates(
+        UUID addressId,
+        boolean cod
+) {
+
+    // =========================================================
+    // 1. GET AUTHENTICATED CUSTOMER
+    // =========================================================
+
+    User currentUser = authService.getCurrentUser();
+
+    // =========================================================
+    // 2. GET CUSTOMER'S SELECTED ADDRESS
+    // =========================================================
+
+    Address address = addressRepository
+            .findByIdAndUser(addressId, currentUser)
+            .orElseThrow(() ->
+                    new EntityNotFoundException(
+                            "Delivery address not found."
+                    )
+            );
+
+    String deliveryPostcode = address.getPostalCode();
+
+    if (deliveryPostcode == null || deliveryPostcode.isBlank()) {
+        throw new IllegalStateException(
+                "Delivery address does not contain a valid pincode."
+        );
+    }
+
+    // =========================================================
+    // 3. GET PICKUP PINCODE FROM CONFIGURATION
+    // =========================================================
+
+    String pickupPostcode = shiprocketConfig.getPickupPostcode();
+
+    if (pickupPostcode == null || pickupPostcode.isBlank()) {
+        throw new IllegalStateException(
+                "Shiprocket pickup pincode has not been configured."
+        );
+    }
+
+    // =========================================================
+    // 4. GET CUSTOMER CART
+    // =========================================================
+
+    Cart cart = cartService.getCurrentCart();
+
+    List<CartItem> cartItems = cart.getCartItems();
+
+    if (cartItems == null || cartItems.isEmpty()) {
+        throw new IllegalStateException(
+                "Cannot calculate shipping for an empty cart."
+        );
+    }
+
+    // =========================================================
+    // 5. CALCULATE DECLARED SHIPMENT VALUE
+    // =========================================================
+
+    BigDecimal declaredValue = BigDecimal.ZERO;
+
+    for (CartItem cartItem : cartItems) {
+
+        ProductVariant variant = cartItem.getVariant();
+
+        if (variant == null || variant.getProduct() == null) {
+            throw new IllegalStateException(
+                    "Cart contains an invalid product variant."
+            );
+        }
+
+        Product product = variant.getProduct();
+
+        BigDecimal sellingPrice =
+                product.getDiscountPrice() != null
+                        ? product.getDiscountPrice()
+                        : product.getPrice();
+
+        if (sellingPrice == null || sellingPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException(
+                    "Invalid product price found in cart."
+            );
+        }
+
+        BigDecimal itemValue = sellingPrice.multiply(
+                BigDecimal.valueOf(cartItem.getQuantity())
+        );
+
+        declaredValue = declaredValue.add(itemValue);
+    }
+
+    // =========================================================
+    // 6. BUILD SHIPROCKET RATE REQUEST
+    // =========================================================
+
+    ShippingRateRequest request = new ShippingRateRequest(
+            pickupPostcode,
+            deliveryPostcode,
+            DEFAULT_PACKAGE_WEIGHT,
+            cod,
+            declaredValue
+    );
+
+    // =========================================================
+    // 7. FETCH AVAILABLE COURIERS FROM SHIPROCKET
+    // =========================================================
+
+    return shippingProviderClient.getShippingRates(request);
+}
 @Override
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public ShipmentResponse createShipment(

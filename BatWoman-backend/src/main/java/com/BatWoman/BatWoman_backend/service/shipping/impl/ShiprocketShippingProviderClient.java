@@ -419,7 +419,9 @@
 //    }
 //}
 package com.BatWoman.BatWoman_backend.service.shipping.impl;
-
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateRequest;
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.BatWoman.BatWoman_backend.config.ShiprocketConfig;
 import com.BatWoman.BatWoman_backend.entity.Address;
 import com.BatWoman.BatWoman_backend.entity.Order;
@@ -465,7 +467,98 @@ public class ShiprocketShippingProviderClient implements ShippingProviderClient 
     // =========================================================
     // CREATE SHIPMENT
     // =========================================================
+    @Override
+    public ShippingRateResponse getShippingRates(ShippingRateRequest request) {
 
+        if (request == null) {
+            throw new IllegalArgumentException("Shipping rate request cannot be null.");
+        }
+
+        if (request.pickupPostcode() == null || request.pickupPostcode().isBlank()
+                || request.deliveryPostcode() == null || request.deliveryPostcode().isBlank()
+                || request.weight() == null || request.weight().compareTo(BigDecimal.ZERO) <= 0
+                || request.declaredValue() == null || request.declaredValue().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Invalid shipping rate request parameters.");
+        }
+
+        String token = authenticationService.getAccessToken();
+
+        String url = UriComponentsBuilder
+                .fromUriString(BASE_URL + "/courier/serviceability/")
+                .queryParam("pickup_postcode", request.pickupPostcode())
+                .queryParam("delivery_postcode", request.deliveryPostcode())
+                .queryParam("weight", request.weight())
+                .queryParam("cod", request.cod() ? 1 : 0)
+                .queryParam("declared_value", request.declaredValue())
+                .toUriString();
+
+        HttpHeaders headers = createHeaders(token);
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                MAP_TYPE
+        );
+
+        Map<String, Object> response = responseEntity.getBody();
+
+        if (response == null) {
+            throw new IllegalStateException("Shiprocket returned an empty shipping rate response.");
+        }
+
+        Object dataObject = response.get("data");
+
+        if (!(dataObject instanceof Map<?, ?> data)) {
+            throw new IllegalStateException("Invalid Shiprocket serviceability response: " + response);
+        }
+
+        Object couriersObject = data.get("available_courier_companies");
+
+        if (!(couriersObject instanceof List<?> couriers)) {
+            throw new IllegalStateException("Shiprocket response does not contain available courier companies.");
+        }
+
+        List<ShippingRateResponse.CourierOption> availableCouriers = new ArrayList<>();
+
+        for (Object courierObject : couriers) {
+
+            if (!(courierObject instanceof Map<?, ?> courier)) {
+                continue;
+            }
+
+            availableCouriers.add(
+                    new ShippingRateResponse.CourierOption(
+                            courier.get("courier_company_id") instanceof Number id
+                                    ? id.intValue() : null,
+
+                            courier.get("courier_name") != null
+                                    ? courier.get("courier_name").toString() : null,
+
+                            courier.get("rate") instanceof Number rate
+                                    ? new BigDecimal(rate.toString()) : null,
+
+                            courier.get("estimated_delivery_days") != null
+                                    ? courier.get("estimated_delivery_days").toString() : null,
+
+                            courier.get("etd") != null
+                                    ? courier.get("etd").toString() : null,
+
+                            courier.get("rating") instanceof Number rating
+                                    ? new BigDecimal(rating.toString()) : null
+                    )
+            );
+        }
+
+        log.info(
+                "Retrieved {} available Shiprocket couriers for delivery pincode {}",
+                availableCouriers.size(),
+                request.deliveryPostcode()
+        );
+
+        return new ShippingRateResponse(availableCouriers);
+    }
     @Override
     public void createShipment(Order order, Shipment shipment) {
 

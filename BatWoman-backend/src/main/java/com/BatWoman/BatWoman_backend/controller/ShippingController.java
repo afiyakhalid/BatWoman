@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateResponse;
 
 @RestController
 @RequestMapping("/api/v1/shipping")
@@ -137,7 +138,20 @@ public class ShippingController {
     // =========================================================
     // GET TRACKING BY AWB / TRACKING NUMBER
     // =========================================================
+// =========================================================
+// GET LIVE SHIPPING RATES
+// =========================================================
 
+    @GetMapping("/rates")
+    public ResponseEntity<ShippingRateResponse> getShippingRates(
+            @RequestParam UUID addressId,
+            @RequestParam(defaultValue = "false") boolean cod
+    ) {
+        ShippingRateResponse response =
+                shippingService.getShippingRates(addressId, cod);
+
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/tracking/{trackingNumber}")
     public ResponseEntity<TrackingResponse> getTrackingByNumber(
             @PathVariable String trackingNumber
@@ -149,4 +163,5 @@ public class ShippingController {
                 )
         );
     }
+
 }

@@ -1,4 +1,20 @@
+
 package com.BatWoman.BatWoman_backend.dto.shipping;
 
-public class ShippingRateRequest {
+import java.math.BigDecimal;
+
+public record ShippingRateRequest(
+
+        String pickupPostcode,
+
+        String deliveryPostcode,
+
+        BigDecimal weight,
+
+        boolean cod,
+
+        BigDecimal declaredValue
+
+) {
 }
+

@@ -2,6 +2,7 @@ package com.BatWoman.BatWoman_backend.service;
 
 import com.BatWoman.BatWoman_backend.dto.shipping.CreateShipmentRequest;
 import com.BatWoman.BatWoman_backend.dto.shipping.ShipmentResponse;
+import com.BatWoman.BatWoman_backend.dto.shipping.ShippingRateResponse;
 
 import java.util.UUID;
 
@@ -16,5 +17,10 @@ public interface ShippingService {
     ShipmentResponse updateShipmentStatus(
             UUID shipmentId,
             String status
+    );
+
+    ShippingRateResponse getShippingRates(
+            UUID addressId,
+            boolean cod
     );
 }
