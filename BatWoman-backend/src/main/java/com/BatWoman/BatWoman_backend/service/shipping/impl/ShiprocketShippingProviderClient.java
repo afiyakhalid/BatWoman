@@ -759,9 +759,22 @@ public class ShiprocketShippingProviderClient implements ShippingProviderClient 
 
     private void assignAwb(String token, Shipment shipment, Object shiprocketShipmentId) {
 
-        Map<String, Object> payload = Map.of("shipment_id", shiprocketShipmentId);
+        if (shipment.getCourierCompanyId() == null) {
+            throw new IllegalStateException(
+                    "Cannot assign AWB: selected courier ID is missing from the shipment."
+            );
+        }
 
-        log.info("Assigning courier/AWB for Shiprocket shipment {}", shiprocketShipmentId);
+        Map<String, Object> payload = Map.of(
+                "shipment_id", shiprocketShipmentId,
+                "courier_id", shipment.getCourierCompanyId()
+        );
+
+        log.info(
+                "Assigning selected courier {} for Shiprocket shipment {}",
+                shipment.getCourierCompanyId(),
+                shiprocketShipmentId
+        );
 
         HttpHeaders headers = createHeaders(token);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(payload, headers);

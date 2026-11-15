@@ -224,6 +224,11 @@ public ShipmentResponse createShipment(
                 "A shipment already exists for this order."
         );
     }
+    if (order.getCourierCompanyId() == null) {
+        throw new IllegalStateException(
+                "Cannot create shipment: selected courier is missing from the order."
+        );
+    }
 
     // =========================================================
     // 1. CREATE AND SAVE LOCAL SHIPMENT
@@ -232,6 +237,7 @@ public ShipmentResponse createShipment(
     Shipment shipment = Shipment.builder()
             .order(order)
             .status(ShipmentStatus.PROCESSING)
+            .courierCompanyId(order.getCourierCompanyId())
             .build();
 
     shipment = shipmentRepository.saveAndFlush(shipment);

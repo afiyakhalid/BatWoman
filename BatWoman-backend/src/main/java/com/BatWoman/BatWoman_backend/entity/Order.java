@@ -82,6 +82,12 @@ public class Order {
     // Additional Information
     // ==========================================
 
+    @Column(name = "courier_company_id")
+    private Integer courierCompanyId;
+
+    @Column(name = "courier_name", length = 150)
+    private String courierName;
+
     @Column(name = "notes")
     private String notes;
 

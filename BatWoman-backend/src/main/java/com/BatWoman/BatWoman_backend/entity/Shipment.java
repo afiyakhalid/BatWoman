@@ -70,6 +70,8 @@ public class Shipment {
 
     @Column(name = "expected_delivery")
     private OffsetDateTime expectedDelivery;
+    @Column(name = "courier_company_id")
+    private Integer courierCompanyId;
 
     @Column(name = "shipped_at")
     private OffsetDateTime shippedAt;
