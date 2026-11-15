@@ -39,6 +39,20 @@ spring:
           google:
             user-name-attribute: sub
 
+brevo:
+  mail:
+    host: ${BREVO_MAIL_HOST}
+    port: ${BREVO_MAIL_PORT:587}
+    username: ${BREVO_MAIL_USERNAME}
+    password: ${BREVO_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 razorpay:
   key-id: ${RAZORPAY_KEY_ID}
   key-secret: ${RAZORPAY_KEY_SECRET}
