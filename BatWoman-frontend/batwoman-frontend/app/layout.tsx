@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-    title: "ZubaidabyA3",
+    title: "ZubaydabyA3",
     description: "Luxury abayas, curated for elegance.",
 };
 

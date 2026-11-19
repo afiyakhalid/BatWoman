@@ -10,6 +10,7 @@ import com.BatWoman.BatWoman_backend.mapper.CategoryMapper;
 import com.BatWoman.BatWoman_backend.repository.CategoryRepository;
 import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.service.CategoryService;
+import com.BatWoman.BatWoman_backend.service.media.MediaStorageService;
 import com.BatWoman.BatWoman_backend.util.SlugUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final ProductRepository productRepository;
+    private final MediaStorageService mediaStorageService;
 
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest request) {
@@ -53,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category savedCategory = categoryRepository.save(category);
 
-        return categoryMapper.toResponse(savedCategory);
+        return toResponse(savedCategory);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category updatedCategory = categoryRepository.save(category);
 
-        return categoryMapper.toResponse(updatedCategory);
+        return toResponse(updatedCategory);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category not found."));
 
-        return categoryMapper.toResponse(category);
+        return toResponse(category);
     }
 
     @Override
@@ -122,7 +124,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category not found."));
 
-        return categoryMapper.toResponse(category);
+        return toResponse(category);
     }
 
     @Override
@@ -130,8 +132,23 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryRepository.findByActiveTrueOrderByDisplayOrderAsc()
                 .stream()
-                .map(categoryMapper::toResponse)
+                .map(this::toResponse)
                 .toList();
+    }
+
+
+    private CategoryResponse toResponse(Category category) {
+        String imageUrl = mediaStorageService.getPublicUrl(category.getImageObjectKey());
+
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getSlug(),
+                category.getDescription(),
+                imageUrl,
+                category.getDisplayOrder(),
+                category.getActive()
+        );
     }
 
 }

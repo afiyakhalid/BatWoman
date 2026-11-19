@@ -9,8 +9,8 @@ import com.BatWoman.BatWoman_backend.repository.ProductRepository;
 import com.BatWoman.BatWoman_backend.repository.UserRepository;
 import com.BatWoman.BatWoman_backend.repository.WishlistRepository;
 import com.BatWoman.BatWoman_backend.security.UserPrincipal;
-import com.BatWoman.BatWoman_backend.service.S3Service;
 import com.BatWoman.BatWoman_backend.service.WishlistService;
+import com.BatWoman.BatWoman_backend.service.media.MediaStorageService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -30,7 +30,7 @@ public class WishlistServiceImpl implements WishlistService {
     private final WishlistRepository wishlistRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Service;
+    private final MediaStorageService mediaStorageService;
 
     @Override
     @Transactional(readOnly = true)
@@ -133,7 +133,7 @@ public class WishlistServiceImpl implements WishlistService {
             ProductMedia media) {
 
         String mediaUrl =
-                s3Service.generatePresignedUrl(
+                mediaStorageService.getPublicUrl(
                         media.getObjectKey()
                 );
 

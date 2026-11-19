@@ -110,6 +110,8 @@ public class SecurityConfig {
                 // Route Authorization
                 .authorizeHttpRequests(auth -> auth
 
+                                .requestMatchers("/media/**").permitAll()
+
                                 // Public Authentication APIs
                                 .requestMatchers(
                                         "/api/v1/auth/register",
@@ -142,6 +144,26 @@ public class SecurityConfig {
                                 ).hasRole("ADMIN")
 
 
+                                // Product administration - Admin Only
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/v1/products/admin",
+                                        "/api/v1/products/admin/**"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.POST,
+                                        "/api/v1/products/*/media"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.PATCH,
+                                        "/api/v1/products/*/media/*",
+                                        "/api/v1/products/*/media/*/primary",
+                                        "/api/v1/products/*/media/reorder"
+                                ).hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.DELETE,
+                                        "/api/v1/products/*/media/*"
+                                ).hasRole("ADMIN")
+
                                 // Products - Public Read
                                 .requestMatchers(HttpMethod.GET,
                                         "/api/v1/products/**"
@@ -151,11 +173,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST,
                                         "/api/v1/products/search"
                                 ).permitAll()
-
-// Product Image Upload - Admin
-                                .requestMatchers(HttpMethod.POST,
-                                        "/api/v1/products/*/images"
-                                ).hasRole("ADMIN")
 
 // Product CRUD - Admin
                                 .requestMatchers(HttpMethod.POST,

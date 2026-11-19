@@ -34,3 +34,5 @@ build/
 src/main/resources/application-dev.yml
 
 docker-dev.env
+# Uploaded product/category media (persisted outside source control)
+/storage/

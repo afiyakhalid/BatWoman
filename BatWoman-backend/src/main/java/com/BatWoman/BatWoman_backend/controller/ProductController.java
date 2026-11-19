@@ -160,19 +160,6 @@ public class ProductController {
             @PathVariable UUID productId,
             @RequestPart("files") List<MultipartFile> files) {
 
-        System.out.println("========== UPLOAD CONTROLLER HIT ==========");
-        System.out.println("Product ID: " + productId);
-        System.out.println("Number of files: " + files.size());
-
-        for (MultipartFile file : files) {
-            System.out.println(
-                    "FILE -> name=" + file.getOriginalFilename()
-                            + ", contentType=" + file.getContentType()
-                            + ", size=" + file.getSize()
-                            + ", empty=" + file.isEmpty()
-            );
-        }
-
         productService.uploadProductFiles(productId, files);
 
         return ResponseEntity.ok().build();

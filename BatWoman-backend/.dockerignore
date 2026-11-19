@@ -13,3 +13,4 @@ docker-dev.env
 .env
 .env.*
 !.env.example
+storage/

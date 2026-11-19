@@ -42,7 +42,7 @@ export default function TopNavbar({
 
                 <div className="min-w-0">
                     <p className="mb-1 hidden text-[9px] font-medium uppercase tracking-[0.22em] text-[#A09484] sm:block">
-                        Zubaida By A3
+                        Zubayda By A3
                     </p>
 
                     <h1 className="truncate font-[var(--font-playfair)] text-xl text-[#34291E] sm:text-2xl lg:text-3xl">

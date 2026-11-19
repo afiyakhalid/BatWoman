@@ -32,13 +32,14 @@ import com.BatWoman.BatWoman_backend.repository.ReviewRepository;
 import com.BatWoman.BatWoman_backend.repository.SizeRepository;
 import com.BatWoman.BatWoman_backend.repository.WishlistRepository;
 import com.BatWoman.BatWoman_backend.service.ProductService;
-import com.BatWoman.BatWoman_backend.service.S3Service;
-import com.BatWoman.BatWoman_backend.service.S3UploadResult;
+import com.BatWoman.BatWoman_backend.service.media.MediaStorageService;
+import com.BatWoman.BatWoman_backend.service.media.MediaUploadResult;
 import com.BatWoman.BatWoman_backend.service.media.MediaTypeDetector;
 import com.BatWoman.BatWoman_backend.service.media.MediaValidator;
 import com.BatWoman.BatWoman_backend.specification.ProductSpecification;
 import com.BatWoman.BatWoman_backend.util.SlugUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -61,6 +62,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
@@ -84,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final MediaTypeDetector mediaTypeDetector;
 
-    private final S3Service s3Service;
+    private final MediaStorageService mediaStorageService;
 
     /*
      * These repositories are used specifically when a product is
@@ -915,7 +917,7 @@ public class ProductServiceImpl implements ProductService {
                         );
 
         /*
-         * Capture S3 keys BEFORE deleting the database record.
+         * Capture media object keys BEFORE deleting the database record.
          */
         List<ProductMedia> mediaList =
                 productMediaRepository.findByProduct(
@@ -982,50 +984,13 @@ public class ProductServiceImpl implements ProductService {
         productRepository.flush();
 
         /*
-         * Delete S3 objects only after the database transaction
+         * Delete local media files only after the database transaction
          * has successfully committed.
          */
-        if (
-                !objectKeys.isEmpty()
-                        &&
-                        TransactionSynchronizationManager
-                                .isSynchronizationActive()
-        ) {
-
-            TransactionSynchronizationManager
-                    .registerSynchronization(
-                            new TransactionSynchronization() {
-
-                                @Override
-                                public void afterCommit() {
-
-                                    for (
-                                            String objectKey
-                                            : objectKeys
-                                    ) {
-
-                                        try {
-
-                                            s3Service.deleteFile(
-                                                    objectKey
-                                            );
-
-                                        } catch (Exception e) {
-
-                                            System.err.println(
-                                                    "Failed to delete S3 object after product deletion: "
-                                                            + objectKey
-                                            );
-
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                            }
-                    );
+        for (String objectKey : objectKeys) {
+            deleteMediaAfterCommit(objectKey, "media for deleted product");
         }
     }
-
 
     // ============================================================
     // Get Product
@@ -1383,7 +1348,7 @@ public class ProductServiceImpl implements ProductService {
             ProductMedia media) {
 
         String mediaUrl =
-                s3Service.generatePresignedUrl(
+                mediaStorageService.getPublicUrl(
                         media.getObjectKey()
                 );
 
@@ -1451,8 +1416,8 @@ public class ProductServiceImpl implements ProductService {
                         ? "products/" + productId + "/images"
                         : "products/" + productId + "/videos";
 
-        S3UploadResult upload =
-                s3Service.uploadFile(
+        MediaUploadResult upload =
+                mediaStorageService.uploadFile(
                         file,
                         folder
                 );
@@ -1476,11 +1441,12 @@ public class ProductServiceImpl implements ProductService {
             productMediaRepository.saveAndFlush(
                     media
             );
+            deleteMediaOnRollback(newObjectKey, "replacement media");
 
         } catch (Exception e) {
 
             try {
-                s3Service.deleteFile(
+                mediaStorageService.deleteFile(
                         newObjectKey
                 );
             } catch (Exception ignored) {
@@ -1492,14 +1458,7 @@ public class ProductServiceImpl implements ProductService {
             );
         }
 
-        try {
-
-            s3Service.deleteFile(
-                    oldObjectKey
-            );
-
-        } catch (Exception ignored) {
-        }
+        deleteMediaAfterCommit(oldObjectKey, "replaced product media");
     }
 
     @Override
@@ -1645,44 +1604,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        /*
-         * Delete S3 object only after successful commit.
-         */
-        if (
-                objectKey != null
-                        &&
-                        !objectKey.isBlank()
-                        &&
-                        TransactionSynchronizationManager
-                                .isSynchronizationActive()
-        ) {
-
-            TransactionSynchronizationManager
-                    .registerSynchronization(
-                            new TransactionSynchronization() {
-
-                                @Override
-                                public void afterCommit() {
-
-                                    try {
-
-                                        s3Service.deleteFile(
-                                                objectKey
-                                        );
-
-                                    } catch (Exception e) {
-
-                                        System.err.println(
-                                                "Failed to delete S3 media object: "
-                                                        + objectKey
-                                        );
-
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                    );
-        }
+        deleteMediaAfterCommit(objectKey, "deleted product media");
     }
 
 
@@ -1750,238 +1672,114 @@ public class ProductServiceImpl implements ProductService {
             UUID productId,
             List<MultipartFile> files) {
 
-        System.out.println(
-                "========== PRODUCT MEDIA SERVICE =========="
-        );
+        if (files == null || files.isEmpty()) {
+            throw new ValidationException("At least one media file is required.");
+        }
 
-        System.out.println(
-                "Product ID: " + productId
-        );
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found."));
 
-        System.out.println(
-                "Files received: " + files.size()
-        );
+        int displayOrder = (int) productMediaRepository.countByProduct(product) + 1;
+        boolean hasPrimaryMedia = productMediaRepository
+                .findByProductAndPrimaryMediaTrue(product)
+                .isPresent();
 
-        Product product =
-                productRepository.findById(productId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Product not found."
-                                )
-                        );
-
-        int displayOrder =
-                (int) productMediaRepository
-                        .countByProduct(product)
-                        + 1;
-
-        boolean hasPrimaryMedia =
-                productMediaRepository
-                        .findByProductAndPrimaryMediaTrue(
-                                product
-                        )
-                        .isPresent();
-
-        List<String> uploadedObjectKeys =
-                new ArrayList<>();
+        List<String> uploadedObjectKeys = new ArrayList<>();
 
         try {
-
-            for (
-                    MultipartFile file
-                    : files
-            ) {
-
-                System.out.println(
-                        "----------------------------------------"
-                );
-
-                System.out.println(
-                        "Processing file: "
-                                + file.getOriginalFilename()
-                );
-
-                System.out.println(
-                        "Content type: "
-                                + file.getContentType()
-                );
-
-                System.out.println(
-                        "Size: "
-                                + file.getSize()
-                );
-
-                // 1. Validate
-
-                System.out.println(
-                        "STEP 1: Validating file..."
-                );
-
+            for (MultipartFile file : files) {
                 mediaValidator.validate(file);
+                MediaType mediaType = mediaTypeDetector.detect(file);
 
-                System.out.println(
-                        "STEP 1 SUCCESS"
-                );
+                String folder = mediaType == MediaType.IMAGE
+                        ? "products/" + productId + "/images"
+                        : "products/" + productId + "/videos";
 
-                // 2. Detect media type
+                MediaUploadResult upload = mediaStorageService.uploadFile(file, folder);
+                String objectKey = upload.objectKey();
+                uploadedObjectKeys.add(objectKey);
 
-                System.out.println(
-                        "STEP 2: Detecting media type..."
-                );
+                ProductMedia media = ProductMedia.builder()
+                        .id(UUID.randomUUID())
+                        .product(product)
+                        .mediaType(mediaType)
+                        .objectKey(objectKey)
+                        .mediaUrl(upload.mediaUrl())
+                        .altText(product.getName())
+                        .primaryMedia(!hasPrimaryMedia)
+                        .displayOrder(displayOrder++)
+                        .createdAt(OffsetDateTime.now())
+                        .build();
 
-                MediaType mediaType =
-                        mediaTypeDetector.detect(file);
-
-                System.out.println(
-                        "STEP 2 SUCCESS -> "
-                                + mediaType
-                );
-
-                // 3. Determine S3 folder
-
-                String folder =
-                        mediaType == MediaType.IMAGE
-                                ? "products/"
-                                  + productId
-                                  + "/images"
-                                : "products/"
-                                  + productId
-                                  + "/videos";
-
-                System.out.println(
-                        "STEP 3: S3 folder = "
-                                + folder
-                );
-
-                // 4. Upload
-
-                System.out.println(
-                        "STEP 4: Uploading to S3..."
-                );
-
-                S3UploadResult upload =
-                        s3Service.uploadFile(
-                                file,
-                                folder
-                        );
-
-                System.out.println(
-                        "STEP 4 SUCCESS"
-                );
-
-                String objectKey =
-                        upload.objectKey();
-
-                String mediaUrl =
-                        upload.mediaUrl();
-
-                System.out.println(
-                        "S3 object key = "
-                                + objectKey
-                );
-
-                System.out.println(
-                        "S3 media URL = "
-                                + mediaUrl
-                );
-
-                uploadedObjectKeys.add(
-                        objectKey
-                );
-
-                // 5. Save database record
-
-                System.out.println(
-                        "STEP 5: Saving product_media..."
-                );
-
-                ProductMedia media =
-                        ProductMedia.builder()
-                                .id(UUID.randomUUID())
-                                .product(product)
-                                .mediaType(mediaType)
-                                .objectKey(objectKey)
-                                .mediaUrl(mediaUrl)
-                                .altText(product.getName())
-                                .primaryMedia(
-                                        !hasPrimaryMedia
-                                )
-                                .displayOrder(
-                                        displayOrder++
-                                )
-                                .createdAt(
-                                        OffsetDateTime.now()
-                                )
-                                .build();
-
-                productMediaRepository.save(
-                        media
-                );
-
-                System.out.println(
-                        "STEP 5 SUCCESS"
-                );
-
+                productMediaRepository.save(media);
                 hasPrimaryMedia = true;
             }
 
-            System.out.println(
-                    "========== MEDIA UPLOAD SUCCESS =========="
-            );
-
-        } catch (Exception e) {
-
-            System.err.println(
-                    "========== MEDIA UPLOAD FAILED =========="
-            );
-
-            System.err.println(
-                    "Product ID: " + productId
-            );
-
-            System.err.println(
-                    "ERROR TYPE: "
-                            + e.getClass().getName()
-            );
-
-            System.err.println(
-                    "ERROR MESSAGE: "
-                            + e.getMessage()
-            );
-
-            e.printStackTrace();
-
-            for (
-                    String objectKey
-                    : uploadedObjectKeys
-            ) {
-
+            productMediaRepository.flush();
+            for (String objectKey : uploadedObjectKeys) {
+                deleteMediaOnRollback(objectKey, "uploaded product media");
+            }
+        } catch (Exception exception) {
+            for (String objectKey : uploadedObjectKeys) {
                 try {
-
-                    System.out.println(
-                            "Cleaning up S3 object: "
-                                    + objectKey
-                    );
-
-                    s3Service.deleteFile(
-                            objectKey
-                    );
-
+                    mediaStorageService.deleteFile(objectKey);
                 } catch (Exception cleanupException) {
-
-                    System.err.println(
-                            "Failed to cleanup S3 object: "
-                                    + objectKey
-                    );
-
-                    cleanupException.printStackTrace();
+                    log.error("Failed to clean up uploaded media file {}", objectKey, cleanupException);
                 }
             }
 
-            throw new RuntimeException(
-                    "Failed to upload product media.",
-                    e
-            );
+            log.error("Product media upload failed for product {}", productId, exception);
+            throw new IllegalStateException("Failed to upload product media.", exception);
         }
+    }
+
+    private void deleteMediaAfterCommit(String objectKey, String description) {
+        if (objectKey == null || objectKey.isBlank()) {
+            return;
+        }
+
+        Runnable deleteOperation = () -> {
+            try {
+                mediaStorageService.deleteFile(objectKey);
+            } catch (Exception exception) {
+                log.error("Failed to delete {} with key {}", description, objectKey, exception);
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            deleteOperation.run();
+                        }
+                    }
+            );
+        } else {
+            deleteOperation.run();
+        }
+    }
+
+    private void deleteMediaOnRollback(String objectKey, String description) {
+        if (objectKey == null || objectKey.isBlank()
+                || !TransactionSynchronizationManager.isSynchronizationActive()) {
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCompletion(int status) {
+                        if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                            try {
+                                mediaStorageService.deleteFile(objectKey);
+                            } catch (Exception exception) {
+                                log.error("Failed to clean up {} after transaction rollback: {}",
+                                        description, objectKey, exception);
+                            }
+                        }
+                    }
+                }
+        );
     }
 }

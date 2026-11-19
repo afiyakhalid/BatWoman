@@ -18,7 +18,7 @@ import com.BatWoman.BatWoman_backend.repository.ProductMediaRepository;
 import com.BatWoman.BatWoman_backend.repository.ProductVariantRepository;
 import com.BatWoman.BatWoman_backend.service.AuthService;
 import com.BatWoman.BatWoman_backend.service.CartService;
-import com.BatWoman.BatWoman_backend.service.S3Service;
+import com.BatWoman.BatWoman_backend.service.media.MediaStorageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class CartServiceImpl implements CartService {
 
     private final AuthService authService;
 
-    private final S3Service s3Service;
+    private final MediaStorageService mediaStorageService;
 
 
     private Cart getOrCreateCart() {
@@ -109,7 +109,7 @@ public class CartServiceImpl implements CartService {
 
             String mediaUrl =
                     media != null
-                            ? s3Service.generatePresignedUrl(
+                            ? mediaStorageService.getPublicUrl(
                             media.getObjectKey()
                     )
                             : null;
